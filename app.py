@@ -319,18 +319,26 @@ def handle_csrf_error(e):
     return render_template('errors/csrf.html'), 400
 
 if __name__ == '__main__':
-    # Get environment configuration
-    env = os.environ.get('FLASK_ENV', 'production')
+    env = os.environ.get('FLASK_ENV', 'development')
     host = os.environ.get('FLASK_HOST', '0.0.0.0')
     port = int(os.environ.get('FLASK_PORT', 7771))
     
-    # Ensure indexes
-    mongo.db.users.create_index('team_name', unique=True)
+    # Database initialization and cleanup
+    try:
+        # Drop existing index if it exists
+        mongo.db.users.drop_index('team_name_1')
+    except:
+        pass  # Index might not exist
+    
+    # Remove documents with null team_names
+    mongo.db.users.delete_many({'team_name': None})
+    
+    # Create new unique index
+    mongo.db.users.create_index('team_name', unique=True, sparse=True)
     
     # Production configurations
     if env == 'production':
-        from waitress import serve
-        serve(app, host=host, port=port)
-    else:
-        # Development configurations
-        app.run(host=host, port=port, debug=True)
+        app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['REMEMBER_COOKIE_SECURE'] = True
+    
+    app.run(host=host, port=port, debug=env == 'development')
