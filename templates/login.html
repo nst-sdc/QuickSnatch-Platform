@@ -1,27 +1,108 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    /* Input field styles */
+    .form-control, .form-select {
+        background-color: rgba(30, 30, 30, 0.95) !important;
+        border: 1px solid #33ff33 !important;
+        color: #ffffff !important;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(40, 40, 40, 0.95) !important;
+        box-shadow: 0 0 0 0.25rem rgba(51, 255, 51, 0.25) !important;
+        border-color: #33ff33 !important;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    /* Label styles */
+    .form-label {
+        color: #33ff33 !important;
+        font-weight: 500;
+    }
+
+    /* Card styles */
+    .card {
+        background-color: rgba(20, 20, 20, 0.95) !important;
+        border: 1px solid #33ff33 !important;
+    }
+
+    .card-header {
+        background-color: rgba(30, 30, 30, 0.95) !important;
+        border-bottom: 1px solid #33ff33 !important;
+    }
+
+    /* Section Header Styles */
+    .card-header h4 {
+        color: #ffcc00 !important;
+    }
+
+    /* Button styles */
+    .btn-outline-secondary {
+        border-color: #33ff33 !important;
+        color: #33ff33 !important;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #33ff33 !important;
+        color: #000000 !important;
+    }
+</style>
+
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="challenge-card">
-            <h2 class="text-center mb-4">Login</h2>
+            <h2 class="text-center mb-4"><i class="fas fa-sign-in-alt"></i> Team Login</h2>
             <form method="POST">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control bg-dark text-light" id="username" name="username" required>
+                <div class="card bg-dark mb-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-users"></i> Team Credentials</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="team_name" class="form-label">Team Name</label>
+                            <input type="text" class="form-control bg-dark text-light" id="team_name" name="team_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control bg-dark text-light" id="password" name="password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control bg-dark text-light" id="password" name="password" required>
-                </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-success">Login</button>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
                 </div>
             </form>
             <div class="text-center mt-3">
-                <p>Don't have an account? <a href="{{ url_for('register') }}" class="text-success">Register here</a></p>
+                <p>Don't have a team yet? <a href="{{ url_for('register') }}" class="text-success">Register here</a></p>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Password Toggle Script -->
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const password = document.getElementById('password');
+    
+    togglePassword.addEventListener('click', () => {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        togglePassword.querySelector('i').classList.toggle('fa-eye');
+        togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+</script>
 {% endblock %}

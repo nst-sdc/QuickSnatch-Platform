@@ -1,26 +1,52 @@
-# QuickSnatch - Interactive Terminal Challenge Platform
+# QuickSnatch - Hackathon Challenge Platform
 
-QuickSnatch is an interactive web-based platform for learning Linux terminal commands through engaging challenges. Users progress through various levels, each teaching different aspects of terminal usage and system administration.
+A secure, production-ready Flask application for hosting terminal-based hackathon challenges. Features team registration, real-time leaderboard, and progressive challenge system.
 
-## Features
+## 🚀 Features
 
-- 10 Progressive Challenges
-- Interactive Terminal Emulator
-- User Authentication
-- Real-time Leaderboard
-- Fullscreen Terminal Mode
-- Comprehensive Command Support
+- **Secure Authentication System**
+  - Team-based registration
+  - Session management
+  - Password hashing
+  - CSRF protection
 
-## Technologies Used
+- **Interactive Challenge System**
+  - Progressive difficulty levels
+  - Real-time feedback
+  - Time tracking
+  - Secure answer validation
 
-- Node.js
-- Express.js
-- MongoDB
-- EJS Templates
-- Bootstrap 5
-- Custom Terminal Emulator
+- **Dynamic Leaderboard**
+  - Real-time updates
+  - Team rankings
+  - Progress tracking
+  - Time-based scoring
 
-## Installation
+- **Production-Ready Security**
+  - HTTPS enforcement
+  - Security headers
+  - Rate limiting
+  - XSS protection
+  - Content Security Policy
+  - Input validation
+
+- **Performance Optimizations**
+  - Response caching
+  - Database optimization
+  - Static file compression
+  - Efficient session handling
+
+## 🛠️ Tech Stack
+
+- **Backend**: Flask (Python)
+- **Database**: MongoDB
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Security**: Flask-Talisman, Flask-SeaSurf
+- **Authentication**: Flask-Login
+- **Styling**: Bootstrap 5
+- **Icons**: Font Awesome
+
+## 🔧 Installation
 
 1. Clone the repository:
 ```bash
@@ -28,89 +54,151 @@ git clone https://github.com/yourusername/QuickSnatch.git
 cd QuickSnatch
 ```
 
-2. Install dependencies:
+2. Create and activate virtual environment:
 ```bash
-npm install
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Set up environment variables:
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Set up environment variables:
 ```bash
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your configurations
 ```
 
-4. Start MongoDB:
+5. Initialize the database:
 ```bash
-sudo systemctl start mongodb
+# Ensure MongoDB is running
+python init_db.py
 ```
 
-5. Run the application:
-```bash
-npm start
-```
+## 🚀 Development Setup
 
-## Available Commands in Terminal
-
-The terminal emulator supports various Linux commands:
-- `ls` - List directory contents
-- `cd` - Change directory
-- `cat` - View file contents
-- `chmod` - Change file permissions
-- `ps` - List processes
-- `top` - System monitor
-- `netstat` - Network statistics
-- `grep` - Search text
-- `find` - Search files
-- `lsof` - List open files
-- `nc` - NetCat utility
-
-## Challenge Levels
-
-1. Basic Terminal Navigation
-2. File Permissions
-3. Text Search
-4. Process Management
-5. Network Tools
-6. Bash Scripting
-7. Archive Management
-8. System Information
-9. Cron Jobs
-10. Final Challenge
-
-## Security Features
-
-- Secure session management
-- Password hashing with bcrypt
-- CSRF protection
-- XSS prevention
-- Secure headers
-- Environment-based configurations
-
-## Development
-
-1. Start in development mode:
+1. Set environment variables:
 ```bash
 export FLASK_ENV=development
-python app.py
+export FLASK_DEBUG=1
 ```
 
-2. Access the application:
-```
-http://localhost:7771
+2. Run the development server:
+```bash
+flask run
 ```
 
-## Contributing
+## 🌐 Production Deployment
+
+1. Set production environment variables:
+```bash
+export FLASK_ENV=production
+export FLASK_DEBUG=0
+export SECRET_KEY=<your-secure-key>
+export MONGO_URI=<your-mongodb-uri>
+```
+
+2. Run with Gunicorn:
+```bash
+gunicorn -w 4 -b 0.0.0.0:8000 app:app
+```
+
+### Nginx Configuration
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name yourdomain.com;
+
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+
+## 🔒 Security Features
+
+- HTTPS enforcement
+- Secure session configuration
+- XSS protection
+- CSRF protection
+- Rate limiting
+- Content Security Policy
+- Secure headers
+- Input validation
+- Password hashing
+- Session management
+
+## 📈 Performance Features
+
+- Response caching
+- Database optimization
+- Static file compression
+- Efficient session handling
+- Resource optimization
+
+## 📝 Environment Variables
+
+Create a `.env` file with the following variables:
+
+```env
+FLASK_ENV=development
+FLASK_DEBUG=1
+SECRET_KEY=your-secret-key
+MONGO_URI=mongodb://localhost:27017/quicksnatch
+```
+
+## 🔍 Monitoring
+
+- Application logging
+- Error tracking
+- Request logging
+- Performance monitoring
+- Custom error pages
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+python -m pytest
+```
+
+## 📦 Project Structure
+
+```
+QuickSnatch/
+├── app.py              # Main application file
+├── config.py           # Configuration settings
+├── requirements.txt    # Project dependencies
+├── init_db.py         # Database initialization
+├── static/            # Static files (CSS, JS)
+├── templates/         # HTML templates
+├── views/             # Template components
+└── logs/              # Application logs
+```
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## License
+## 👥 Team
 
-MIT License - feel free to use and modify for your purposes.
+- Vivek W - Developer and Maintainer
 
-## Author
+## 📞 Support
 
-[Your Name]
+For support, email [support@nstsdc.org] or create an issue in the repository.
+
+## 🙏 Acknowledgments
+- Special thanks to [ForrestKnight](https://www.youtube.com/@fknight) for the amazing [tutorial](https://youtu.be/KtYby2QN0kQ?si=gTshuFyfizpJyiM-) that inspired this project

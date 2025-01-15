@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_pymongo import PyMongo
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime, timedelta
@@ -9,11 +9,27 @@ import bcrypt
 from flask_wtf.csrf import CSRFError
 from bson.objectid import ObjectId
 from config.logging import setup_logging, log_activity
+from flask_talisman import Talisman
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_caching import Cache
+from werkzeug.security import generate_password_hash, check_password_hash
+import logging
+from logging.handlers import RotatingFileHandler
+from config import Config
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
+app.config.from_object(Config)
+
+# Security with Talisman
+talisman = Talisman(
+    app,
+    content_security_policy=Config.SECURITY_HEADERS['Content-Security-Policy'],
+    force_https=True
+)
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24))
@@ -68,6 +84,29 @@ mongo = PyMongo(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# Initialize Rate Limiter
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["100 per minute"]
+)
+
+# Initialize Cache
+cache = Cache(app)
+
+# Configure logging
+if not app.debug:
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = RotatingFileHandler('logs/quicksnatch.log', maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('QuickSnatch startup')
+
 # User class for Flask-Login
 class User(UserMixin):
     def __init__(self, user_data):
@@ -94,10 +133,13 @@ class User(UserMixin):
     def get_id(self):
         return str(self.id)
 
+# User loader
 @login_manager.user_loader
 def load_user(user_id):
-    user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
-    return User(user_data) if user_data else None
+    user_data = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    if user_data:
+        return User(user_data)
+    return None
 
 # Challenge answers
 ANSWERS = {
@@ -197,14 +239,14 @@ def register():
                 flash(f'Member {i} must use an ADYPU email address (@adypu.edu.in)')
                 return redirect(url_for('register'))
             
-            # Check if email is already registered
-            if mongo.db.users.find_one({'members.email': email}):
-                flash(f'Email {email} is already registered')
-                return redirect(url_for('register'))
-            
             # Validate phone number format (10 digits)
             if not phone.isdigit() or len(phone) != 10:
                 flash(f'Invalid phone number for Member {i}. Must be 10 digits.')
+                return redirect(url_for('register'))
+            
+            # Check if email is already registered
+            if mongo.db.users.find_one({'members.email': email}):
+                flash(f'Email {email} is already registered')
                 return redirect(url_for('register'))
             
             # Check if phone is already registered
@@ -287,27 +329,29 @@ def challenge(level):
 
 @app.route('/leaderboard')
 def leaderboard():
-    # Get all users and sort by level and time taken
-    users = list(mongo.db.users.find(
-        {},
-        {
-            'team_name': 1,
-            'current_level': 1,
-            'start_time': 1,
-            'last_submission': 1
-        }
-    ))
+    # Get all teams and their progress
+    teams = list(mongo.db.users.find({}, {'team_name': 1, 'current_level': 1, 'start_time': 1, 'last_submission': 1}))
     
-    # Sort users by level and time taken
-    def sort_key(user):
-        level = user.get('current_level', 1)
-        if not user.get('start_time') or not user.get('last_submission'):
-            return (-level, float('inf'))
-        time_taken = (user['last_submission'] - user['start_time']).total_seconds()
-        return (-level, time_taken)
+    # Create a list of team data with level and time taken
+    team_data = []
+    for team in teams:
+        time_taken = None
+        if team.get('start_time') and team.get('last_submission'):
+            time_taken = (team['last_submission'] - team['start_time']).total_seconds()
+        
+        team_data.append({
+            'name': team['team_name'],
+            'level': team.get('current_level', 1),
+            'last_submission': team.get('last_submission'),
+            'time_taken': time_taken,
+            'start_time': team.get('start_time')
+        })
     
-    users.sort(key=sort_key)
-    return render_template('leaderboard.html', users=users)
+    # Sort teams by level (descending) and time taken (ascending)
+    sorted_teams = sorted(team_data, 
+                         key=lambda x: (-x['level'], x['time_taken'] if x['time_taken'] is not None else float('inf')))
+    
+    return render_template('leaderboard.html', teams=sorted_teams)
 
 @app.route('/logout')
 @login_required
@@ -373,6 +417,14 @@ def internal_error(error):
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
     return render_template('errors/csrf.html'), 400
+
+# Before request
+@app.before_request
+def before_request():
+    session.permanent = True
+    if not request.is_secure and app.env != "development":
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
 
 if __name__ == '__main__':
     env = os.environ.get('FLASK_ENV', 'development')
