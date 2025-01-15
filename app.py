@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import bcrypt
 from flask_wtf.csrf import CSRFError
 from bson.objectid import ObjectId
+from config.logging import setup_logging, log_activity
 
 # Load environment variables
 load_dotenv()
@@ -21,6 +22,9 @@ app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'F
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
+
+# Initialize logging
+activity_logger = setup_logging(app)
 
 # Time formatting functions
 def format_time_delta(start_time, end_time):
@@ -112,6 +116,7 @@ def login():
         if user_data and bcrypt.checkpw(password.encode('utf-8'), user_data['password']):
             user = User(user_data)
             login_user(user)
+            log_activity(activity_logger, username, 'LOGIN', status='success')
             
             if not user_data.get('start_time'):
                 mongo.db.users.update_one(
@@ -121,6 +126,7 @@ def login():
             
             return redirect(url_for('challenge', level=user.current_level))
         
+        log_activity(activity_logger, username, 'LOGIN', status='failed')
         flash('Invalid username or password')
     return render_template('login.html')
 
@@ -183,6 +189,7 @@ def challenge(level):
                     }
                 )
             
+            log_activity(activity_logger, current_user.username, 'SUBMIT', level=level, status='success')
             flash('Correct! Moving to next level.')
             return redirect(url_for('challenge', level=level+1))
         else:
@@ -192,6 +199,7 @@ def challenge(level):
                 'submitted_at': datetime.now(pytz.UTC),
                 'is_correct': False
             })
+            log_activity(activity_logger, current_user.username, 'SUBMIT', level=level, status='failed')
             flash('Incorrect answer. Try again!')
     
     return render_template(f'challenges/level_{level}.html')
@@ -225,6 +233,42 @@ def leaderboard():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+@app.route('/logs')
+@login_required
+def view_logs():
+    if not current_user.is_admin:
+        flash('Access denied. Admin privileges required.')
+        return redirect(url_for('index'))
+    
+    # Read activity logs
+    activity_logs = []
+    try:
+        with open('logs/activity.log', 'r') as f:
+            for line in f:
+                parts = line.strip().split()
+                if len(parts) >= 5:
+                    time = ' '.join(parts[0:2])
+                    info = ' '.join(parts[2:]).split()
+                    log_entry = {
+                        'time': time,
+                        'user': info[0].split(':')[1],
+                        'action': info[1].split(':')[1],
+                        'level': info[2].split(':')[1],
+                        'status': info[3].split(':')[1]
+                    }
+                    activity_logs.append(log_entry)
+    except FileNotFoundError:
+        activity_logs = []
+    
+    # Read server logs
+    try:
+        with open('logs/quicksnatch.log', 'r') as f:
+            server_logs = f.readlines()[-100:]  # Last 100 lines
+    except FileNotFoundError:
+        server_logs = []
+    
+    return render_template('logs.html', activity_logs=activity_logs, server_logs=server_logs)
 
 # Security headers
 @app.after_request
