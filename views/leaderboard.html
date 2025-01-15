@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Leaderboard</h2>
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>Level</th>
+                        <th>Time Taken</th>
+                        <th>Last Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.current_level - 1 }}/10 Completed</td>
+                        <td>
+                            {% if user.start_time %}
+                                {% if user.last_submission %}
+                                    {{ format_time_delta(user.start_time, user.last_submission) }}
+                                {% else %}
+                                    In Progress
+                                {% endif %}
+                            {% else %}
+                                Not Started
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.last_submission %}
+                                {{ format_datetime(user.last_submission) }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

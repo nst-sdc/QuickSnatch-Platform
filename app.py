@@ -22,6 +22,41 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
+# Time formatting functions
+def format_time_delta(start_time, end_time):
+    if not start_time or not end_time:
+        return "N/A"
+    
+    delta = end_time - start_time
+    days = delta.days
+    hours, remainder = divmod(delta.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    
+    parts = []
+    if days > 0:
+        parts.append(f"{days}d")
+    if hours > 0:
+        parts.append(f"{hours}h")
+    if minutes > 0:
+        parts.append(f"{minutes}m")
+    if seconds > 0 or not parts:
+        parts.append(f"{seconds}s")
+    
+    return " ".join(parts)
+
+def format_datetime(dt):
+    if not dt:
+        return "N/A"
+    local_tz = pytz.timezone('Asia/Kolkata')  # Use your local timezone
+    local_dt = dt.astimezone(local_tz)
+    return local_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+# Add template functions
+app.jinja_env.globals.update(
+    format_time_delta=format_time_delta,
+    format_datetime=format_datetime
+)
+
 # Initialize MongoDB
 mongo = PyMongo(app)
 
@@ -163,11 +198,26 @@ def challenge(level):
 
 @app.route('/leaderboard')
 def leaderboard():
+    # Get all users and sort by level and time taken
     users = list(mongo.db.users.find(
         {},
-        {'username': 1, 'current_level': 1, 'last_submission': 1}
-    ).sort([('current_level', -1), ('last_submission', 1)]))
+        {
+            'username': 1,
+            'current_level': 1,
+            'start_time': 1,
+            'last_submission': 1
+        }
+    ))
     
+    # Sort users by level and time taken
+    def sort_key(user):
+        level = user.get('current_level', 1)
+        if not user.get('start_time') or not user.get('last_submission'):
+            return (-level, float('inf'))
+        time_taken = (user['last_submission'] - user['start_time']).total_seconds()
+        return (-level, time_taken)
+    
+    users.sort(key=sort_key)
     return render_template('leaderboard.html', users=users)
 
 @app.route('/logout')
