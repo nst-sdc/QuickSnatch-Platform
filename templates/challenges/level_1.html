@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level 1: Basic Linux Commands</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">1/10</div>
+    </div>
+    
+    <div class="mb-4">
+        <p>Welcome to your first challenge! Let's start with basic Linux commands.</p>
+        <p>Your task: Find the hidden file in the current directory and read its contents.</p>
+    </div>
+
+    <div class="terminal" id="terminal-1">
+        <div class="terminal-output" id="output-1">
+            Welcome to Linux Terminal Simulator
+            Type 'help' for available commands
+        </div>
+        <div class="terminal-prompt">
+            <input type="text" class="terminal-input" id="terminal-input-1" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h5>💡 Hint:</h5>
+        <p>Try using the 'ls' command with different options to list hidden files.</p>
+    </div>
+
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const terminal = document.getElementById('terminal-1');
+    const input = document.getElementById('terminal-input-1');
+    const output = document.getElementById('output-1');
+    
+    let currentDir = '/home/user';
+    let files = {
+        '.secret_file': 'flag{linux_basics}'
+    };
+
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const command = input.value.trim();
+            let response = '';
+
+            switch(command) {
+                case 'ls':
+                    response = 'documents  downloads  pictures';
+                    break;
+                case 'ls -a':
+                    response = '.  ..  .secret_file  documents  downloads  pictures';
+                    break;
+                case 'cat .secret_file':
+                    response = files['.secret_file'];
+                    break;
+                case 'help':
+                    response = 'Available commands: ls, ls -a, cat, pwd, help';
+                    break;
+                case 'pwd':
+                    response = currentDir;
+                    break;
+                default:
+                    response = 'Command not found: ' + command;
+            }
+
+            output.innerHTML += `<div class="terminal-prompt">${command}</div>`;
+            output.innerHTML += `<div>${response}</div>`;
+            input.value = '';
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+    });
+});
+</script>
+{% endblock %}

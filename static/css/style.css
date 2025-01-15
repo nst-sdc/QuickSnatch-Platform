@@ -1,0 +1,208 @@
+/* Modern Theme Variables */
+:root {
+    --primary-color: #00ff00;
+    --bg-dark: #1a1a1a;
+    --bg-darker: #0f0f0f;
+    --accent-color: #00cc00;
+    --text-color: #ffffff;
+    --card-bg: #2a2a2a;
+}
+
+body {
+    background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+    color: var(--text-color);
+    transition: background-color 0.3s ease;
+}
+
+/* Enhanced Terminal */
+.terminal {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    margin: 20px 0;
+}
+
+.terminal:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.terminal-input {
+    background-color: transparent;
+    border: none;
+    color: #00ff00;
+    width: 100%;
+    font-family: 'Courier New', monospace;
+    outline: none;
+}
+
+/* Enhanced Challenge Card */
+.challenge-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(0, 255, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.challenge-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 255, 0, 0.15);
+}
+
+/* Enhanced Buttons */
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-success {
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    border: none;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+}
+
+/* Animated Navigation */
+.navbar {
+    backdrop-filter: blur(10px);
+    background: rgba(26, 26, 26, 0.8) !important;
+}
+
+.nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Enhanced Progress Bar */
+.progress {
+    background: var(--bg-darker);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    transition: width 0.5s ease;
+}
+
+/* Enhanced Alert Messages */
+.alert {
+    animation: slideIn 0.5s ease;
+    border: none;
+    background: rgba(0, 255, 0, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Enhanced Leaderboard */
+.leaderboard-table {
+    background: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    color: #fff;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    border-color: #444;
+}
+
+.leaderboard-table tr {
+    transition: background-color 0.3s ease;
+}
+
+.leaderboard-table tr:hover {
+    background: rgba(0, 255, 0, 0.05);
+}
+
+/* Enhanced Badge */
+.badge-level {
+    background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    animation: pulse 2s infinite;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 15px;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 255, 0, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+    }
+}
+
+/* Enhanced Hint Box */
+.hint-box {
+    background: rgba(26, 26, 26, 0.8);
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.hint-box:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 255, 0, 0.1);
+}
+
+.terminal-prompt::before {
+    content: "$ ";
+    color: #00ff00;
+}
+
+.cursor {
+    display: inline-block;
+    width: 10px;
+    height: 20px;
+    background-color: #00ff00;
+    animation: cursor-blink 1s infinite;
+}
+
+@keyframes cursor-blink {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}

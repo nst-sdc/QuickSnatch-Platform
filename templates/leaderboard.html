@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Leaderboard</h2>
+    <div class="table-responsive">
+        <table class="table table-dark table-striped leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Level</th>
+                    <th>Last Submission</th>
+                    <th>Time Taken</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>
+                        <span class="badge-level">Level {{ user.current_level }}</span>
+                    </td>
+                    <td>{{ user.last_submission.strftime('%Y-%m-%d %H:%M:%S') if user.last_submission else 'N/A' }}</td>
+                    <td>
+                        {% if user.start_time and user.last_submission %}
+                            {{ (user.last_submission - user.start_time).total_seconds()|int // 60 }} minutes
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
