@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Level 4: Process Management</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Challenge: Process Hunter</h5>
+            <p>Learn to work with system processes.</p>
+            <p>Your task:</p>
+            <ol>
+                <li>A process named 'flag_server' is running</li>
+                <li>Use <code>ps</code> to find its process ID (PID)</li>
+                <li>Use <code>lsof</code> to find which port it's using</li>
+                <li>Use <code>curl</code> or <code>wget</code> to get the flag from http://localhost:PORT</li>
+            </ol>
+            <p>Submit the flag you find in the format: flag{...}</p>
+            
+            <form method="POST" class="mt-4">
+                <div class="form-group">
+                    <input type="text" name="answer" class="form-control" placeholder="Enter flag here" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </form>
+            
+            <div class="mt-4">
+                <h6>Hint:</h6>
+                <p>Try: <code>ps aux | grep flag_server</code></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

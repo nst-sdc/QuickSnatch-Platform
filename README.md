@@ -1,103 +1,116 @@
-# Quick-Snatch: Interactive Terminal Challenge Platform 🚀
+# QuickSnatch - Interactive Terminal Challenge Platform
 
-Quick-Snatch is an engaging web-based terminal challenge platform designed to help users learn and practice terminal commands in a fun, gamified environment. Created during the NST-SDC Hackathon, this platform offers progressive challenges that test and improve your command-line skills.
+QuickSnatch is an interactive web-based platform for learning Linux terminal commands through engaging challenges. Users progress through various levels, each teaching different aspects of terminal usage and system administration.
 
-![Quick-Snatch Demo](demo.gif)
+## Features
 
-## 🌟 Features
+- 10 Progressive Challenges
+- Interactive Terminal Emulator
+- User Authentication
+- Real-time Leaderboard
+- Fullscreen Terminal Mode
+- Comprehensive Command Support
 
-- 🎮 Interactive terminal simulator
-- 🎯 Progressive difficulty levels
-- 🔒 Secure authentication system
-- 📊 Real-time progress tracking
-- 🏆 Leaderboard system
-- 💡 Helpful hints and documentation
-- 🎨 Modern, dark-themed UI
+## Technologies Used
 
-## 🛠️ Technology Stack
+- Node.js
+- Express.js
+- MongoDB
+- EJS Templates
+- Bootstrap 5
+- Custom Terminal Emulator
 
-- **Frontend**:
-  - HTML5, CSS3, JavaScript
-  - Bootstrap 5 for responsive design
-  - Custom terminal emulator
-
-- **Backend**:
-  - Flask (Python web framework)
-  - SQLite database
-  - Jinja2 templating engine
-
-- **Security**:
-  - Flask-Login for user authentication
-  - Password hashing
-  - CSRF protection
-
-## 🚀 Getting Started
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/AryanVBW/QuickSnatch.git
+git clone https://github.com/yourusername/QuickSnatch.git
 cd QuickSnatch
 ```
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
-3. Run the application:
+3. Set up environment variables:
 ```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+4. Start MongoDB:
+```bash
+sudo systemctl start mongodb
+```
+
+5. Run the application:
+```bash
+npm start
+```
+
+## Available Commands in Terminal
+
+The terminal emulator supports various Linux commands:
+- `ls` - List directory contents
+- `cd` - Change directory
+- `cat` - View file contents
+- `chmod` - Change file permissions
+- `ps` - List processes
+- `top` - System monitor
+- `netstat` - Network statistics
+- `grep` - Search text
+- `find` - Search files
+- `lsof` - List open files
+- `nc` - NetCat utility
+
+## Challenge Levels
+
+1. Basic Terminal Navigation
+2. File Permissions
+3. Text Search
+4. Process Management
+5. Network Tools
+6. Bash Scripting
+7. Archive Management
+8. System Information
+9. Cron Jobs
+10. Final Challenge
+
+## Security Features
+
+- Secure session management
+- Password hashing with bcrypt
+- CSRF protection
+- XSS prevention
+- Secure headers
+- Environment-based configurations
+
+## Development
+
+1. Start in development mode:
+```bash
+export FLASK_ENV=development
 python app.py
 ```
 
-4. Visit `http://localhost:5000` in your browser
+2. Access the application:
+```
+http://localhost:7771
+```
 
-## 🎯 Challenge Levels
-
-1. **Level 1**: Basic Terminal Commands
-   - Learn to navigate directories
-   - Find hidden files
-   - Read file contents
-
-2. **Level 2**: File Permissions
-   - Understand permission system
-   - Modify file permissions
-   - Secure file access
-
-*More levels coming soon!*
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how you can help:
+## Contributing
 
 1. Fork the repository
-2. Create your feature branch:
-```bash
-git checkout -b feature/AmazingFeature
-```
-3. Commit your changes:
-```bash
-git commit -m 'Add some AmazingFeature'
-```
-4. Push to the branch:
-```bash
-git push origin feature/AmazingFeature
-```
-5. Open a Pull Request
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - feel free to use and modify for your purposes.
 
-## 🙏 Acknowledgments
+## Author
 
-- Special thanks to [ForrestKnight](https://www.youtube.com/@fknight) for the amazing [tutorial](https://youtu.be/KtYby2QN0kQ?si=gTshuFyfizpJyiM-) that inspired this project
-- NST-SDC Hackathon for the opportunity
-- All contributors and supporters
-
-## 🔗 Connect with Us
-
-- Created with ❤️ by [Vivek W](https://github.com/AryanVBW)
-- Quick-Snatch Hackathon by NST-SDC
-
----
-*Note: This project is part of the NST-SDC Hackathon and is intended for educational purposes.*
+[Your Name]

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Level 10: Final Challenge</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Challenge: Ultimate Champion</h5>
+            <p>Combine all your skills for the final challenge!</p>
+            <p>Your task:</p>
+            <ol>
+                <li>Find a service running on a random high port</li>
+                <li>The service requires a specific string as input</li>
+                <li>The string is hidden in a large log file</li>
+                <li>You need to:</li>
+                <ul>
+                    <li>Use grep to find the string</li>
+                    <li>Use netcat to connect to the service</li>
+                    <li>Send the string to get the flag</li>
+                </ul>
+            </ol>
+            <p>Submit the flag you find in the format: flag{...}</p>
+            
+            <form method="POST" class="mt-4">
+                <div class="form-group">
+                    <input type="text" name="answer" class="form-control" placeholder="Enter flag here" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </form>
+            
+            <div class="mt-4">
+                <h6>Hint:</h6>
+                <p>Combine <code>netstat</code>, <code>grep</code>, and <code>nc</code></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

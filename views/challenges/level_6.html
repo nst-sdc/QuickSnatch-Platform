@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Level 6: Bash Scripting</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Challenge: Bash Wizard</h5>
+            <p>Time to learn some bash scripting!</p>
+            <p>Your task:</p>
+            <ol>
+                <li>Create a bash script that:</li>
+                <li>Finds all files larger than 1MB in /home/user/level6/</li>
+                <li>Sorts them by size</li>
+                <li>The largest file contains the flag</li>
+            </ol>
+            <p>Submit the flag you find in the format: flag{...}</p>
+            
+            <form method="POST" class="mt-4">
+                <div class="form-group">
+                    <input type="text" name="answer" class="form-control" placeholder="Enter flag here" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </form>
+            
+            <div class="mt-4">
+                <h6>Hint:</h6>
+                <p>Try: <code>find . -type f -size +1M -exec ls -lh {} \; | sort -rh</code></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

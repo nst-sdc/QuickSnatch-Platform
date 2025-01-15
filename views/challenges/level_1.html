@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Level 1: Basic Terminal Navigation</h2>
+            <div class="card">
+                <div class="card-body">
+                    <h5>Challenge: Directory Explorer</h5>
+                    <p>Welcome to Quick-Snatch! Let's start with basic terminal navigation.</p>
+                    <p>Your task:</p>
+                    <ol>
+                        <li>Use <code>ls</code> to list directory contents</li>
+                        <li>Use <code>cd</code> to change directories</li>
+                        <li>Find the hidden file starting with '.flag' in the home directory</li>
+                        <li>Use <code>cat</code> to read its contents</li>
+                    </ol>
+                    <p>Submit the flag you find in the format: flag{...}</p>
+                    
+                    <form method="POST" class="mt-4">
+                        <div class="form-group">
+                            <input type="text" name="answer" class="form-control" placeholder="Enter flag here" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <h6>Hint:</h6>
+                        <p>Remember to look for hidden files using <code>ls -a</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div id="terminal-container" class="terminal-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

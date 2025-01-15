@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Level 3: Text Search</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Challenge: Grep Ninja</h5>
+            <p>Learn to search through text files efficiently.</p>
+            <p>Your task:</p>
+            <ol>
+                <li>Navigate to /home/user/level3/</li>
+                <li>There are hundreds of .txt files</li>
+                <li>Use <code>grep</code> to search for the string "flag{" in all files</li>
+                <li>Find the file containing the flag</li>
+            </ol>
+            <p>Submit the flag you find in the format: flag{...}</p>
+            
+            <form method="POST" class="mt-4">
+                <div class="form-group">
+                    <input type="text" name="answer" class="form-control" placeholder="Enter flag here" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </form>
+            
+            <div class="mt-4">
+                <h6>Hint:</h6>
+                <p>Try: <code>grep -r "flag{" .</code> to search recursively</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

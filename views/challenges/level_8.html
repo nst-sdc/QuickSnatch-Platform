@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Level 8: System Information</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5>Challenge: System Stalker</h5>
+            <p>Learn to gather system information.</p>
+            <p>Your task:</p>
+            <ol>
+                <li>Find system information using various commands:</li>
+                <li>Check CPU info with <code>lscpu</code></li>
+                <li>Check memory with <code>free</code></li>
+                <li>Find the flag in the system logs</li>
+            </ol>
+            <p>Submit the flag you find in the format: flag{...}</p>
+            
+            <form method="POST" class="mt-4">
+                <div class="form-group">
+                    <input type="text" name="answer" class="form-control" placeholder="Enter flag here" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </form>
+            
+            <div class="mt-4">
+                <h6>Hint:</h6>
+                <p>Check <code>/var/log/syslog</code> for suspicious entries</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
