@@ -27,6 +27,18 @@ class TerminalEmulator {
                 }
             }
         };
+        this.hintCommands = {
+            level1: ["ls -la ~", "cd ~", "cat .flag.txt"],
+            level2: ["cd /home/user/level2", "ls -l secret.txt", "chmod 644 secret.txt", "cat secret.txt"],
+            level3: ["cd /home/user/level3", "grep -r 'flag{' ."],
+            level4: ["ps aux | grep flag_server", "lsof -i -P -n | grep flag_server"],
+            level5: ["netstat -tuln | grep LISTEN"],
+            level6: ["find . -type f -size +1M -exec ls -lh {} \; | sort -rh"],
+            level7: ["tar xf archive.tar", "gunzip file.gz", "unzip file.zip"],
+            level8: ["lscpu", "free -h", "sudo tail -f /var/log/syslog | grep FLAG"],
+            level9: ["crontab -l", "watch -n 1 cat /tmp/flag_output.txt"],
+            level10: ["netstat -tuln | grep LISTEN", "grep -r 'KEY:' /var/log/challenge.log"]
+        };
         this.setupTerminal();
     }
 
@@ -119,6 +131,9 @@ class TerminalEmulator {
                 break;
             case 'nc':
                 this.netcat(args[0], args[1]);
+                break;
+            case 'hint':
+                this.showHint(args[0]);
                 break;
             case 'help':
                 this.help();
@@ -225,6 +240,16 @@ class TerminalEmulator {
         }
     }
 
+    showHint(level) {
+        const hints = this.hintCommands[`level${level}`];
+        if (hints) {
+            this.println('Hints:');
+            hints.forEach(hint => this.println(hint));
+        } else {
+            this.println('No hints available for this level.');
+        }
+    }
+
     help() {
         this.println(`
 Available commands:
@@ -239,6 +264,7 @@ grep [-r] <pattern> - Search for pattern
 find        - Search for files
 lsof        - List open files
 nc <host> <port> - NetCat utility
+hint <level> - Show hints for a level
 clear       - Clear screen
 help        - Show this help
         `);
