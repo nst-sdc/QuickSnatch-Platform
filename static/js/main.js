@@ -21,9 +21,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const files = {
             '.secret_file': 'flag{quick_basics}',
             'secret.txt': 'flag{chmod_master}',
-            'documents/note.txt': 'Just a simple note',
-            'downloads/script.sh': '#!/bin/bash\necho "Hello World!"',
-            'pictures/vacation.jpg': '[IMAGE CONTENT]'
+            'logs/server.log.gz': 'flag{grep_master_123}',
+            'flag_service': 'flag{process_hunter}',
+            'localhost:8080': 'flag{network_ninja}',
+            'script_result.txt': 'flag{bash_wizard}',
+            'mystery.tar.gz': 'flag{archive_explorer}',
+            'PROCESS_ENV': 'flag{system_stalker}',
+            'cron.log': 'flag{cron_master}',
+            'encrypted_service': 'flag{ultimate_champion}'
         };
 
         const filePermissions = {
@@ -82,6 +87,40 @@ Example: chmod 644 file.txt
   4 (r--) for others`
         };
 
+        const levelConfig = {
+            '3': {
+                'find /logs -name "*.gz"': 'logs/server.log.gz',
+                'zcat logs/server.log.gz': files['logs/server.log.gz']
+            },
+            '4': {
+                'ps aux': 'user     1234  13.5  0.0   4567  1234 ?     S+   12:00  0:00 flag_service',
+                'cat /proc/1234/cmdline': files['flag_service']
+            },
+            '5': {
+                'netstat -tulpn': 'tcp     0    0 127.0.0.1:8080    0.0.0.0:*     LISTEN',
+                'curl localhost:8080': files['localhost:8080']
+            },
+            '6': {
+                './find_secret.sh': files['script_result.txt']
+            },
+            '7': {
+                'tar xzf mystery.tar.gz': 'Extracting...',
+                'cat flag.txt': files['mystery.tar.gz']
+            },
+            '8': {
+                'ps aux | grep 13.37': 'user     5678  13.37 0.0   8901  5678 ?     S+   12:00  0:00 flag_process',
+                'cat /proc/5678/environ': files['PROCESS_ENV']
+            },
+            '9': {
+                'tail -f /var/log/cron.log': files['cron.log']
+            },
+            '10': {
+                'netstat -tulpn': 'tcp     0    0 127.0.0.1:RANDOM_PORT    0.0.0.0:*     LISTEN',
+                'nc localhost RANDOM_PORT': 'base64_encoded_flag',
+                'echo "base64_encoded_flag" | base64 -d': files['encrypted_service']
+            }
+        };
+
         input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const command = this.value.trim();
@@ -127,64 +166,75 @@ Example: chmod 644 file.txt
                     return;
                 }
 
-                if (terminalNum === '1') {
-                    // Level 1 commands
-                    switch(command) {
-                        case 'ls':
-                            response = 'documents  downloads  pictures';
-                            break;
-                        case 'ls -a':
-                            response = '.  ..  .secret_file  documents  downloads  pictures';
-                            break;
-                        case 'ls -l':
-                            response = `total 3
+                // Level-specific commands
+                if (levelConfig[terminalNum] && levelConfig[terminalNum][command]) {
+                    response = levelConfig[terminalNum][command];
+                } else {
+                    // Handle default commands for each level
+                    switch(terminalNum) {
+                        case '1':
+                            // Level 1 commands
+                            switch(command) {
+                                case 'ls':
+                                    response = 'documents  downloads  pictures';
+                                    break;
+                                case 'ls -a':
+                                    response = '.  ..  .secret_file  documents  downloads  pictures';
+                                    break;
+                                case 'ls -l':
+                                    response = `total 3
 drwxr-xr-x  2 user user  4096 Jan 15 12:00 documents
 drwxr-xr-x  2 user user  4096 Jan 15 12:00 downloads
 drwxr-xr-x  2 user user  4096 Jan 15 12:00 pictures`;
+                                    break;
+                                case 'cat .secret_file':
+                                    response = files['.secret_file'];
+                                    break;
+                                default:
+                                    if (cmd === 'cd') {
+                                        response = 'Directory access restricted in this level';
+                                    } else if (cmd === 'mkdir' || cmd === 'touch' || cmd === 'rm') {
+                                        response = 'File modification restricted in this level';
+                                    } else {
+                                        response = 'Command not found: ' + command;
+                                    }
+                            }
                             break;
-                        case 'cat .secret_file':
-                            response = files['.secret_file'];
+                        case '2':
+                            // Level 2 commands
+                            switch(command) {
+                                case 'ls':
+                                    response = 'secret.txt';
+                                    break;
+                                case 'ls -l':
+                                    const perms = filePermissions['secret.txt'];
+                                    response = perms === '000' ? 
+                                        '----------  1 user user     20 Jan 15 12:00 secret.txt' :
+                                        '-rw-r--r--  1 user user     20 Jan 15 12:00 secret.txt';
+                                    break;
+                                case 'chmod 644 secret.txt':
+                                    filePermissions['secret.txt'] = '644';
+                                    response = 'File permissions updated';
+                                    break;
+                                case 'cat secret.txt':
+                                    if (filePermissions['secret.txt'] === '644') {
+                                        response = files['secret.txt'];
+                                    } else {
+                                        response = 'Permission denied';
+                                    }
+                                    break;
+                                default:
+                                    if (cmd === 'cd') {
+                                        response = 'Directory access restricted in this level';
+                                    } else if (cmd === 'mkdir' || cmd === 'touch' || cmd === 'rm') {
+                                        response = 'File modification restricted in this level';
+                                    } else {
+                                        response = 'Command not found: ' + command;
+                                    }
+                            }
                             break;
                         default:
-                            if (cmd === 'cd') {
-                                response = 'Directory access restricted in this level';
-                            } else if (cmd === 'mkdir' || cmd === 'touch' || cmd === 'rm') {
-                                response = 'File modification restricted in this level';
-                            } else {
-                                response = 'Command not found: ' + command;
-                            }
-                    }
-                } else if (terminalNum === '2') {
-                    // Level 2 commands
-                    switch(command) {
-                        case 'ls':
-                            response = 'secret.txt';
-                            break;
-                        case 'ls -l':
-                            const perms = filePermissions['secret.txt'];
-                            response = perms === '000' ? 
-                                '----------  1 user user     20 Jan 15 12:00 secret.txt' :
-                                '-rw-r--r--  1 user user     20 Jan 15 12:00 secret.txt';
-                            break;
-                        case 'chmod 644 secret.txt':
-                            filePermissions['secret.txt'] = '644';
-                            response = 'File permissions updated';
-                            break;
-                        case 'cat secret.txt':
-                            if (filePermissions['secret.txt'] === '644') {
-                                response = files['secret.txt'];
-                            } else {
-                                response = 'Permission denied';
-                            }
-                            break;
-                        default:
-                            if (cmd === 'cd') {
-                                response = 'Directory access restricted in this level';
-                            } else if (cmd === 'mkdir' || cmd === 'touch' || cmd === 'rm') {
-                                response = 'File modification restricted in this level';
-                            } else {
-                                response = 'Command not found: ' + command;
-                            }
+                            response = 'Command not found: ' + command;
                     }
                 }
 

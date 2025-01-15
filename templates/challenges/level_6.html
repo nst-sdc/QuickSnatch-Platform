@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level 6: Bash Scripting</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">6/10</div>
+    </div>
+    
+    <div class="mb-4">
+        <p>Time for some scripting! You'll need to create and run a script to solve this puzzle.</p>
+        <p>Your task: Create a script that finds all files containing 'secret' in their name, sorts them by size, and reads the middle file.</p>
+    </div>
+
+    <div class="terminal" id="terminal-6" data-current-dir="/home/user">
+        <div class="terminal-output" id="output-6">
+            Welcome to Quick-Snatch Terminal
+            Type 'help' for available commands
+            [Files have been scattered in the system]
+        </div>
+        <div class="terminal-prompt">
+            <input type="text" class="terminal-input" id="terminal-input-6" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h5>Hint:</h5>
+        <p>Use 'nano' or 'vim' to create a script. Remember to make it executable with chmod. Use pipes (|) to chain commands.</p>
+    </div>
+
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level 9: Cron Jobs and Services</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">9/10</div>
+    </div>
+    
+    <div class="mb-4">
+        <p>Advanced system administration challenge! A cron job is running that briefly exposes the flag.</p>
+        <p>Your task: Find when the flag appears in the system logs and capture it before it disappears.</p>
+    </div>
+
+    <div class="terminal" id="terminal-9" data-current-dir="/home/user">
+        <div class="terminal-output" id="output-9">
+            Welcome to Quick-Snatch Terminal
+            Type 'help' for available commands
+            [Cron service is active]
+        </div>
+        <div class="terminal-prompt">
+            <input type="text" class="terminal-input" id="terminal-input-9" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h5>Hint:</h5>
+        <p>Check crontab entries, monitor log files in real-time with 'tail -f', and use 'systemctl' to inspect services.</p>
+    </div>
+
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

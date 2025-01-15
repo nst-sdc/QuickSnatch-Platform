@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level 4: Process Management</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">4/10</div>
+    </div>
+    
+    <div class="mb-4">
+        <p>Time to learn about processes! There's a background process running that contains the flag.</p>
+        <p>Your task: Find the process, examine its details, and retrieve the flag.</p>
+    </div>
+
+    <div class="terminal" id="terminal-4" data-current-dir="/home/user">
+        <div class="terminal-output" id="output-4">
+            Welcome to Quick-Snatch Terminal
+            Type 'help' for available commands
+            [Background process started: flag_service]
+        </div>
+        <div class="terminal-prompt">
+            <input type="text" class="terminal-input" id="terminal-input-4" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h5>Hint:</h5>
+        <p>Use 'ps', 'top', or 'htop' to view processes. The flag might be in the process details or its memory.</p>
+    </div>
+
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

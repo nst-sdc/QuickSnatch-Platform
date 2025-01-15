@@ -31,16 +31,16 @@ class Submission(db.Model):
 
 # Challenge answers (in production, these should be stored securely)
 ANSWERS = {
-    1: "flag{linux_basics}",
-    2: "flag{file_permissions}",
-    3: "flag{process_management}",
-    4: "flag{network_tools}",
-    5: "flag{bash_scripting}",
-    6: "flag{system_monitoring}",
-    7: "flag{user_management}",
-    8: "flag{package_management}",
-    9: "flag{shell_scripting}",
-    10: "flag{system_admin}"
+    1: "flag{quick_basics}",
+    2: "flag{chmod_master}",
+    3: "flag{grep_master_123}",
+    4: "flag{process_hunter}",
+    5: "flag{network_ninja}",
+    6: "flag{bash_wizard}",
+    7: "flag{archive_explorer}",
+    8: "flag{system_stalker}",
+    9: "flag{cron_master}",
+    10: "flag{ultimate_champion}"
 }
 
 @login_manager.user_loader

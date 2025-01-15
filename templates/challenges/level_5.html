@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level 5: Network Commands</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">5/10</div>
+    </div>
+    
+    <div class="mb-4">
+        <p>Let's explore network commands! A service is running on a local port.</p>
+        <p>Your task: Find the service, connect to it, and retrieve the flag.</p>
+    </div>
+
+    <div class="terminal" id="terminal-5" data-current-dir="/home/user">
+        <div class="terminal-output" id="output-5">
+            Welcome to Quick-Snatch Terminal
+            Type 'help' for available commands
+            [Network service started on localhost]
+        </div>
+        <div class="terminal-prompt">
+            <input type="text" class="terminal-input" id="terminal-input-5" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h5>Hint:</h5>
+        <p>Use 'netstat', 'nc' (netcat), or 'curl' to interact with network services. Check common ports.</p>
+    </div>
+
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

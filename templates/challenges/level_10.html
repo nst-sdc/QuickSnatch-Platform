@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level 10: The Final Challenge</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">10/10</div>
+    </div>
+    
+    <div class="mb-4">
+        <p>Congratulations on making it to the final challenge! This one combines everything you've learned.</p>
+        <p>Your task: A service is running that generates encrypted flags. Decode the flag by:</p>
+        <ol>
+            <li>Finding the service's port using network commands</li>
+            <li>Creating a script to connect to the service</li>
+            <li>Decoding the base64 response</li>
+            <li>Extracting the flag from a compressed archive</li>
+            <li>All while the service randomly changes ports every 30 seconds!</li>
+        </ol>
+    </div>
+
+    <div class="terminal" id="terminal-10" data-current-dir="/home/user">
+        <div class="terminal-output" id="output-10">
+            Welcome to Quick-Snatch Terminal
+            Type 'help' for available commands
+            [Final challenge service initialized]
+            [Service will change ports randomly]
+        </div>
+        <div class="terminal-prompt">
+            <input type="text" class="terminal-input" id="terminal-input-10" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h5>Hint:</h5>
+        <p>Combine 'netstat', 'nc', scripting, 'base64', and archive commands. You might want to create a script that can automatically track the changing port.</p>
+    </div>
+
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

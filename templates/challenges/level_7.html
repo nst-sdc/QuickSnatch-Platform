@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level 7: Archive Management</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">7/10</div>
+    </div>
+    
+    <div class="mb-4">
+        <p>We've got a nested archive challenge for you!</p>
+        <p>Your task: Navigate through multiple layers of compressed files to find the flag. Each archive might use different compression methods.</p>
+    </div>
+
+    <div class="terminal" id="terminal-7" data-current-dir="/home/user">
+        <div class="terminal-output" id="output-7">
+            Welcome to Quick-Snatch Terminal
+            Type 'help' for available commands
+            [File mystery.tar.gz has been created]
+        </div>
+        <div class="terminal-prompt">
+            <input type="text" class="terminal-input" id="terminal-input-7" autocomplete="off">
+        </div>
+    </div>
+
+    <div class="hint-box">
+        <h5>Hint:</h5>
+        <p>You'll need to use various commands like 'tar', 'gzip', 'bzip2', and 'unzip'. Check file types with 'file' command.</p>
+    </div>
+
+    <form method="POST" class="mt-4">
+        <div class="mb-3">
+            <label for="answer" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}
