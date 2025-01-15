@@ -8,34 +8,240 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Terminal input handling
+// Terminal functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const terminalInputs = document.querySelectorAll('.terminal-input');
+    const terminals = document.querySelectorAll('.terminal');
     
-    terminalInputs.forEach(input => {
-        input.addEventListener('keydown', function(e) {
+    terminals.forEach(terminal => {
+        const input = terminal.querySelector('.terminal-input');
+        const output = terminal.querySelector('.terminal-output');
+        const currentDir = terminal.dataset.currentDir || '/home/user';
+        
+        // Define available commands for the terminal
+        const files = {
+            '.secret_file': 'flag{quick_basics}',
+            'secret.txt': 'flag{chmod_master}',
+            'documents/note.txt': 'Just a simple note',
+            'downloads/script.sh': '#!/bin/bash\necho "Hello World!"',
+            'pictures/vacation.jpg': '[IMAGE CONTENT]'
+        };
+
+        const filePermissions = {
+            'secret.txt': '000',  // Initially no permissions
+            'documents/note.txt': '644',
+            'downloads/script.sh': '755',
+            'pictures/vacation.jpg': '644'
+        };
+
+        const helpText = {
+            'general': `
+╭──────────────── Quick-Snatch Help ────────────────╮
+│ Available Commands:                                 │
+│                                                    │
+│  File Operations:                                  │
+│    ls        - List directory contents             │
+│    ls -a     - List all files (including hidden)   │
+│    ls -l     - List with detailed information      │
+│    cat       - Display file contents               │
+│    pwd       - Print working directory             │
+│    cd        - Change directory                    │
+│    mkdir     - Create new directory                │
+│    touch     - Create empty file                   │
+│    rm        - Remove file                         │
+│                                                    │
+│  Permissions:                                      │
+│    chmod     - Change file permissions             │
+│                                                    │
+│  System:                                           │
+│    clear     - Clear terminal screen               │
+│    date      - Show current date/time              │
+│    whoami    - Show current user                   │
+│    echo      - Display a message                   │
+│                                                    │
+│  Help:                                            │
+│    help              - Show this help              │
+│    help <command>    - Show command help           │
+╰────────────────────────────────────────────────────╯`,
+            'ls': `
+Usage: ls [OPTION]
+List directory contents
+Options:
+  -a    Show all files (including hidden)
+  -l    Use long listing format`,
+            'cat': `
+Usage: cat [FILE]
+Display file contents
+Example: cat file.txt`,
+            'chmod': `
+Usage: chmod [MODE] FILE
+Change file permissions
+Mode: [user][group][others]
+Example: chmod 644 file.txt
+  6 (rw-) for user
+  4 (r--) for group
+  4 (r--) for others`
+        };
+
+        input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault();
                 const command = this.value.trim();
-                if (command) {
-                    // Add command to history
-                    const history = document.createElement('div');
-                    history.className = 'terminal-line';
-                    history.innerHTML = `<span class="terminal-prompt"></span>${command}`;
-                    this.parentElement.insertBefore(history, this);
-                    
-                    // Clear input
+                let response = '';
+                const args = command.split(' ');
+                const cmd = args[0];
+
+                // Get terminal number from ID
+                const terminalNum = terminal.querySelector('.terminal-input').id.split('-')[2];
+                
+                // Common commands for all levels
+                switch(cmd) {
+                    case 'clear':
+                        output.innerHTML = '';
+                        this.value = '';
+                        return;
+                    case 'date':
+                        response = new Date().toString();
+                        break;
+                    case 'whoami':
+                        response = 'user';
+                        break;
+                    case 'echo':
+                        response = args.slice(1).join(' ');
+                        break;
+                    case 'pwd':
+                        response = currentDir;
+                        break;
+                    case 'help':
+                        if (args.length > 1 && helpText[args[1]]) {
+                            response = helpText[args[1]];
+                        } else {
+                            response = helpText['general'];
+                        }
+                        break;
+                }
+
+                if (response) {
+                    output.innerHTML += `<div class="terminal-prompt">${currentDir}$ ${command}</div>`;
+                    output.innerHTML += `<div class="terminal-response">${response}</div>`;
                     this.value = '';
-                    
-                    // Submit form if within a form
-                    const form = this.closest('form');
-                    if (form) {
-                        form.submit();
+                    terminal.scrollTop = terminal.scrollHeight;
+                    return;
+                }
+
+                if (terminalNum === '1') {
+                    // Level 1 commands
+                    switch(command) {
+                        case 'ls':
+                            response = 'documents  downloads  pictures';
+                            break;
+                        case 'ls -a':
+                            response = '.  ..  .secret_file  documents  downloads  pictures';
+                            break;
+                        case 'ls -l':
+                            response = `total 3
+drwxr-xr-x  2 user user  4096 Jan 15 12:00 documents
+drwxr-xr-x  2 user user  4096 Jan 15 12:00 downloads
+drwxr-xr-x  2 user user  4096 Jan 15 12:00 pictures`;
+                            break;
+                        case 'cat .secret_file':
+                            response = files['.secret_file'];
+                            break;
+                        default:
+                            if (cmd === 'cd') {
+                                response = 'Directory access restricted in this level';
+                            } else if (cmd === 'mkdir' || cmd === 'touch' || cmd === 'rm') {
+                                response = 'File modification restricted in this level';
+                            } else {
+                                response = 'Command not found: ' + command;
+                            }
+                    }
+                } else if (terminalNum === '2') {
+                    // Level 2 commands
+                    switch(command) {
+                        case 'ls':
+                            response = 'secret.txt';
+                            break;
+                        case 'ls -l':
+                            const perms = filePermissions['secret.txt'];
+                            response = perms === '000' ? 
+                                '----------  1 user user     20 Jan 15 12:00 secret.txt' :
+                                '-rw-r--r--  1 user user     20 Jan 15 12:00 secret.txt';
+                            break;
+                        case 'chmod 644 secret.txt':
+                            filePermissions['secret.txt'] = '644';
+                            response = 'File permissions updated';
+                            break;
+                        case 'cat secret.txt':
+                            if (filePermissions['secret.txt'] === '644') {
+                                response = files['secret.txt'];
+                            } else {
+                                response = 'Permission denied';
+                            }
+                            break;
+                        default:
+                            if (cmd === 'cd') {
+                                response = 'Directory access restricted in this level';
+                            } else if (cmd === 'mkdir' || cmd === 'touch' || cmd === 'rm') {
+                                response = 'File modification restricted in this level';
+                            } else {
+                                response = 'Command not found: ' + command;
+                            }
                     }
                 }
+
+                output.innerHTML += `<div class="terminal-prompt">${currentDir}$ ${command}</div>`;
+                output.innerHTML += `<div class="terminal-response">${response}</div>`;
+                this.value = '';
+                terminal.scrollTop = terminal.scrollHeight;
             }
         });
+
+        // Focus input when clicking anywhere in the terminal
+        terminal.addEventListener('click', () => {
+            input.focus();
+        });
     });
+});
+
+// Add terminal styling
+document.addEventListener('DOMContentLoaded', function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .terminal {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .terminal-prompt {
+            color: #4CAF50;
+            margin: 5px 0;
+        }
+
+        .terminal-response {
+            color: #f0f0f0;
+            white-space: pre;
+            margin: 5px 0 15px 0;
+        }
+
+        .terminal-input {
+            background-color: transparent;
+            border: none;
+            color: #f0f0f0;
+            width: 100%;
+            font-family: 'Courier New', monospace;
+            outline: none;
+        }
+
+        .terminal-response:empty {
+            display: none;
+        }
+    `;
+    document.head.appendChild(style);
 });
 
 // Add loading animation for form submissions
