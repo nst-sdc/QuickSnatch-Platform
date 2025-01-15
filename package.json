@@ -1,0 +1,33 @@
+{
+  "name": "quick-snatch",
+  "version": "1.0.0",
+  "description": "Interactive terminal challenge platform for learning terminal commands",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "terminal",
+    "learning",
+    "challenges",
+    "interactive"
+  ],
+  "author": "Vivek W",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "bcryptjs": "^2.4.3",
+    "mongoose": "^7.5.0",
+    "ejs": "^3.1.9",
+    "dotenv": "^16.3.1",
+    "connect-mongo": "^5.0.0",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
