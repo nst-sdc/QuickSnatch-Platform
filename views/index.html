@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center text-center mb-5">
+        <div class="col-md-8">
+            <h1 class="display-4" style="color: #33ff33;">Welcome to QuickSnatch</h1>
+            <p class="lead" style="color: #33ff33;">Master the Terminal. Beat the Challenges. Win the Competition.</p>
+        </div>
+    </div>
+
+    {% if not current_user.is_authenticated %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4" style="color: #33ff33;">Team Access</h2>
+                    <div class="d-grid gap-3">
+                        <a href="/register" class="btn btn-lg" 
+                           style="background-color: #1e1e1e; color: #33ff33; border: 1px solid #33ff33;">
+                            Register Your Team
+                        </a>
+                        <a href="/login" class="btn btn-lg" 
+                           style="background-color: #1e1e1e; color: #33ff33; border: 1px solid #33ff33;">
+                            Team Login
+                        </a>
+                    </div>
+                    <div class="mt-4">
+                        <h5 style="color: #33ff33;">Competition Rules:</h5>
+                        <ul class="text-light">
+                            <li>Teams must consist of 2 members</li>
+                            <li>All team members must have ADYPU email addresses</li>
+                            <li>Complete challenges to earn points</li>
+                            <li>Track your progress on the leaderboard</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4" style="color: #33ff33;">Welcome back, Team {{ current_user.team_name }}!</h2>
+                    <div class="text-center mb-4">
+                        <p style="color: #33ff33;">Current Progress: Level {{ current_user.current_level }}/10</p>
+                    </div>
+                    <div class="d-grid gap-3">
+                        <a href="/challenge/{{ current_user.current_level }}" class="btn btn-lg" 
+                           style="background-color: #1e1e1e; color: #33ff33; border: 1px solid #33ff33;">
+                            Continue Challenge
+                        </a>
+                        <a href="/leaderboard" class="btn btn-lg" 
+                           style="background-color: #1e1e1e; color: #33ff33; border: 1px solid #33ff33;">
+                            View Leaderboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-terminal fa-3x mb-3" style="color: #33ff33;"></i>
+                    <h3 style="color: #33ff33;">10 Challenges</h3>
+                    <p class="text-light">Test your terminal skills with progressively difficult challenges</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-trophy fa-3x mb-3" style="color: #33ff33;"></i>
+                    <h3 style="color: #33ff33;">Compete</h3>
+                    <p class="text-light">Compete with other teams and climb the leaderboard</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x mb-3" style="color: #33ff33;"></i>
+                    <h3 style="color: #33ff33;">Team Up</h3>
+                    <p class="text-light">Work together with your teammate to solve challenges</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    background-color: #1e1e1e;
+    border: 1px solid #33ff33;
+    transition: transform 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.btn:hover {
+    background-color: #33ff33 !important;
+    color: #1e1e1e !important;
+}
+</style>
+{% endblock %}

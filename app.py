@@ -71,21 +71,33 @@ login_manager.login_view = 'login'
 # User class for Flask-Login
 class User(UserMixin):
     def __init__(self, user_data):
-        self.user_data = user_data
-        self.id = str(user_data['_id'])
-        self.username = user_data['username']
+        self.id = user_data['_id']
+        self.team_name = user_data['team_name']
         self.current_level = user_data.get('current_level', 1)
+        self.is_admin = user_data.get('is_admin', False)
+        self.members = user_data.get('members', [])
         self.start_time = user_data.get('start_time')
         self.last_submission = user_data.get('last_submission')
 
-    @staticmethod
-    def get(user_id):
-        user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
-        return User(user_data) if user_data else None
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return str(self.id)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    user_data = mongo.db.users.find_one({'_id': ObjectId(user_id)})
+    return User(user_data) if user_data else None
 
 # Challenge answers
 ANSWERS = {
@@ -108,55 +120,68 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
+        team_name = request.form.get('team_name')
         password = request.form.get('password')
+        team = mongo.db.users.find_one({'team_name': team_name})
         
-        user_data = mongo.db.users.find_one({'username': username})
-        
-        if user_data and bcrypt.checkpw(password.encode('utf-8'), user_data['password']):
-            user = User(user_data)
+        if team and bcrypt.checkpw(password.encode('utf-8'), team['password']):
+            user = User(team)
             login_user(user)
-            log_activity(activity_logger, username, 'LOGIN', status='success')
             
-            if not user_data.get('start_time'):
+            # Set start time if first login
+            if not team.get('start_time'):
                 mongo.db.users.update_one(
-                    {'_id': ObjectId(user.id)},
+                    {'_id': team['_id']},
                     {'$set': {'start_time': datetime.now(pytz.UTC)}}
                 )
             
+            log_activity(activity_logger, team_name, 'LOGIN', status='success')
             return redirect(url_for('challenge', level=user.current_level))
         
-        log_activity(activity_logger, username, 'LOGIN', status='failed')
-        flash('Invalid username or password')
+        log_activity(activity_logger, team_name, 'LOGIN', status='failed')
+        flash('Invalid team name or password')
+    
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form.get('username')
+        team_name = request.form.get('team_name')
         password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
         
-        if password != confirm_password:
-            flash('Passwords do not match')
-            return render_template('register.html')
+        # Check if team name already exists
+        if mongo.db.users.find_one({'team_name': team_name}):
+            flash('Team name already exists')
+            return redirect(url_for('register'))
         
-        if mongo.db.users.find_one({'username': username}):
-            flash('Username already exists')
-            return render_template('register.html')
+        # Get team members info
+        members = []
+        for i in range(1, 3):  # 2 members
+            member = {
+                'name': request.form.get(f'member_name_{i}'),
+                'email': request.form.get(f'member_email_{i}'),
+                'phone': request.form.get(f'member_phone_{i}')
+            }
+            # Validate ADYPU email
+            if not member['email'].endswith('@adypu.edu.in'):
+                flash(f'Member {i} must use an ADYPU email address')
+                return redirect(url_for('register'))
+            members.append(member)
         
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        
-        user_data = {
-            'username': username,
-            'password': hashed_password,
+        # Create new team
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        team = {
+            'team_name': team_name,
+            'password': hashed,
+            'members': members,
             'current_level': 1,
             'start_time': None,
-            'last_submission': None
+            'last_submission': None,
+            'created_at': datetime.now(pytz.UTC)
         }
         
-        mongo.db.users.insert_one(user_data)
-        flash('Registration successful! Please login.')
+        mongo.db.users.insert_one(team)
+        flash('Team registered successfully! Please login.')
         return redirect(url_for('login'))
     
     return render_template('register.html')
@@ -189,7 +214,7 @@ def challenge(level):
                     }
                 )
             
-            log_activity(activity_logger, current_user.username, 'SUBMIT', level=level, status='success')
+            log_activity(activity_logger, current_user.team_name, 'SUBMIT', level=level, status='success')
             flash('Correct! Moving to next level.')
             return redirect(url_for('challenge', level=level+1))
         else:
@@ -199,7 +224,7 @@ def challenge(level):
                 'submitted_at': datetime.now(pytz.UTC),
                 'is_correct': False
             })
-            log_activity(activity_logger, current_user.username, 'SUBMIT', level=level, status='failed')
+            log_activity(activity_logger, current_user.team_name, 'SUBMIT', level=level, status='failed')
             flash('Incorrect answer. Try again!')
     
     return render_template(f'challenges/level_{level}.html')
@@ -210,7 +235,7 @@ def leaderboard():
     users = list(mongo.db.users.find(
         {},
         {
-            'username': 1,
+            'team_name': 1,
             'current_level': 1,
             'start_time': 1,
             'last_submission': 1
@@ -300,7 +325,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('FLASK_PORT', 7771))
     
     # Ensure indexes
-    mongo.db.users.create_index('username', unique=True)
+    mongo.db.users.create_index('team_name', unique=True)
     
     # Production configurations
     if env == 'production':
