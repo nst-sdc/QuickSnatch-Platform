@@ -1,40 +1,226 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="challenge-card">
-    <h2>Level 3: File Search and Text Processing</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">3/10</div>
-    </div>
-    
-    <div class="mb-4">
-        <p>Great work on permissions! Now let's dive into searching files and processing text.</p>
-        <p>Your task: Find a string containing 'flag' in the logs directory. The file might be compressed.</p>
+<div class="challenge-container">
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">Level 3: Command Master</div>
+            <div class="terminal-controls">
+                <span class="control close"></span>
+                <span class="control minimize"></span>
+                <span class="control maximize"></span>
+            </div>
+        </div>
+        <div class="terminal-content" id="terminal-content">
+            <div class="output-line">Welcome to Level 3! Test your command-line skills.</div>
+            <div class="output-line">Type 'help' to see available commands.</div>
+            <div id="output"></div>
+        </div>
+        <div class="terminal-input-line">
+            <span class="prompt">$</span>
+            <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+        </div>
     </div>
 
-    <div class="terminal" id="terminal-3" data-current-dir="/home/user">
-        <div class="terminal-output" id="output-3">
-            Welcome to Quick-Snatch Terminal
-            Type 'help' for available commands
-        </div>
-        <div class="terminal-prompt">
-            <input type="text" class="terminal-input" id="terminal-input-3" autocomplete="off">
-        </div>
+    <div class="challenge-description">
+        <h2>Command Line Challenge</h2>
+        <p>Master the command line! Use various commands to navigate and find the hidden flag.</p>
+        <p>Available commands: ls, cd, pwd, cat, find, which, man, grep</p>
+        <p>Hint: Use 'help [command]' to learn more about each command.</p>
     </div>
 
-    <div class="hint-box">
-        <h5>Hint:</h5>
-        <p>Try using 'find', 'grep', and 'zcat' commands. The flag might be in a .gz file.</p>
-    </div>
-
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
+    <form method="POST" class="answer-form">
+        <input type="text" name="answer" placeholder="Enter flag here" required>
+        <button type="submit">Submit</button>
     </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const terminal = document.getElementById('terminal-content');
+    const input = document.getElementById('terminal-input');
+    const output = document.getElementById('output');
+    let commandHistory = [];
+    let historyIndex = -1;
+
+    function addOutput(text, isError = false) {
+        const line = document.createElement('div');
+        line.className = `output-line${isError ? ' error' : ''}`;
+        line.textContent = text;
+        output.appendChild(line);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    async function handleCommand(command) {
+        if (!command) return;
+
+        commandHistory.unshift(command);
+        historyIndex = -1;
+
+        const response = await fetch('/execute_command', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ command: command })
+        });
+
+        const result = await response.json();
+        addOutput(`$ ${command}`);
+        addOutput(result.output, !result.success);
+    }
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const command = input.value.trim();
+            input.value = '';
+            handleCommand(command);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                input.value = commandHistory[historyIndex];
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (historyIndex > 0) {
+                historyIndex--;
+                input.value = commandHistory[historyIndex];
+            } else if (historyIndex === 0) {
+                historyIndex = -1;
+                input.value = '';
+            }
+        }
+    });
+
+    input.focus();
+    document.addEventListener('click', () => input.focus());
+});
+</script>
+
+<style>
+.challenge-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.terminal {
+    background: #1a1a1a;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    font-family: 'Fira Code', monospace;
+}
+
+.terminal-header {
+    background: #2a2a2a;
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.terminal-title {
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.close { background: #ff5f56; }
+.minimize { background: #ffbd2e; }
+.maximize { background: #27c93f; }
+
+.terminal-content {
+    padding: 1rem;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    color: #fff;
+}
+
+.output-line {
+    margin: 0.25rem 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.error {
+    color: #ff5f56;
+}
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: #2a2a2a;
+}
+
+.prompt {
+    color: #27c93f;
+    margin-right: 0.5rem;
+}
+
+#terminal-input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: inherit;
+    flex-grow: 1;
+    outline: none;
+}
+
+.challenge-description {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 8px;
+    color: #fff;
+}
+
+.answer-form {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.answer-form input {
+    flex-grow: 1;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: #fff;
+}
+
+.answer-form button {
+    padding: 0.5rem 2rem;
+    background: #27c93f;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.answer-form button:hover {
+    background: #1ea534;
+}
+</style>
 {% endblock %}

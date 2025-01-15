@@ -88,11 +88,35 @@
             font-size: 1.3rem;
             font-weight: 600;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.5s ease-out;
             position: relative;
             max-width: 800px;
             width: 90%;
+            background-color: rgba(51, 255, 51, 0.1);
+            color: #33ff33;
+            border: 2px solid #33ff33;
+            box-shadow: 0 0 20px rgba(51, 255, 51, 0.3);
+            animation: glow 1.5s ease-in-out infinite alternate;
+            text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(51, 255, 51, 0.3),
+                            0 0 20px rgba(51, 255, 51, 0.3),
+                            0 0 30px rgba(51, 255, 51, 0.3);
+            }
+            to {
+                box-shadow: 0 0 20px rgba(51, 255, 51, 0.4),
+                            0 0 30px rgba(51, 255, 51, 0.4),
+                            0 0 40px rgba(51, 255, 51, 0.4);
+            }
+        }
+
+        .alert i {
+            margin-right: 12px;
+            font-size: 1.4rem;
+            color: #33ff33;
+            text-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
         }
 
         .alert-container {
@@ -109,9 +133,64 @@
             gap: 1rem;
         }
 
-        .alert i {
-            margin-right: 12px;
-            font-size: 1.4rem;
+        /* Custom styles for different alert types */
+        .alert-success {
+            background-color: rgba(51, 255, 51, 0.1);
+            color: #33ff33;
+            border-color: #33ff33;
+        }
+
+        .alert-info {
+            background-color: rgba(51, 255, 51, 0.1);
+            color: #33ff33;
+            border-color: #33ff33;
+        }
+
+        .alert-warning {
+            background-color: rgba(51, 255, 51, 0.1);
+            color: #33ff33;
+            border-color: #33ff33;
+        }
+
+        .alert-danger {
+            background-color: rgba(51, 255, 51, 0.1);
+            color: #33ff33;
+            border-color: #33ff33;
+        }
+
+        /* Close button styles */
+        .alert .btn-close {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #33ff33;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert .btn-close:hover {
+            opacity: 1;
+        }
+
+        /* Alert entrance animation */
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert {
+            animation: slideIn 0.5s ease-out, glow 1.5s ease-in-out infinite alternate;
         }
 
         /* Footer Styles */

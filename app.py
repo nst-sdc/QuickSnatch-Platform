@@ -2,27 +2,31 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_pymongo import PyMongo
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from datetime import datetime, timedelta
-import pytz
 import os
 from dotenv import load_dotenv
-import bcrypt
+from flask_wtf.csrf import CSRFProtect
 from flask_wtf.csrf import CSRFError
 from bson.objectid import ObjectId
-from config.logging import setup_logging, log_activity
+from utils.logging_config import setup_logging, log_activity
+from utils.password_utils import hash_password, check_password, migrate_password_if_needed
 from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_caching import Cache
-from werkzeug.security import generate_password_hash, check_password_hash
 import logging
 from logging.handlers import RotatingFileHandler
 from config import Config
+import pytz
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Set up logging
+setup_logging(app)
+activity_logger = logging.getLogger('activity')
 
 # Security with Talisman
 talisman = Talisman(
@@ -38,9 +42,6 @@ app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'F
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
-
-# Initialize logging
-activity_logger = setup_logging(app)
 
 # Time formatting functions
 def format_time_delta(start_time, end_time):
@@ -164,123 +165,61 @@ def login():
     if request.method == 'POST':
         team_name = request.form.get('team_name')
         password = request.form.get('password')
+        
         team = mongo.db.users.find_one({'team_name': team_name})
         
-        if team and bcrypt.checkpw(password.encode('utf-8'), team['password']):
+        if team and check_password(team['password'], password):
+            # Migrate password if using old hash
+            migrate_password_if_needed(mongo.db, team['_id'], password)
+            
             user = User(team)
             login_user(user)
-            
-            # Set start time if first login
-            if not team.get('start_time'):
-                mongo.db.users.update_one(
-                    {'_id': team['_id']},
-                    {'$set': {'start_time': datetime.now(pytz.UTC)}}
-                )
-            
-            log_activity(activity_logger, team_name, 'LOGIN', status='success')
-            return redirect(url_for('challenge', level=user.current_level))
-        
-        log_activity(activity_logger, team_name, 'LOGIN', status='failed')
-        flash('Invalid team name or password')
+            flash('Login successful!', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid team name or password', 'danger')
     
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        team_name = request.form.get('team_name', '').strip()
-        password = request.form.get('password', '').strip()
-        confirm_password = request.form.get('confirm_password', '').strip()
+        team_name = request.form.get('team_name')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
         
-        # Basic validation
-        if not team_name:
-            flash('Team name is required')
+        if not all([team_name, password, confirm_password, email, phone]):
+            flash('All fields are required', 'danger')
             return redirect(url_for('register'))
-            
-        if not password:
-            flash('Password is required')
-            return redirect(url_for('register'))
-            
+        
         if password != confirm_password:
-            flash('Passwords do not match')
+            flash('Passwords do not match', 'danger')
             return redirect(url_for('register'))
         
-        # Check if team name already exists
-        if mongo.db.users.find_one({'team_name': team_name}):
-            flash('Team name already exists')
+        existing_team = mongo.db.users.find_one({'team_name': team_name})
+        if existing_team:
+            flash('Team name already exists', 'danger')
             return redirect(url_for('register'))
         
-        # Get team members info
-        members = []
-        for i in range(1, 3):  # 2 members
-            name = request.form.get(f'member{i}_name', '').strip()
-            email = request.form.get(f'member{i}_email', '').strip()
-            phone = request.form.get(f'member{i}_phone', '').strip()
-            
-            # Validate member fields
-            if not name:
-                flash(f'Name is required for Member {i}')
-                return redirect(url_for('register'))
-                
-            if not email:
-                flash(f'Email is required for Member {i}')
-                return redirect(url_for('register'))
-                
-            if not phone:
-                flash(f'Phone number is required for Member {i}')
-                return redirect(url_for('register'))
-            
-            # Ensure email ends with @adypu.edu.in
-            if not email.endswith('@adypu.edu.in'):
-                email = email + '@adypu.edu.in'
-            
-            # Validate email format
-            if not email.endswith('@adypu.edu.in'):
-                flash(f'Member {i} must use an ADYPU email address (@adypu.edu.in)')
-                return redirect(url_for('register'))
-            
-            # Validate phone number format (10 digits)
-            if not phone.isdigit() or len(phone) != 10:
-                flash(f'Invalid phone number for Member {i}. Must be 10 digits.')
-                return redirect(url_for('register'))
-            
-            # Check if email is already registered
-            if mongo.db.users.find_one({'members.email': email}):
-                flash(f'Email {email} is already registered')
-                return redirect(url_for('register'))
-            
-            # Check if phone is already registered
-            if mongo.db.users.find_one({'members.phone': phone}):
-                flash(f'Phone number {phone} is already registered')
-                return redirect(url_for('register'))
-            
-            members.append({
-                'name': name,
-                'email': email,
-                'phone': phone
-            })
+        hashed_password = hash_password(password)
         
-        # Create new team
-        try:
-            hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            team = {
-                'team_name': team_name,
-                'password': hashed,
-                'members': members,
-                'current_level': 1,
-                'start_time': None,
-                'last_submission': None,
-                'created_at': datetime.now(pytz.UTC)
-            }
-            
-            mongo.db.users.insert_one(team)
-            flash('Team registered successfully! Please login.')
-            return redirect(url_for('login'))
-            
-        except Exception as e:
-            app.logger.error(f"Registration error: {str(e)}")
-            flash('An error occurred during registration. Please try again.')
-            return redirect(url_for('register'))
+        new_team = {
+            'team_name': team_name,
+            'password': hashed_password,
+            'email': email,
+            'phone': phone,
+            'current_level': 1,
+            'start_time': None,
+            'end_time': None,
+            'is_active': True,
+            'created_at': datetime.utcnow()
+        }
+        
+        result = mongo.db.users.insert_one(new_team)
+        flash('Registration successful! Please login.', 'success')
+        return redirect(url_for('login'))
     
     return render_template('register.html')
 
@@ -395,6 +334,31 @@ def view_logs():
     
     return render_template('logs.html', activity_logs=activity_logs, server_logs=server_logs)
 
+@app.route('/execute_command', methods=['POST'])
+@login_required
+def execute_command():
+    """Execute terminal commands"""
+    try:
+        command = request.json.get('command', '').strip()
+        if not command:
+            return jsonify({'success': False, 'output': 'No command provided'})
+
+        # Get or create command executor for this session
+        if 'cmd_executor' not in session:
+            from utils.commands import CommandExecutor
+            session['cmd_executor'] = CommandExecutor()
+
+        # Execute command
+        success, output = session['cmd_executor'].execute(command)
+        
+        # Log command execution
+        log_activity(activity_logger, current_user.team_name, 'COMMAND', 
+                    command=command, success=success)
+        
+        return jsonify({'success': success, 'output': output})
+    except Exception as e:
+        return jsonify({'success': False, 'output': f'Error: {str(e)}'})
+
 # Security headers
 @app.after_request
 def add_security_headers(response):
@@ -422,7 +386,7 @@ def handle_csrf_error(e):
 @app.before_request
 def before_request():
     session.permanent = True
-    if not request.is_secure and app.env != "development":
+    if not request.is_secure and not app.debug:
         url = request.url.replace('http://', 'https://', 1)
         return redirect(url, code=301)
 

@@ -114,21 +114,54 @@ body {
 
 /* Enhanced Alert Messages */
 .alert {
-    animation: slideIn 0.5s ease;
-    border: none;
-    background: rgba(0, 255, 0, 0.1);
-    backdrop-filter: blur(5px);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+.alert-success {
+    background-color: #28a745;
+    color: #fff;
+    border: 1px solid #218838;
+}
+
+.alert-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: 1px solid #c82333;
+}
+
+.alert-warning {
+    background-color: #ffc107;
+    color: #000;
+    border: 1px solid #d39e00;
+}
+
+.alert-info {
+    background-color: #17a2b8;
+    color: #fff;
+    border: 1px solid #138496;
 }
 
 @keyframes slideIn {
     from {
-        transform: translateY(-20px);
+        transform: translateY(-100%);
         opacity: 0;
     }
     to {
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+.alert .btn-close {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    filter: invert(1);
 }
 
 /* Enhanced Leaderboard */
