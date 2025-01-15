@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4" style="color: #33ff33;">Team Login</h2>
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <label for="team_name" class="form-label" style="color: #33ff33;">Team Name</label>
+                            <input type="text" class="form-control bg-dark text-light border-success" 
+                                   id="team_name" name="team_name" required
+                                   style="border-color: #33ff33;">
+                        </div>
+                        <div class="mb-4">
+                            <label for="password" class="form-label" style="color: #33ff33;">Team Password</label>
+                            <input type="password" class="form-control bg-dark text-light border-success" 
+                                   id="password" name="password" required
+                                   style="border-color: #33ff33;">
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-lg" 
+                                    style="background-color: #1e1e1e; color: #33ff33; border: 1px solid #33ff33;">
+                                Login
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p style="color: #33ff33;">Don't have a team? 
+                            <a href="/register" style="color: #33ff33; text-decoration: underline;">Register your team</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}
