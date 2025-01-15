@@ -6,6 +6,15 @@
             <div class="card shadow-lg">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4" style="color: #33ff33;">Team Registration</h2>
+                    
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-danger">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
                     <form method="POST" class="needs-validation" novalidate>
                         <!-- Team Information -->
                         <div class="mb-4">
@@ -17,7 +26,7 @@
                                        style="border-color: #33ff33;">
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="form-label" style="color: #33ff33;">Team Password</label>
+                                <label for="password" class="form-label" style="color: #33ff33;">Password</label>
                                 <input type="password" class="form-control bg-dark text-light border-success" 
                                        id="password" name="password" required
                                        style="border-color: #33ff33;">
@@ -30,71 +39,57 @@
                             </div>
                         </div>
 
-                        <!-- Team Members -->
+                        <!-- Member 1 Information -->
                         <div class="mb-4">
-                            <h4 style="color: #33ff33;">Team Members</h4>
-                            <div id="team_members">
-                                <!-- Member 1 -->
-                                <div class="team-member mb-4">
-                                    <h5 style="color: #33ff33;">Member 1 (Team Leader)</h5>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label" style="color: #33ff33;">Full Name</label>
-                                            <input type="text" class="form-control bg-dark text-light border-success" 
-                                                   name="member_name_1" required
-                                                   style="border-color: #33ff33;">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label" style="color: #33ff33;">ADYPU Email</label>
-                                            <input type="email" class="form-control bg-dark text-light border-success" 
-                                                   name="member_email_1" required pattern=".*@adypu\.edu\.in$"
-                                                   style="border-color: #33ff33;">
-                                            <div class="invalid-feedback">
-                                                Please enter a valid ADYPU email address
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label" style="color: #33ff33;">Phone Number</label>
-                                            <input type="tel" class="form-control bg-dark text-light border-success" 
-                                                   name="member_phone_1" required pattern="[0-9]{10}"
-                                                   style="border-color: #33ff33;">
-                                            <div class="invalid-feedback">
-                                                Please enter a valid 10-digit phone number
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <h4 style="color: #33ff33;">Member 1</h4>
+                            <div class="mb-3">
+                                <label for="member1_name" class="form-label" style="color: #33ff33;">Full Name</label>
+                                <input type="text" class="form-control bg-dark text-light border-success" 
+                                       id="member1_name" name="member1_name" required
+                                       style="border-color: #33ff33;">
+                            </div>
+                            <div class="mb-3">
+                                <label for="member1_email" class="form-label" style="color: #33ff33;">ADYPU Email</label>
+                                <input type="email" class="form-control bg-dark text-light border-success" 
+                                       id="member1_email" name="member1_email" required
+                                       pattern=".*@adypu\.edu\.in$"
+                                       style="border-color: #33ff33;">
+                                <div class="form-text text-light">Must be an @adypu.edu.in email address</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="member1_phone" class="form-label" style="color: #33ff33;">Phone Number</label>
+                                <input type="tel" class="form-control bg-dark text-light border-success" 
+                                       id="member1_phone" name="member1_phone" required
+                                       pattern="[0-9]{10}"
+                                       style="border-color: #33ff33;">
+                                <div class="form-text text-light">10-digit phone number</div>
+                            </div>
+                        </div>
 
-                                <!-- Member 2 -->
-                                <div class="team-member mb-4">
-                                    <h5 style="color: #33ff33;">Member 2</h5>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label" style="color: #33ff33;">Full Name</label>
-                                            <input type="text" class="form-control bg-dark text-light border-success" 
-                                                   name="member_name_2" required
-                                                   style="border-color: #33ff33;">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label" style="color: #33ff33;">ADYPU Email</label>
-                                            <input type="email" class="form-control bg-dark text-light border-success" 
-                                                   name="member_email_2" required pattern=".*@adypu\.edu\.in$"
-                                                   style="border-color: #33ff33;">
-                                            <div class="invalid-feedback">
-                                                Please enter a valid ADYPU email address
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label" style="color: #33ff33;">Phone Number</label>
-                                            <input type="tel" class="form-control bg-dark text-light border-success" 
-                                                   name="member_phone_2" required pattern="[0-9]{10}"
-                                                   style="border-color: #33ff33;">
-                                            <div class="invalid-feedback">
-                                                Please enter a valid 10-digit phone number
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <!-- Member 2 Information -->
+                        <div class="mb-4">
+                            <h4 style="color: #33ff33;">Member 2</h4>
+                            <div class="mb-3">
+                                <label for="member2_name" class="form-label" style="color: #33ff33;">Full Name</label>
+                                <input type="text" class="form-control bg-dark text-light border-success" 
+                                       id="member2_name" name="member2_name" required
+                                       style="border-color: #33ff33;">
+                            </div>
+                            <div class="mb-3">
+                                <label for="member2_email" class="form-label" style="color: #33ff33;">ADYPU Email</label>
+                                <input type="email" class="form-control bg-dark text-light border-success" 
+                                       id="member2_email" name="member2_email" required
+                                       pattern=".*@adypu\.edu\.in$"
+                                       style="border-color: #33ff33;">
+                                <div class="form-text text-light">Must be an @adypu.edu.in email address</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="member2_phone" class="form-label" style="color: #33ff33;">Phone Number</label>
+                                <input type="tel" class="form-control bg-dark text-light border-success" 
+                                       id="member2_phone" name="member2_phone" required
+                                       pattern="[0-9]{10}"
+                                       style="border-color: #33ff33;">
+                                <div class="form-text text-light">10-digit phone number</div>
                             </div>
                         </div>
 
@@ -105,8 +100,9 @@
                             </button>
                         </div>
                     </form>
+
                     <div class="text-center mt-4">
-                        <p style="color: #33ff33;">Already registered? 
+                        <p style="color: #33ff33;">Already have a team? 
                             <a href="/login" style="color: #33ff33; text-decoration: underline;">Login here</a>
                         </p>
                     </div>
@@ -133,7 +129,7 @@
         })
 })()
 
-// Password match validation
+// Password confirmation validation
 document.getElementById('confirm_password').addEventListener('input', function() {
     if (this.value !== document.getElementById('password').value) {
         this.setCustomValidity('Passwords do not match');
@@ -142,15 +138,13 @@ document.getElementById('confirm_password').addEventListener('input', function()
     }
 });
 
-// Email validation for ADYPU domain
-document.querySelectorAll('input[type="email"]').forEach(function(input) {
-    input.addEventListener('input', function() {
-        if (!this.value.endsWith('@adypu.edu.in')) {
-            this.setCustomValidity('Email must be from ADYPU domain (@adypu.edu.in)');
-        } else {
-            this.setCustomValidity('');
-        }
-    });
+document.getElementById('password').addEventListener('input', function() {
+    var confirm_password = document.getElementById('confirm_password');
+    if (confirm_password.value !== this.value) {
+        confirm_password.setCustomValidity('Passwords do not match');
+    } else {
+        confirm_password.setCustomValidity('');
+    }
 });
 </script>
 {% endblock %}

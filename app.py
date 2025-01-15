@@ -146,8 +146,22 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        team_name = request.form.get('team_name')
-        password = request.form.get('password')
+        team_name = request.form.get('team_name', '').strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # Basic validation
+        if not team_name:
+            flash('Team name is required')
+            return redirect(url_for('register'))
+            
+        if not password:
+            flash('Password is required')
+            return redirect(url_for('register'))
+            
+        if password != confirm_password:
+            flash('Passwords do not match')
+            return redirect(url_for('register'))
         
         # Check if team name already exists
         if mongo.db.users.find_one({'team_name': team_name}):
@@ -157,16 +171,38 @@ def register():
         # Get team members info
         members = []
         for i in range(1, 3):  # 2 members
-            member = {
-                'name': request.form.get(f'member_name_{i}'),
-                'email': request.form.get(f'member_email_{i}'),
-                'phone': request.form.get(f'member_phone_{i}')
-            }
-            # Validate ADYPU email
-            if not member['email'].endswith('@adypu.edu.in'):
-                flash(f'Member {i} must use an ADYPU email address')
+            name = request.form.get(f'member{i}_name', '').strip()
+            email = request.form.get(f'member{i}_email', '').strip()
+            phone = request.form.get(f'member{i}_phone', '').strip()
+            
+            # Validate member fields
+            if not name:
+                flash(f'Name is required for Member {i}')
                 return redirect(url_for('register'))
-            members.append(member)
+                
+            if not email:
+                flash(f'Email is required for Member {i}')
+                return redirect(url_for('register'))
+                
+            if not phone:
+                flash(f'Phone number is required for Member {i}')
+                return redirect(url_for('register'))
+            
+            # Validate email format
+            if not email.endswith('@adypu.edu.in'):
+                flash(f'Member {i} must use an ADYPU email address (@adypu.edu.in)')
+                return redirect(url_for('register'))
+            
+            # Validate phone number format (10 digits)
+            if not phone.isdigit() or len(phone) != 10:
+                flash(f'Invalid phone number for Member {i}. Must be 10 digits.')
+                return redirect(url_for('register'))
+            
+            members.append({
+                'name': name,
+                'email': email,
+                'phone': phone
+            })
         
         # Create new team
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -180,9 +216,14 @@ def register():
             'created_at': datetime.now(pytz.UTC)
         }
         
-        mongo.db.users.insert_one(team)
-        flash('Team registered successfully! Please login.')
-        return redirect(url_for('login'))
+        try:
+            mongo.db.users.insert_one(team)
+            flash('Team registered successfully! Please login.')
+            return redirect(url_for('login'))
+        except Exception as e:
+            app.logger.error(f"Registration error: {str(e)}")
+            flash('An error occurred during registration. Please try again.')
+            return redirect(url_for('register'))
     
     return render_template('register.html')
 
