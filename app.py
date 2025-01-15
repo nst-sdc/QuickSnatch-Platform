@@ -188,14 +188,28 @@ def register():
                 flash(f'Phone number is required for Member {i}')
                 return redirect(url_for('register'))
             
+            # Ensure email ends with @adypu.edu.in
+            if not email.endswith('@adypu.edu.in'):
+                email = email + '@adypu.edu.in'
+            
             # Validate email format
             if not email.endswith('@adypu.edu.in'):
                 flash(f'Member {i} must use an ADYPU email address (@adypu.edu.in)')
                 return redirect(url_for('register'))
             
+            # Check if email is already registered
+            if mongo.db.users.find_one({'members.email': email}):
+                flash(f'Email {email} is already registered')
+                return redirect(url_for('register'))
+            
             # Validate phone number format (10 digits)
             if not phone.isdigit() or len(phone) != 10:
                 flash(f'Invalid phone number for Member {i}. Must be 10 digits.')
+                return redirect(url_for('register'))
+            
+            # Check if phone is already registered
+            if mongo.db.users.find_one({'members.phone': phone}):
+                flash(f'Phone number {phone} is already registered')
                 return redirect(url_for('register'))
             
             members.append({
@@ -205,21 +219,22 @@ def register():
             })
         
         # Create new team
-        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        team = {
-            'team_name': team_name,
-            'password': hashed,
-            'members': members,
-            'current_level': 1,
-            'start_time': None,
-            'last_submission': None,
-            'created_at': datetime.now(pytz.UTC)
-        }
-        
         try:
+            hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            team = {
+                'team_name': team_name,
+                'password': hashed,
+                'members': members,
+                'current_level': 1,
+                'start_time': None,
+                'last_submission': None,
+                'created_at': datetime.now(pytz.UTC)
+            }
+            
             mongo.db.users.insert_one(team)
             flash('Team registered successfully! Please login.')
             return redirect(url_for('login'))
+            
         except Exception as e:
             app.logger.error(f"Registration error: {str(e)}")
             flash('An error occurred during registration. Please try again.')

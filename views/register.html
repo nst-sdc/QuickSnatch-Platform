@@ -20,49 +20,59 @@
                         <div class="mb-4">
                             <h4 style="color: #33ff33;">Team Details</h4>
                             <div class="mb-3">
-                                <label for="team_name" class="form-label" style="color: #33ff33;">Team Name</label>
+                                <label for="team_name" class="form-label" style="color: #33ff33;">Team Name *</label>
                                 <input type="text" class="form-control bg-dark text-light border-success" 
                                        id="team_name" name="team_name" required
-                                       style="border-color: #33ff33;">
+                                       style="border-color: #33ff33;"
+                                       placeholder="Enter your team name">
+                                <div class="form-text text-light">Choose a unique team name</div>
                             </div>
                             <div class="mb-3">
-                                <label for="password" class="form-label" style="color: #33ff33;">Password</label>
+                                <label for="password" class="form-label" style="color: #33ff33;">Password *</label>
                                 <input type="password" class="form-control bg-dark text-light border-success" 
                                        id="password" name="password" required
-                                       style="border-color: #33ff33;">
+                                       style="border-color: #33ff33;"
+                                       placeholder="Enter team password">
                             </div>
                             <div class="mb-3">
-                                <label for="confirm_password" class="form-label" style="color: #33ff33;">Confirm Password</label>
+                                <label for="confirm_password" class="form-label" style="color: #33ff33;">Confirm Password *</label>
                                 <input type="password" class="form-control bg-dark text-light border-success" 
                                        id="confirm_password" name="confirm_password" required
-                                       style="border-color: #33ff33;">
+                                       style="border-color: #33ff33;"
+                                       placeholder="Confirm team password">
                             </div>
                         </div>
 
                         <!-- Member 1 Information -->
                         <div class="mb-4">
-                            <h4 style="color: #33ff33;">Member 1</h4>
+                            <h4 style="color: #33ff33;">Team Leader (Member 1)</h4>
                             <div class="mb-3">
-                                <label for="member1_name" class="form-label" style="color: #33ff33;">Full Name</label>
+                                <label for="member1_name" class="form-label" style="color: #33ff33;">Full Name *</label>
                                 <input type="text" class="form-control bg-dark text-light border-success" 
                                        id="member1_name" name="member1_name" required
-                                       style="border-color: #33ff33;">
+                                       style="border-color: #33ff33;"
+                                       placeholder="Enter full name">
                             </div>
                             <div class="mb-3">
-                                <label for="member1_email" class="form-label" style="color: #33ff33;">ADYPU Email</label>
-                                <input type="email" class="form-control bg-dark text-light border-success" 
-                                       id="member1_email" name="member1_email" required
-                                       pattern=".*@adypu\.edu\.in$"
-                                       style="border-color: #33ff33;">
-                                <div class="form-text text-light">Must be an @adypu.edu.in email address</div>
+                                <label for="member1_email" class="form-label" style="color: #33ff33;">ADYPU Email *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control bg-dark text-light border-success" 
+                                           id="member1_email" name="member1_email" required
+                                           style="border-color: #33ff33;"
+                                           placeholder="Enter your ADYPU email">
+                                    <span class="input-group-text bg-dark text-light border-success" 
+                                          style="border-color: #33ff33;">@adypu.edu.in</span>
+                                </div>
+                                <div class="form-text text-light">Use your ADYPU email address</div>
                             </div>
                             <div class="mb-3">
-                                <label for="member1_phone" class="form-label" style="color: #33ff33;">Phone Number</label>
+                                <label for="member1_phone" class="form-label" style="color: #33ff33;">Phone Number *</label>
                                 <input type="tel" class="form-control bg-dark text-light border-success" 
                                        id="member1_phone" name="member1_phone" required
                                        pattern="[0-9]{10}"
-                                       style="border-color: #33ff33;">
-                                <div class="form-text text-light">10-digit phone number</div>
+                                       style="border-color: #33ff33;"
+                                       placeholder="Enter 10-digit phone number">
+                                <div class="form-text text-light">10-digit phone number without spaces</div>
                             </div>
                         </div>
 
@@ -70,26 +80,32 @@
                         <div class="mb-4">
                             <h4 style="color: #33ff33;">Member 2</h4>
                             <div class="mb-3">
-                                <label for="member2_name" class="form-label" style="color: #33ff33;">Full Name</label>
+                                <label for="member2_name" class="form-label" style="color: #33ff33;">Full Name *</label>
                                 <input type="text" class="form-control bg-dark text-light border-success" 
                                        id="member2_name" name="member2_name" required
-                                       style="border-color: #33ff33;">
+                                       style="border-color: #33ff33;"
+                                       placeholder="Enter full name">
                             </div>
                             <div class="mb-3">
-                                <label for="member2_email" class="form-label" style="color: #33ff33;">ADYPU Email</label>
-                                <input type="email" class="form-control bg-dark text-light border-success" 
-                                       id="member2_email" name="member2_email" required
-                                       pattern=".*@adypu\.edu\.in$"
-                                       style="border-color: #33ff33;">
-                                <div class="form-text text-light">Must be an @adypu.edu.in email address</div>
+                                <label for="member2_email" class="form-label" style="color: #33ff33;">ADYPU Email *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control bg-dark text-light border-success" 
+                                           id="member2_email" name="member2_email" required
+                                           style="border-color: #33ff33;"
+                                           placeholder="Enter your ADYPU email">
+                                    <span class="input-group-text bg-dark text-light border-success" 
+                                          style="border-color: #33ff33;">@adypu.edu.in</span>
+                                </div>
+                                <div class="form-text text-light">Use your ADYPU email address</div>
                             </div>
                             <div class="mb-3">
-                                <label for="member2_phone" class="form-label" style="color: #33ff33;">Phone Number</label>
+                                <label for="member2_phone" class="form-label" style="color: #33ff33;">Phone Number *</label>
                                 <input type="tel" class="form-control bg-dark text-light border-success" 
                                        id="member2_phone" name="member2_phone" required
                                        pattern="[0-9]{10}"
-                                       style="border-color: #33ff33;">
-                                <div class="form-text text-light">10-digit phone number</div>
+                                       style="border-color: #33ff33;"
+                                       placeholder="Enter 10-digit phone number">
+                                <div class="form-text text-light">10-digit phone number without spaces</div>
                             </div>
                         </div>
 
@@ -145,6 +161,25 @@ document.getElementById('password').addEventListener('input', function() {
     } else {
         confirm_password.setCustomValidity('');
     }
+});
+
+// Email validation
+document.querySelectorAll('[id$="_email"]').forEach(function(input) {
+    input.addEventListener('input', function() {
+        // Remove @adypu.edu.in if user types it
+        this.value = this.value.replace(/@adypu\.edu\.in$/, '');
+        
+        // Remove any @ symbol
+        this.value = this.value.replace(/@/g, '');
+    });
+});
+
+// Form submission
+document.querySelector('form').addEventListener('submit', function(event) {
+    // Append @adypu.edu.in to email fields before submission
+    document.querySelectorAll('[id$="_email"]').forEach(function(input) {
+        input.value = input.value + '@adypu.edu.in';
+    });
 });
 </script>
 {% endblock %}
