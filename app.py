@@ -31,7 +31,7 @@ class Submission(db.Model):
 
 # Challenge answers (in production, these should be stored securely)
 ANSWERS = {
-    1: "flag{quick_basics}",
+    1: "flag{file_explorer_pro}",
     2: "flag{chmod_master}",
     3: "flag{grep_master_123}",
     4: "flag{process_hunter}",
@@ -46,22 +46,22 @@ ANSWERS = {
 # Command outputs for each level
 COMMAND_OUTPUTS = {
     1: {
+        "ls": "Documents  Downloads  Pictures  secret.txt",
+        "ls -a": ".  ..  .bash_history  .bashrc  Documents  Downloads  Pictures  secret.txt",
+        "ls -l": """total 28
+drwxr-xr-x 2 user user 4096 Jan 16 14:44 Documents
+drwxr-xr-x 2 user user 4096 Jan 16 14:44 Downloads
+drwxr-xr-x 2 user user 4096 Jan 16 14:44 Pictures
+-rw-r--r-- 1 user user   52 Jan 16 14:44 secret.txt""",
+        "cat secret.txt": "flag{file_explorer_pro}",
         "pwd": "/home/user",
-        "ls": "Documents  Downloads  readme.txt  .secret_flag",
-        "ls -la": """total 32
-drwxr-xr-x  5 user  user  4096 Jan 16 14:30 .
-drwxr-xr-x  3 user  user  4096 Jan 16 14:30 ..
--rw-------  1 user  user   220 Jan 16 14:30 .bash_history
--rw-r--r--  1 user  user  3771 Jan 16 14:30 .bashrc
-drwxr-xr-x  2 user  user  4096 Jan 16 14:30 Documents
-drwxr-xr-x  2 user  user  4096 Jan 16 14:30 Downloads
--rw-r--r--  1 user  user   807 Jan 16 14:30 .profile
--rw-r--r--  1 user  user   102 Jan 16 14:30 readme.txt
--rw-r--r--  1 user  user    24 Jan 16 14:30 .secret_flag""",
-        "cat readme.txt": """Welcome to Level 1!
-Navigate through the files to find the flag.
-Hint: Sometimes important files are hidden...""",
-        "cat .secret_flag": "flag{quick_basics}"
+        "help": """Available commands:
+ls      - List directory contents
+ls -a   - List all files including hidden
+ls -l   - List files in long format
+cat     - Display file contents
+pwd     - Print working directory""",
+        "clear": ""
     },
     2: {
         "ls -l": """total 16
@@ -342,17 +342,31 @@ def execute_command():
     # Get level-specific command outputs
     level_outputs = COMMAND_OUTPUTS.get(level, {})
     
-    # Check if the command exists in the level's allowed commands
+    # First try exact command match
     output = level_outputs.get(command)
+    
+    if output is None:
+        # If no exact match, try to match command with arguments
+        # Split command and try common variations
+        cmd_parts = command.split()
+        base_cmd = cmd_parts[0]
+        
+        # Try to match commands with arguments
+        for cmd_key in level_outputs.keys():
+            if cmd_key.startswith(command):
+                output = level_outputs[cmd_key]
+                break
     
     if output is not None:
         return jsonify({'output': output})
     else:
-        # Handle common commands that might not be in COMMAND_OUTPUTS
+        # Handle common commands
         if command == 'clear':
             return jsonify({'output': ''})
         elif command == 'help':
-            return jsonify({'output': 'Available commands:\n' + '\n'.join(level_outputs.keys())})
+            # Get list of available commands for the level
+            available_commands = '\n'.join(sorted(level_outputs.keys()))
+            return jsonify({'output': f'Available commands:\n{available_commands}'})
         else:
             return jsonify({'error': f'Command not found: {command}'})
 
