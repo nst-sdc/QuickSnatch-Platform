@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="challenge-card">
-    <h2>Level {{ level }}: {% block level_title %}{% endblock %}</h2>
+    <h2>Level {{ level|default(1) }}: {% block level_title %}{% endblock %}</h2>
     <div class="progress mb-3">
         <div class="progress-bar" role="progressbar" 
-             style="width: {{ level * 10 }}%" 
-             aria-valuenow="{{ level * 10 }}" 
+             style="width: {{ (level|default(1) * 10) }}%" 
+             aria-valuenow="{{ (level|default(1) * 10) }}" 
              aria-valuemin="0" 
-             aria-valuemax="100">{{ level }}/10</div>
+             aria-valuemax="100">{{ level|default(1) }}/10</div>
     </div>
     
     <div class="mb-4">
@@ -43,7 +43,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = {{ level }};
+    window.currentLevel = {{ level|default(1) }};
 });
 
 async function submitFlag(event) {

@@ -276,6 +276,8 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('level', level_number=current_user.current_level))
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -291,7 +293,7 @@ def login():
                 user.start_time = datetime.now(pytz.UTC)
                 db.session.commit()
             flash('Successfully logged in!', 'success')
-            return redirect(url_for('level', level=user.current_level))
+            return redirect(url_for('level', level_number=user.current_level))
         
         flash('Invalid username or password', 'danger')
     return render_template('login.html')
@@ -327,34 +329,26 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/level/<int:level>', methods=['GET', 'POST'])
+@app.route('/level/<int:level_number>')
 @login_required
-def level(level):
-    # Check if user has completed previous level and solved its riddle
-    if level > 1 and (current_user.current_level < level or 
-                      current_user.id in riddle_manager.user_riddles and 
-                      riddle_manager.user_riddles[current_user.id].get('level') == level - 1):
-        flash('Please complete the previous level and its riddle first!', 'error')
-        return redirect(url_for('level', level=current_user.current_level))
+def level(level_number):
+    # Ensure user can't access levels beyond their current level
+    if level_number > current_user.current_level:
+        flash('You have not unlocked this level yet!', 'danger')
+        return redirect(url_for('level', level_number=current_user.current_level))
     
-    # If user is trying to access a level beyond their current level
-    if level > current_user.current_level:
-        flash('Please complete the previous levels first!', 'error')
-        return redirect(url_for('level', level=current_user.current_level))
-
-    if request.method == 'POST':
-        flag = request.form.get('flag', '').strip()
-        if not flag:
-            return jsonify({'success': False, 'message': 'Please enter a flag'})
-
-        expected_flag = ANSWERS.get(level)
-        if flag == expected_flag:
-            # Redirect to riddle instead of next level
-            return redirect(url_for('level_complete', level=level))
-        else:
-            flash('Incorrect flag. Try again!', 'error')
+    # Ensure level number is valid
+    if level_number < 1 or level_number > 10:
+        flash('Invalid level number!', 'danger')
+        return redirect(url_for('level', level_number=current_user.current_level))
     
-    return render_template(f'challenges/level_{level}.html', level=level)
+    return render_template(f'challenges/level_{level_number}.html', level=level_number)
+
+@app.route('/leaderboard')
+@login_required
+def leaderboard():
+    users = User.query.order_by(User.current_level.desc(), User.username).all()
+    return render_template('leaderboard.html', users=users)
 
 @app.route('/check_flag/<int:level>', methods=['POST'])
 @login_required
@@ -386,7 +380,7 @@ def level_complete(level):
     # Ensure user has actually completed the level
     if level != current_user.current_level:
         flash('Please complete the current level first!', 'error')
-        return redirect(url_for('level', level=current_user.current_level))
+        return redirect(url_for('level', level_number=current_user.current_level))
     
     if request.method == 'POST':
         answer = request.form.get('answer', '').strip()
@@ -396,7 +390,7 @@ def level_complete(level):
             current_user.current_level = level + 1
             db.session.commit()
             flash('Congratulations! You\'ve completed this level!', 'success')
-            return redirect(url_for('level', level=level + 1))
+            return redirect(url_for('level', level_number=level + 1))
         else:
             riddle = riddle_manager.user_riddles[current_user.id]['current_riddle']['riddle']
             flash('Incorrect answer. Try again!', 'error')
@@ -413,11 +407,6 @@ def level_complete(level):
         riddle = riddle_data['riddle']
     
     return render_template('riddle.html', level=level, riddle=riddle)
-
-@app.route('/leaderboard')
-def leaderboard():
-    users = User.query.order_by(User.current_level.desc(), User.last_submission).all()
-    return render_template('leaderboard.html', users=users)
 
 @app.route('/commands')
 def commands():
