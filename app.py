@@ -5,6 +5,10 @@ from datetime import datetime
 import pytz
 import os
 import bcrypt
+import shlex
+from riddles import riddle_manager
+import io
+import math
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -287,7 +291,7 @@ def login():
                 user.start_time = datetime.now(pytz.UTC)
                 db.session.commit()
             flash('Successfully logged in!', 'success')
-            return redirect(url_for('challenge', level=user.current_level))
+            return redirect(url_for('level', level=user.current_level))
         
         flash('Invalid username or password', 'danger')
     return render_template('login.html')
@@ -323,41 +327,92 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route('/challenge/<int:level>', methods=['GET', 'POST'])
+@app.route('/level/<int:level>', methods=['GET', 'POST'])
 @login_required
-def challenge(level):
+def level(level):
+    # Check if user has completed previous level and solved its riddle
+    if level > 1 and (current_user.current_level < level or 
+                      current_user.id in riddle_manager.user_riddles and 
+                      riddle_manager.user_riddles[current_user.id].get('level') == level - 1):
+        flash('Please complete the previous level and its riddle first!', 'error')
+        return redirect(url_for('level', level=current_user.current_level))
+    
+    # If user is trying to access a level beyond their current level
     if level > current_user.current_level:
-        flash('You must complete previous levels first!')
-        return redirect(url_for('challenge', level=current_user.current_level))
+        flash('Please complete the previous levels first!', 'error')
+        return redirect(url_for('level', level=current_user.current_level))
+
+    if request.method == 'POST':
+        flag = request.form.get('flag', '').strip()
+        if not flag:
+            return jsonify({'success': False, 'message': 'Please enter a flag'})
+
+        expected_flag = ANSWERS.get(level)
+        if flag == expected_flag:
+            # Redirect to riddle instead of next level
+            return redirect(url_for('level_complete', level=level))
+        else:
+            flash('Incorrect flag. Try again!', 'error')
+    
+    return render_template(f'challenges/level_{level}.html', level=level)
+
+@app.route('/check_flag/<int:level>', methods=['POST'])
+@login_required
+def check_flag(level):
+    if level != current_user.current_level:
+        return jsonify({'success': False, 'message': 'Invalid level!'})
+    
+    submitted_flag = request.json.get('flag', '').strip()
+    if not submitted_flag:
+        return jsonify({'success': False, 'message': 'Please enter a flag'})
+
+    expected_flag = ANSWERS.get(level)
+    
+    if submitted_flag == expected_flag:
+        # Redirect to riddle instead of next level
+        return jsonify({
+            'success': True,
+            'redirect': url_for('level_complete', level=level)
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'message': 'Incorrect flag. Try again!'
+        })
+
+@app.route('/level/<int:level>/complete', methods=['GET', 'POST'])
+@login_required
+def level_complete(level):
+    # Ensure user has actually completed the level
+    if level != current_user.current_level:
+        flash('Please complete the current level first!', 'error')
+        return redirect(url_for('level', level=current_user.current_level))
     
     if request.method == 'POST':
-        answer = request.form.get('answer')
-        if answer == ANSWERS.get(level):
-            submission = Submission(
-                user_id=current_user.id,
-                level=level,
-                submitted_at=datetime.now(pytz.UTC),
-                is_correct=True
-            )
-            db.session.add(submission)
-            if level == current_user.current_level:
-                current_user.current_level += 1
-            current_user.last_submission = datetime.now(pytz.UTC)
+        answer = request.form.get('answer', '').strip()
+        if riddle_manager.check_answer(current_user.id, answer):
+            # Clear the riddle and progress to next level
+            riddle_manager.clear_riddle(current_user.id)
+            current_user.current_level = level + 1
             db.session.commit()
-            flash('Correct! Moving to next level.', 'success')
-            return redirect(url_for('challenge', level=level+1))
+            flash('Congratulations! You\'ve completed this level!', 'success')
+            return redirect(url_for('level', level=level + 1))
         else:
-            submission = Submission(
-                user_id=current_user.id,
-                level=level,
-                submitted_at=datetime.now(pytz.UTC),
-                is_correct=False
-            )
-            db.session.add(submission)
-            db.session.commit()
-            flash('Incorrect answer. Try again!', 'danger')
+            riddle = riddle_manager.user_riddles[current_user.id]['current_riddle']['riddle']
+            flash('Incorrect answer. Try again!', 'error')
+            return render_template('riddle.html', level=level, riddle=riddle, 
+                                error="Incorrect answer. Try again!")
+
+    # Check if user already has a riddle assigned
+    if current_user.id in riddle_manager.user_riddles and \
+       riddle_manager.user_riddles[current_user.id].get('level') == level:
+        riddle = riddle_manager.user_riddles[current_user.id]['current_riddle']['riddle']
+    else:
+        # Assign a new riddle for this level
+        riddle_data = riddle_manager.assign_riddle(current_user.id, level)
+        riddle = riddle_data['riddle']
     
-    return render_template(f'challenges/level_{level}.html')
+    return render_template('riddle.html', level=level, riddle=riddle)
 
 @app.route('/leaderboard')
 def leaderboard():
@@ -372,58 +427,276 @@ def commands():
 @login_required
 def execute_command():
     data = request.get_json()
-    if not data or 'command' not in data or 'level' not in data:
-        return jsonify({'error': 'Invalid request data'}), 400
-
-    command = data['command'].strip()
-    level = int(data['level'])
-
-    # Get level-specific command outputs
-    level_outputs = COMMAND_OUTPUTS.get(level, {})
+    command = data.get('command')
+    cwd = data.get('cwd', '/home/user')
     
-    # First try exact command match
-    output = level_outputs.get(command)
-    
-    if output is None:
-        # Split command and try common variations
-        cmd_parts = command.split()
-        base_cmd = cmd_parts[0]
+    if not command:
+        return jsonify({'error': 'No command provided'})
+
+    try:
+        # Split command into parts
+        parts = shlex.split(command)
+        cmd = parts[0]
+        args = parts[1:] if len(parts) > 1 else []
+
+        # Handle built-in commands
+        if cmd == 'cd':
+            if not args:
+                new_cwd = '/home/user'
+            else:
+                new_cwd = os.path.abspath(os.path.join(cwd, args[0]))
+            return jsonify({
+                'output': '',
+                'cwd': new_cwd
+            })
         
-        # Handle grep commands specially
-        if base_cmd == 'grep':
-            # Try different grep patterns
-            for cmd_key in level_outputs.keys():
-                if cmd_key.startswith('grep'):
-                    # Check if arguments match
-                    cmd_key_parts = cmd_key.split()
-                    if len(cmd_key_parts) == len(cmd_parts):
-                        matches = True
-                        for i in range(len(cmd_parts)):
-                            if cmd_parts[i] != cmd_key_parts[i]:
-                                matches = False
-                                break
-                        if matches:
-                            output = level_outputs[cmd_key]
-                            break
-        else:
-            # Try to match other commands with arguments
-            for cmd_key in level_outputs.keys():
-                if cmd_key.startswith(command):
-                    output = level_outputs[cmd_key]
-                    break
+        # Execute command in sandbox environment
+        result = sandbox.execute_command(cmd, args, cwd)
+        
+        return jsonify({
+            'output': result.stdout,
+            'error': result.stderr if result.returncode != 0 else None,
+            'cwd': result.cwd
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/tab_complete', methods=['POST'])
+def tab_complete():
+    data = request.get_json()
+    partial = data.get('partial', '')
+    cwd = data.get('cwd', '/home/user')
+
+    try:
+        # Get possible completions based on current directory and partial input
+        completions = sandbox.get_completions(partial, cwd)
+        return jsonify({'matches': completions})
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/get_processes', methods=['GET'])
+def get_processes():
+    """Get process information for level 4"""
+    try:
+        processes = sandbox.get_process_list()
+        return jsonify(processes)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/get_network_stats', methods=['GET'])
+def get_network_stats():
+    """Get network statistics for level 5"""
+    try:
+        stats = sandbox.get_network_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+class Sandbox:
+    def __init__(self):
+        self.setup_sandbox()
+
+    def setup_sandbox(self):
+        """Set up sandbox environment for each level"""
+        self.environments = {
+            1: {
+                'files': {
+                    '.hidden_flag': 'flag{basic_file_navigation}',
+                    'README.txt': 'Welcome to level 1! Use ls and cat commands.',
+                    'hint.txt': 'Remember to look for hidden files (ls -a)'
+                }
+            },
+            2: {
+                'files': {
+                    'secret.txt': {'content': 'flag{permission_master}', 'mode': 0o000},
+                    'instructions.txt': 'Change file permissions to read the flag',
+                    'hint.txt': 'Use chmod to modify permissions'
+                }
+            },
+            3: {
+                'files': {
+                    'logs/error.log': 'ERROR: Invalid flag attempt\nERROR: System crash\nflag{grep_master_2023}',
+                    'logs/access.log': '192.168.1.1 - GET /admin [200]\n10.0.0.1 - POST /login [401]',
+                    'logs/system.log': 'System started\nService initialized\nBackup completed'
+                }
+            },
+            4: {
+                'processes': [
+                    {'pid': 1234, 'name': 'flag_service', 'cpu': 2.5, 'memory': 156,
+                     'env': {'FLAG': 'flag{process_hunter}'}},
+                    {'pid': 5678, 'name': 'nginx', 'cpu': 0.8, 'memory': 234},
+                    {'pid': 9012, 'name': 'mysql', 'cpu': 1.2, 'memory': 456}
+                ]
+            },
+            5: {
+                'network': {
+                    'connections': [
+                        {'source': '127.0.0.1:12345', 'destination': '127.0.0.1:80', 'type': 'TCP', 'state': 'ESTABLISHED'},
+                        {'source': '127.0.0.1:54321', 'destination': '127.0.0.1:1337', 'type': 'TCP', 'state': 'LISTEN'}
+                    ],
+                    'stats': {
+                        'activeConnections': 2,
+                        'listeningPorts': 3,
+                        'bytesIn': '1.2MB',
+                        'bytesOut': '0.8MB'
+                    }
+                }
+            }
+        }
+
+    def execute_command(self, cmd, args, cwd):
+        """Execute command in sandbox environment"""
+        # Implement command execution logic here
+        # Return a named tuple with stdout, stderr, returncode, and cwd
+        pass
+
+    def get_completions(self, partial, cwd):
+        """Get possible completions for tab completion"""
+        # Implement tab completion logic here
+        # Return list of possible completions
+        pass
+
+    def get_process_list(self):
+        """Get list of processes for level 4"""
+        return self.environments[4]['processes']
+
+    def get_network_stats(self):
+        """Get network statistics for level 5"""
+        return self.environments[5]['network']
+
+# Initialize sandbox
+sandbox = Sandbox()
+
+@app.route('/get_hint', methods=['POST'])
+@login_required
+def get_hint():
+    hint = riddle_manager.get_hint(current_user.id)
+    return jsonify({'hint': hint})
+
+# Binary Analysis Level Routes
+@app.route('/get_binary_data')
+def get_binary_data():
+    if not session.get('level') == 7:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    # Generate a binary file with embedded flag
+    binary_data = generate_binary_with_flag()
+    return send_file(
+        io.BytesIO(binary_data),
+        mimetype='application/octet-stream'
+    )
+
+@app.route('/analyze_binary', methods=['POST'])
+def analyze_binary():
+    if not session.get('level') == 7:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    tool = request.json.get('tool')
+    results = []
     
-    if output is not None:
-        return jsonify({'output': output})
-    else:
-        # Handle common commands
-        if command == 'clear':
-            return jsonify({'output': ''})
-        elif command == 'help':
-            # Get list of available commands for the level
-            available_commands = '\n'.join(sorted(level_outputs.keys()))
-            return jsonify({'output': f'Available commands:\n{available_commands}'})
-        else:
-            return jsonify({'error': f'Command not found: {command}'})
+    if tool == 'find-strings':
+        results = analyze_strings()
+    elif tool == 'check-headers':
+        results = analyze_headers()
+    elif tool == 'entropy-analysis':
+        results = analyze_entropy()
+        
+    return jsonify(results)
+
+def generate_binary_with_flag():
+    # Create a simple ELF binary structure
+    binary = bytearray()
+    
+    # ELF Header
+    binary.extend(b'\x7fELF')  # Magic number
+    binary.extend(b'\x02')     # 64-bit
+    binary.extend(b'\x01')     # Little endian
+    binary.extend(b'\x01')     # Version
+    binary.extend(b'\x00' * 9) # Padding
+    
+    # Embed the flag in a way that requires analysis
+    flag = "flag{b1n4ry_4n4ly515_pr0}"
+    encoded_flag = ''.join(chr((ord(c) + 13) % 256) for c in flag)
+    binary.extend(encoded_flag.encode())
+    
+    # Add some decoy strings
+    decoys = [
+        b"This is not the flag you're looking for",
+        b"Try harder!",
+        b"Almost there...",
+        b"Look deeper into the binary",
+        b"Remember to check the headers"
+    ]
+    
+    for decoy in decoys:
+        binary.extend(decoy)
+        binary.extend(b'\x00' * 16)
+    
+    return bytes(binary)
+
+def analyze_strings():
+    binary = generate_binary_with_flag()
+    strings = []
+    current_string = bytearray()
+    
+    for byte in binary:
+        if 32 <= byte <= 126:  # Printable ASCII
+            current_string.append(byte)
+        elif current_string:
+            if len(current_string) >= 4:  # Only include strings of 4+ chars
+                strings.append(current_string.decode())
+            current_string = bytearray()
+    
+    return [
+        {
+            'type': 'Strings Analysis',
+            'content': '\n'.join(strings)
+        }
+    ]
+
+def analyze_headers():
+    binary = generate_binary_with_flag()
+    header_info = []
+    
+    # Basic header analysis
+    if binary.startswith(b'\x7fELF'):
+        header_info.append("File Type: ELF Binary")
+        header_info.append(f"Architecture: {'64-bit' if binary[4] == 2 else '32-bit'}")
+        header_info.append(f"Endianness: {'Little Endian' if binary[5] == 1 else 'Big Endian'}")
+    
+    return [
+        {
+            'type': 'Header Analysis',
+            'content': '\n'.join(header_info)
+        }
+    ]
+
+def analyze_entropy():
+    binary = generate_binary_with_flag()
+    chunk_size = 16
+    chunks = [binary[i:i+chunk_size] for i in range(0, len(binary), chunk_size)]
+    
+    entropy_data = []
+    for i, chunk in enumerate(chunks):
+        # Calculate Shannon entropy for the chunk
+        entropy = 0
+        byte_count = {}
+        for byte in chunk:
+            byte_count[byte] = byte_count.get(byte, 0) + 1
+        
+        for count in byte_count.values():
+            probability = count / len(chunk)
+            entropy -= probability * math.log2(probability)
+            
+        entropy_data.append(f"Chunk {i}: {entropy:.2f}")
+    
+    return [
+        {
+            'type': 'Entropy Analysis',
+            'content': '\n'.join(entropy_data)
+        }
+    ]
 
 if __name__ == '__main__':
     with app.app_context():

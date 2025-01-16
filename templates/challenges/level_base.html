@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="challenge-card">
+    <h2>Level {{ level }}: {% block level_title %}{% endblock %}</h2>
+    <div class="progress mb-3">
+        <div class="progress-bar" role="progressbar" 
+             style="width: {{ level * 10 }}%" 
+             aria-valuenow="{{ level * 10 }}" 
+             aria-valuemin="0" 
+             aria-valuemax="100">{{ level }}/10</div>
+    </div>
+    
+    <div class="mb-4">
+        {% block challenge_description %}{% endblock %}
+    </div>
+
+    {% include 'terminal.html' %}
+
+    <div class="hint-box mt-4">
+        <h5>Available Commands:</h5>
+        <ul>
+            {% block available_commands %}{% endblock %}
+        </ul>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form id="flagForm" class="mt-4" onsubmit="submitFlag(event)">
+        <div class="mb-3">
+            <label for="flagInput" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="flagInput" name="flag" required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit Flag</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.currentLevel = {{ level }};
+});
+
+async function submitFlag(event) {
+    event.preventDefault();
+    const flagInput = document.getElementById('flagInput');
+    const flag = flagInput.value.trim();
+    
+    if (!flag) {
+        alert('Please enter a flag');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/check_flag/${window.currentLevel}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ flag: flag })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert(data.message || 'Incorrect flag. Try again!');
+            flagInput.value = '';
+            flagInput.focus();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error submitting flag. Please try again.');
+    }
+}
+
+{% block level_scripts %}{% endblock %}
+</script>
+{% endblock %}

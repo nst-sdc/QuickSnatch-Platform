@@ -21,6 +21,24 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     margin: 20px 0;
     overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.terminal-container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    margin: 0;
+    border-radius: 0;
+    background: #1e1e1e;
+}
+
+.terminal-container.fullscreen .terminal {
+    height: calc(100vh - 40px);
+    max-height: none;
 }
 
 .terminal-header {
@@ -48,6 +66,16 @@ body {
 .close { background: #ff5f56; }
 .minimize { background: #ffbd2e; }
 .maximize { background: #27c93f; }
+.maximize.restore { background: #ffbd2e; }
+
+.maximize {
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.maximize:hover {
+    filter: brightness(1.1);
+}
 
 .terminal-title {
     color: #4a4a4a;
@@ -110,20 +138,94 @@ body {
     margin-bottom: 4px;
 }
 
-/* Enhanced Challenge Card */
+/* Challenge Card Styles */
 .challenge-card {
     background: var(--card-bg);
-    border: 1px solid rgba(0, 255, 0, 0.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 900px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.challenge-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0, 255, 0, 0.15);
+.info-box {
+    background: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid #3498db;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+}
+
+.info-box h6 {
+    color: #3498db;
+    margin-bottom: 0.5rem;
+}
+
+.info-box ul {
+    margin-bottom: 0;
+}
+
+.hint-box {
+    background: rgba(241, 196, 15, 0.1);
+    border-left: 4px solid #f1c40f;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+}
+
+.hint-box h5 {
+    color: #f1c40f;
+    margin-bottom: 0.5rem;
+}
+
+.progress {
+    height: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 1rem;
+}
+
+.progress-bar {
+    background-color: #2ecc71;
+    border-radius: 1rem;
+    transition: width 0.6s ease;
+}
+
+code {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    color: #e74c3c;
+    font-family: 'Source Code Pro', monospace;
+}
+
+.terminal-wrapper {
+    margin: 2rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.flag-submission {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+    padding: 1rem;
+}
+
+.alert-success {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.alert-danger {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
 }
 
 /* Enhanced Buttons */
@@ -446,4 +548,448 @@ body {
 @keyframes cursor-blink {
     0%, 100% { border-color: transparent }
     50% { border-color: var(--primary-color) }
+}
+
+/* Dark theme specific styles */
+[data-bs-theme="dark"] {
+    --card-bg: #2d3436;
+    --text-color: #ecf0f1;
+    --input-bg: #2d3436;
+    --primary-color: #3498db;
+}
+
+/* Network Monitor Styles */
+.network-monitor {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.network-monitor h5 {
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-item .label {
+    font-size: 0.9rem;
+    color: #bdc3c7;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item .value {
+    font-size: 1.2rem;
+    color: #3498db;
+    font-weight: bold;
+}
+
+.connection-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.connection-item {
+    display: grid;
+    grid-template-columns: 2fr 30px 2fr 1fr;
+    align-items: center;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    font-family: 'Source Code Pro', monospace;
+}
+
+.connection-item.TCP { border-left: 3px solid #2ecc71; }
+.connection-item.UDP { border-left: 3px solid #e74c3c; }
+
+.connection-item .source,
+.connection-item .destination {
+    font-size: 0.9rem;
+    color: #bdc3c7;
+}
+
+.connection-item .arrow {
+    color: #3498db;
+    text-align: center;
+}
+
+.connection-item .state {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #95a5a6;
+}
+
+/* Process Monitor Styles */
+.process-monitor {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.process-item {
+    display: grid;
+    grid-template-columns: 80px 2fr 100px 100px;
+    align-items: center;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    font-family: 'Source Code Pro', monospace;
+}
+
+.process-item .pid {
+    color: #e74c3c;
+}
+
+.process-item .name {
+    color: #bdc3c7;
+}
+
+.process-item .cpu,
+.process-item .memory {
+    text-align: right;
+    color: #2ecc71;
+}
+
+/* Terminal Enhancements */
+.terminal-wrapper {
+    position: relative;
+}
+
+.terminal-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px 8px 0 0;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.terminal-button.close { background: #e74c3c; }
+.terminal-button.minimize { background: #f1c40f; }
+.terminal-button.maximize { background: #2ecc71; }
+
+.terminal-title {
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+/* Cryptography Tools Styles */
+.crypto-workspace {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.crypto-tools h5 {
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tool-item {
+    background: rgba(52, 152, 219, 0.1);
+    border: 2px solid transparent;
+    border-radius: 6px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tool-item:hover {
+    background: rgba(52, 152, 219, 0.2);
+    transform: translateY(-2px);
+}
+
+.tool-item.active {
+    border-color: #3498db;
+    background: rgba(52, 152, 219, 0.3);
+}
+
+.tool-item i {
+    font-size: 1.5rem;
+    color: #3498db;
+    margin-bottom: 0.5rem;
+}
+
+.tool-item span {
+    font-size: 0.9rem;
+    color: #bdc3c7;
+}
+
+.crypto-input {
+    margin: 1.5rem 0;
+}
+
+.crypto-input textarea {
+    width: 100%;
+    min-height: 120px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-radius: 6px;
+    padding: 1rem;
+    color: #ecf0f1;
+    font-family: 'Source Code Pro', monospace;
+    resize: vertical;
+}
+
+.crypto-input textarea:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+.crypto-input .controls {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.crypto-output {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.crypto-output h6 {
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.decrypt-attempt {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.decrypt-attempt .method {
+    font-size: 0.8rem;
+    color: #3498db;
+    margin-bottom: 0.3rem;
+}
+
+.decrypt-attempt .result {
+    font-family: 'Source Code Pro', monospace;
+    color: #2ecc71;
+    word-break: break-all;
+}
+
+.error {
+    color: #e74c3c;
+    padding: 0.5rem;
+    border-left: 3px solid #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+}
+
+/* Drag and Drop Styles */
+.crypto-input textarea.drag-over {
+    border-color: #2ecc71;
+    background: rgba(46, 204, 113, 0.1);
+}
+
+/* Binary Analysis Styles */
+.binary-workspace {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.binary-viewer {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.viewer-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.view-modes {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-box {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-box input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-radius: 4px;
+    padding: 0.3rem 0.8rem;
+    color: #ecf0f1;
+    font-family: 'Source Code Pro', monospace;
+}
+
+.viewer-content {
+    padding: 1rem;
+    min-height: 400px;
+    max-height: 600px;
+    overflow: auto;
+}
+
+.hex-view {
+    display: grid;
+    grid-template-columns: 100px 1fr 1fr;
+    gap: 1rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: none;
+}
+
+.hex-view.active {
+    display: grid;
+}
+
+.address-column {
+    color: #3498db;
+}
+
+.hex-column {
+    color: #2ecc71;
+}
+
+.ascii-column {
+    color: #e74c3c;
+}
+
+.strings-view,
+.disasm-view {
+    display: none;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.strings-view.active,
+.disasm-view.active {
+    display: block;
+}
+
+.viewer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(52, 152, 219, 0.2);
+}
+
+.file-info {
+    display: flex;
+    gap: 1rem;
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-info {
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+.binary-tools {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.binary-tools h6 {
+    color: #3498db;
+    margin-bottom: 1rem;
+}
+
+.tool-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.analysis-results {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.analysis-result {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.result-header {
+    background: rgba(52, 152, 219, 0.1);
+    padding: 0.5rem;
+    color: #3498db;
+    font-size: 0.9rem;
+}
+
+.result-content {
+    padding: 0.8rem;
+    color: #ecf0f1;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+}
+
+/* Highlight styles for search results */
+.highlight {
+    background: rgba(241, 196, 15, 0.3);
+    border-radius: 2px;
+}
+
+.highlight.current {
+    background: rgba(46, 204, 113, 0.3);
 }

@@ -1,47 +1,382 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
+
+{% block level_title %}Terminal Reconnaissance{% endblock %}
+
+{% block challenge_description %}
+<div class="challenge-card">
+    <div class="challenge-header">
+        <div class="challenge-icon">
+            <i class="fas fa-terminal"></i>
+        </div>
+        <div class="challenge-title">
+            <h3>Welcome to Level 1</h3>
+            <p class="text-muted">Basic Terminal Navigation</p>
+        </div>
+    </div>
+
+    <div class="challenge-intro">
+        <div class="alert alert-primary" role="alert">
+            <i class="fas fa-info-circle"></i>
+            As a security analyst, you've gained initial access to a suspicious system. Your first task is to gather basic intelligence using terminal commands.
+        </div>
+        
+        <div class="mission-briefing">
+            <h5><i class="fas fa-flag"></i> Mission Objectives</h5>
+            <div class="objective-list">
+                <div class="objective-item">
+                    <span class="objective-number">1</span>
+                    <div class="objective-content">
+                        <h6>Establish Location</h6>
+                        <p>Use <code>pwd</code> to determine your current position in the system</p>
+                    </div>
+                </div>
+                <div class="objective-item">
+                    <span class="objective-number">2</span>
+                    <div class="objective-content">
+                        <h6>Reconnaissance</h6>
+                        <p>Execute <code>ls -la</code> to identify all files, including hidden ones</p>
+                    </div>
+                </div>
+                <div class="objective-item">
+                    <span class="objective-number">3</span>
+                    <div class="objective-content">
+                        <h6>File Analysis</h6>
+                        <p>Look for suspicious or hidden files that might contain sensitive information</p>
+                    </div>
+                </div>
+                <div class="objective-item">
+                    <span class="objective-number">4</span>
+                    <div class="objective-content">
+                        <h6>Flag Extraction</h6>
+                        <p>Use appropriate commands to read and extract the hidden flag</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <h5>Intelligence Report</h5>
+                <ul>
+                    <li>Target system appears to be a Linux-based environment</li>
+                    <li>Previous reconnaissance suggests the presence of hidden files</li>
+                    <li>The flag may be hidden in plain sight or require basic file inspection</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <div class="info-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h5>Field Notes</h5>
+                <ul>
+                    <li>Hidden files in Linux start with a dot (.)</li>
+                    <li>The <code>ls -la</code> command shows all files with detailed information</li>
+                    <li>Use <code>cat</code> to read file contents</li>
+                    <li>Pay attention to file permissions and ownership</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block available_commands %}
+<div class="commands-section">
+    <div class="commands-header">
+        <i class="fas fa-terminal"></i>
+        <h5>Available Commands</h5>
+    </div>
+    <div class="command-grid">
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <code>pwd</code>
+            <span>Print working directory</span>
+        </div>
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            <code>ls</code>
+            <span>List directory contents</span>
+        </div>
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <code>ls -l</code>
+            <span>List with details</span>
+        </div>
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <code>ls -a</code>
+            <span>List all (including hidden)</span>
+        </div>
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <code>ls -la</code>
+            <span>Detailed list of all files</span>
+        </div>
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <code>cat [file]</code>
+            <span>Display file contents</span>
+        </div>
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-eraser"></i>
+            </div>
+            <code>clear</code>
+            <span>Clear terminal screen</span>
+        </div>
+        <div class="command-item">
+            <div class="command-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <code>help</code>
+            <span>Show available commands</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block level_scripts %}
+<style>
+.challenge-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.challenge-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.challenge-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+}
+
+.challenge-title h3 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.challenge-title p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.mission-briefing {
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.objective-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.objective-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.objective-number {
+    width: 30px;
+    height: 30px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.objective-content h6 {
+    margin: 0;
+    color: var(--accent-color);
+}
+
+.objective-content p {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.info-card {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.info-card h5 {
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.info-card ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.info-card li {
+    margin-bottom: 0.5rem;
+}
+
+.info-card li:last-child {
+    margin-bottom: 0;
+}
+
+.commands-section {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.commands-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.commands-header i {
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+.commands-header h5 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.command-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.command-item {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.command-item:hover {
+    transform: translateY(-2px);
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.command-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.command-item code {
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+}
+
+.command-item span {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+/* Alert Styling */
+.alert {
+    background: rgba(52, 152, 219, 0.1);
+    border: none;
+    color: var(--text-color);
+}
+
+.alert i {
+    margin-right: 0.5rem;
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="challenge-card">
-    <h2>Level 1: Basic Terminal Navigation</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">1/10</div>
-    </div>
-    
-    <div class="mb-4">
-        <p>Welcome to your first challenge! Let's master basic terminal navigation.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>Check your current directory using <code>pwd</code></li>
-            <li>List all files (including hidden ones) using <code>ls -la</code></li>
-            <li>Find and read the contents of the hidden flag file</li>
-        </ol>
-    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
-        <ul>
-            <li><code>pwd</code> - Print working directory (shows current location)</li>
-            <li><code>ls</code> - List files and directories</li>
-            <li><code>ls -l</code> - List in long format (shows permissions, size, etc.)</li>
-            <li><code>ls -a</code> - List all files (including hidden ones)</li>
-            <li><code>cat filename</code> - Display contents of a file</li>
-        </ul>
-    </div>
-
-    <form method="POST" class="mt-4">
+    <form id="flagForm" class="mt-4" onsubmit="submitFlag(event)">
         <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
+            <label for="flagInput" class="form-label">Enter the flag:</label>
+            <input type="text" class="form-control bg-dark text-light" id="flagInput" name="flag" required>
         </div>
         <button type="submit" class="btn btn-success">Submit Flag</button>
     </form>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = 1;
-});
-</script>
 {% endblock %}

@@ -1,55 +1,38 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
 
-{% block content %}
-<div class="challenge-card">
-    <h2>Level 2: File Permissions</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">2/10</div>
-    </div>
-    
-    <div class="mb-4">
-        <p>Understanding file permissions is crucial for system security.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>List files and check their permissions using <code>ls -l</code></li>
-            <li>Read the instructions and permissions info files</li>
-            <li>Change permissions of secret.txt to make it readable</li>
-            <li>Read the flag from secret.txt</li>
-        </ol>
-    </div>
+{% block level_title %}File Permissions{% endblock %}
 
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
-        <ul>
-            <li><code>ls -l</code> - List files with permissions</li>
-            <li><code>cat filename</code> - Display contents of a file</li>
-            <li><code>chmod permissions filename</code> - Change file permissions</li>
-        </ul>
-        <div class="mt-2">
-            <strong>Permission Numbers:</strong>
-            <ul>
-                <li>4 = read (r)</li>
-                <li>2 = write (w)</li>
-                <li>1 = execute (x)</li>
-                <li>Example: chmod 644 file (rw-r--r--)</li>
-            </ul>
-        </div>
-    </div>
-
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
-    </form>
+{% block challenge_description %}
+<p>Welcome to level 2! Let's learn about file permissions in Linux.</p>
+<p>Your mission:</p>
+<ol>
+    <li>Check file permissions using <code>ls -l</code></li>
+    <li>Find a file with restricted permissions</li>
+    <li>Use chmod to modify permissions</li>
+    <li>Read the flag from the file</li>
+</ol>
+<div class="info-box mt-3">
+    <h6>Understanding Permissions:</h6>
+    <p>Linux permissions are represented as: <code>rwx rwx rwx</code> (user, group, others)</p>
+    <ul>
+        <li><code>r</code> - Read permission (4)</li>
+        <li><code>w</code> - Write permission (2)</li>
+        <li><code>x</code> - Execute permission (1)</li>
+    </ul>
 </div>
+{% endblock %}
 
-<script>
+{% block available_commands %}
+<li><code>ls -l</code> - List files with permissions</li>
+<li><code>chmod</code> - Change file permissions</li>
+<li><code>chmod +r file</code> - Add read permission</li>
+<li><code>chmod +w file</code> - Add write permission</li>
+<li><code>chmod +x file</code> - Add execute permission</li>
+<li><code>cat file</code> - Read file contents</li>
+{% endblock %}
+
+{% block level_scripts %}
 document.addEventListener('DOMContentLoaded', function() {
     window.currentLevel = 2;
 });
-</script>
 {% endblock %}

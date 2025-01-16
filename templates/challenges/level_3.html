@@ -1,56 +1,41 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
 
-{% block content %}
-<div class="challenge-card">
-    <h2>Level 3: Log Analysis</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">3/10</div>
-    </div>
-    
-    <div class="mb-4">
-        <p>System administrators often need to analyze log files to find important information.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>Navigate to the logs directory</li>
-            <li>Examine different types of log files</li>
-            <li>Use grep to search for ERROR messages</li>
-            <li>Find and extract the flag from the logs</li>
-        </ol>
-    </div>
+{% block level_title %}Log Analysis{% endblock %}
 
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
-        <ul>
-            <li><code>ls</code> - List files and directories</li>
-            <li><code>cd directory</code> - Change directory</li>
-            <li><code>cat file</code> - Display file contents</li>
-            <li><code>grep pattern file</code> - Search for pattern in file</li>
-            <li><code>zcat file.gz</code> - View compressed files</li>
-        </ul>
-        <div class="mt-2">
-            <strong>Tips:</strong>
-            <ul>
-                <li>Use grep to search for specific patterns in files</li>
-                <li>Some log files might be compressed (.gz)</li>
-                <li>Look for ERROR messages in the logs</li>
-            </ul>
-        </div>
-    </div>
-
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
-    </form>
+{% block challenge_description %}
+<p>Welcome to level 3! Time to master log analysis using grep.</p>
+<p>Your mission:</p>
+<ol>
+    <li>Navigate to the logs directory</li>
+    <li>Analyze various log files (error.log, access.log, system.log)</li>
+    <li>Use grep to search for the flag pattern</li>
+    <li>Find and decode the hidden flag</li>
+</ol>
+<div class="info-box mt-3">
+    <h6>Grep Tips:</h6>
+    <ul>
+        <li>Use <code>grep pattern file</code> to search in a single file</li>
+        <li>Use <code>grep -r pattern directory</code> to search recursively</li>
+        <li>Use <code>grep -i pattern</code> for case-insensitive search</li>
+        <li>Use <code>grep -A 2 pattern</code> to show 2 lines after match</li>
+        <li>Use <code>grep -B 2 pattern</code> to show 2 lines before match</li>
+    </ul>
 </div>
+{% endblock %}
 
-<script>
+{% block available_commands %}
+<li><code>cd directory</code> - Change directory</li>
+<li><code>ls</code> - List files</li>
+<li><code>grep pattern file</code> - Search for pattern in file</li>
+<li><code>grep -r pattern .</code> - Search recursively in current directory</li>
+<li><code>grep -i pattern file</code> - Case-insensitive search</li>
+<li><code>cat file</code> - View entire file</li>
+<li><code>pwd</code> - Show current directory</li>
+{% endblock %}
+
+{% block level_scripts %}
+// Level-specific JavaScript can be added here
 document.addEventListener('DOMContentLoaded', function() {
     window.currentLevel = 3;
 });
-</script>
 {% endblock %}

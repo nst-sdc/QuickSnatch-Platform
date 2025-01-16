@@ -1,53 +1,163 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
 
-{% block content %}
-<div class="challenge-card">
-    <h2>Level 6: Bash Scripting</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">6/10</div>
-    </div>
-    
-    <div class="mb-4">
-        <p>Shell scripting is a powerful tool for automating tasks.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>Examine the contents of data.txt and process.sh</li>
-            <li>Make the script executable with <code>chmod</code></li>
-            <li>Run the script to extract the flag</li>
-        </ol>
-    </div>
+{% block level_title %}Cryptography Challenge{% endblock %}
 
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
-        <ul>
-            <li><code>cat filename</code> - View file contents</li>
-            <li><code>chmod +x script.sh</code> - Make script executable</li>
-            <li><code>./script.sh</code> - Run a script</li>
-        </ul>
-        <div class="mt-2">
-            <strong>Tips:</strong>
-            <ul>
-                <li>Scripts need execute permission to run</li>
-                <li>Use ./ to run scripts in current directory</li>
-                <li>Check script contents before running</li>
-            </ul>
-        </div>
-    </div>
-
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
-    </form>
+{% block challenge_description %}
+<p>Welcome to level 6! Time to crack some codes.</p>
+<p>Your mission:</p>
+<ol>
+    <li>Find encrypted files in the system</li>
+    <li>Analyze encryption methods used</li>
+    <li>Decrypt the files using appropriate tools</li>
+    <li>Extract the flag from decrypted content</li>
+</ol>
+<div class="info-box mt-3">
+    <h6>Crypto Tips:</h6>
+    <ul>
+        <li>Look for common encodings (base64, hex)</li>
+        <li>Check for classic ciphers (Caesar, ROT13)</li>
+        <li>Files might be encrypted with different methods</li>
+        <li>Some files might need multiple decryption steps</li>
+    </ul>
 </div>
 
-<script>
+<div id="crypto-workspace" class="crypto-workspace mt-4">
+    <div class="crypto-tools">
+        <h5>Decryption Tools</h5>
+        <div class="tool-grid">
+            <div class="tool-item" data-tool="base64">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Base64</span>
+            </div>
+            <div class="tool-item" data-tool="rot13">
+                <i class="fas fa-sync"></i>
+                <span>ROT13</span>
+            </div>
+            <div class="tool-item" data-tool="hex">
+                <i class="fas fa-calculator"></i>
+                <span>Hex</span>
+            </div>
+            <div class="tool-item" data-tool="caesar">
+                <i class="fas fa-key"></i>
+                <span>Caesar</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="crypto-input">
+        <textarea id="input-text" placeholder="Enter text to decrypt..."></textarea>
+        <div class="controls">
+            <button class="btn btn-primary" id="decrypt-btn">Decrypt</button>
+            <button class="btn btn-secondary" id="clear-btn">Clear</button>
+        </div>
+    </div>
+    
+    <div class="crypto-output">
+        <h6>Decryption Results</h6>
+        <div id="output-text"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block available_commands %}
+<li><code>base64 -d file</code> - Decode base64</li>
+<li><code>xxd file</code> - Hex dump</li>
+<li><code>rot13 file</code> - ROT13 decode</li>
+<li><code>caesar file [shift]</code> - Caesar cipher</li>
+<li><code>strings file</code> - Extract readable text</li>
+{% endblock %}
+
+{% block level_scripts %}
+const cryptoTools = {
+    init: function() {
+        this.setupEventListeners();
+        this.setupDragAndDrop();
+    },
+
+    setupEventListeners: function() {
+        document.querySelectorAll('.tool-item').forEach(tool => {
+            tool.addEventListener('click', () => this.selectTool(tool));
+        });
+
+        document.getElementById('decrypt-btn').addEventListener('click', () => this.decrypt());
+        document.getElementById('clear-btn').addEventListener('click', () => this.clear());
+    },
+
+    setupDragAndDrop: function() {
+        const dropZone = document.getElementById('input-text');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const text = e.dataTransfer.getData('text');
+            dropZone.value = text;
+        });
+    },
+
+    selectTool: function(toolElement) {
+        document.querySelectorAll('.tool-item').forEach(t => t.classList.remove('active'));
+        toolElement.classList.add('active');
+        this.currentTool = toolElement.dataset.tool;
+    },
+
+    async decrypt: function() {
+        const input = document.getElementById('input-text').value;
+        if (!input || !this.currentTool) return;
+
+        try {
+            const response = await fetch('/decrypt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: input,
+                    method: this.currentTool
+                })
+            });
+
+            const result = await response.json();
+            this.displayResult(result);
+        } catch (error) {
+            console.error('Decryption error:', error);
+        }
+    },
+
+    displayResult: function(result) {
+        const output = document.getElementById('output-text');
+        output.innerHTML = '';
+
+        if (result.error) {
+            output.innerHTML = `<div class="error">${result.error}</div>`;
+            return;
+        }
+
+        result.attempts.forEach(attempt => {
+            const attemptDiv = document.createElement('div');
+            attemptDiv.className = 'decrypt-attempt';
+            attemptDiv.innerHTML = `
+                <div class="method">${attempt.method}</div>
+                <div class="result">${attempt.text}</div>
+            `;
+            output.appendChild(attemptDiv);
+        });
+    },
+
+    clear: function() {
+        document.getElementById('input-text').value = '';
+        document.getElementById('output-text').innerHTML = '';
+        document.querySelectorAll('.tool-item').forEach(t => t.classList.remove('active'));
+        this.currentTool = null;
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     window.currentLevel = 6;
+    cryptoTools.init();
 });
-</script>
 {% endblock %}

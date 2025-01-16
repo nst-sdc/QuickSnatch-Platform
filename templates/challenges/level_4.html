@@ -1,55 +1,71 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
 
-{% block content %}
-<div class="challenge-card">
-    <h2>Level 4: Process Investigation</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">4/10</div>
-    </div>
-    
-    <div class="mb-4">
-        <p>Process management is a crucial skill for system administrators.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>List all running processes using <code>ps aux</code></li>
-            <li>Find suspicious processes</li>
-            <li>Investigate process details in /proc directory</li>
-            <li>Extract the flag from process information</li>
-        </ol>
-    </div>
+{% block level_title %}Process Investigation{% endblock %}
 
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
-        <ul>
-            <li><code>ps aux</code> - List all processes</li>
-            <li><code>ps -p PID</code> - Show specific process info</li>
-            <li><code>cat /proc/PID/cmdline</code> - View process command line</li>
-            <li><code>strings /proc/PID/environ</code> - View process environment</li>
-        </ul>
-        <div class="mt-2">
-            <strong>Tips:</strong>
-            <ul>
-                <li>Look for processes with suspicious names or high resource usage</li>
-                <li>The /proc directory contains detailed process information</li>
-                <li>Process environment variables may contain sensitive data</li>
-            </ul>
-        </div>
-    </div>
-
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
-    </form>
+{% block challenge_description %}
+<p>Welcome to level 4! Time to investigate system processes.</p>
+<p>Your mission:</p>
+<ol>
+    <li>List running processes using ps commands</li>
+    <li>Find suspicious processes</li>
+    <li>Investigate process details in /proc</li>
+    <li>Extract the flag from process environment</li>
+</ol>
+<div class="info-box mt-3">
+    <h6>Process Investigation Tips:</h6>
+    <ul>
+        <li>Use <code>ps aux</code> to list all processes</li>
+        <li>Check <code>/proc/[PID]/environ</code> for environment variables</li>
+        <li>Look for processes with suspicious names or high CPU usage</li>
+        <li>The flag might be hidden in process environment variables</li>
+    </ul>
 </div>
+{% endblock %}
 
-<script>
+{% block available_commands %}
+<li><code>ps aux</code> - List all processes</li>
+<li><code>ps -ef</code> - Show process relationships</li>
+<li><code>top</code> - Interactive process viewer</li>
+<li><code>cat /proc/PID/environ</code> - View process environment</li>
+<li><code>cat /proc/PID/status</code> - View process status</li>
+<li><code>strings</code> - Extract readable strings</li>
+{% endblock %}
+
+{% block level_scripts %}
+// Add process monitoring visualization
+const processMonitor = {
+    init: function() {
+        this.updateProcessList();
+        setInterval(() => this.updateProcessList(), 5000);
+    },
+
+    updateProcessList: async function() {
+        try {
+            const response = await fetch('/get_processes');
+            const processes = await response.json();
+            this.displayProcesses(processes);
+        } catch (error) {
+            console.error('Error updating processes:', error);
+        }
+    },
+
+    displayProcesses: function(processes) {
+        const container = document.getElementById('process-monitor');
+        if (!container) return;
+
+        container.innerHTML = processes.map(p => `
+            <div class="process-item">
+                <span class="pid">${p.pid}</span>
+                <span class="name">${p.name}</span>
+                <span class="cpu">${p.cpu}%</span>
+                <span class="memory">${p.memory}MB</span>
+            </div>
+        `).join('');
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     window.currentLevel = 4;
+    processMonitor.init();
 });
-</script>
 {% endblock %}

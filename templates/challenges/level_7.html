@@ -1,55 +1,262 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
 
-{% block content %}
-<div class="challenge-card">
-    <h2>Level 7: Archive Investigation</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">7/10</div>
-    </div>
-    
-    <div class="mb-4">
-        <p>Archives are commonly used to package and compress files. Let's explore different archive formats.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>Examine mystery.tar.gz using <code>file</code> command</li>
-            <li>Extract the archive with <code>tar xzf</code></li>
-            <li>Follow the trail of compressed files</li>
-            <li>Find and extract the flag</li>
-        </ol>
-    </div>
+{% block level_title %}Binary Analysis{% endblock %}
 
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
-        <ul>
-            <li><code>file filename</code> - Determine file type</li>
-            <li><code>tar xzf file.tar.gz</code> - Extract .tar.gz</li>
-            <li><code>unzip file.zip</code> - Extract .zip</li>
-            <li><code>bzip2 -d file.bz2</code> - Decompress .bz2</li>
-        </ul>
-        <div class="mt-2">
-            <strong>Tips:</strong>
-            <ul>
-                <li>Use file command to identify archive types</li>
-                <li>Different archives need different tools</li>
-                <li>Archives might contain other archives</li>
-            </ul>
-        </div>
-    </div>
-
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
-    </form>
+{% block challenge_description %}
+<p>Welcome to level 7! Time to analyze binary files.</p>
+<p>Your mission:</p>
+<ol>
+    <li>Analyze the binary file using various tools</li>
+    <li>Extract strings and metadata</li>
+    <li>Find hidden data in the binary</li>
+    <li>Decode the flag from the binary data</li>
+</ol>
+<div class="info-box mt-3">
+    <h6>Binary Analysis Tips:</h6>
+    <ul>
+        <li>Use strings to find readable text</li>
+        <li>Check file headers with hexdump</li>
+        <li>Look for common file signatures</li>
+        <li>The flag might be embedded in the data</li>
+    </ul>
 </div>
 
-<script>
+<div id="binary-workspace" class="binary-workspace mt-4">
+    <div class="binary-viewer">
+        <div class="viewer-toolbar">
+            <div class="view-modes">
+                <button class="btn btn-sm btn-primary" data-view="hex">Hex View</button>
+                <button class="btn btn-sm btn-secondary" data-view="strings">Strings</button>
+                <button class="btn btn-sm btn-secondary" data-view="disasm">Disassembly</button>
+            </div>
+            <div class="search-box">
+                <input type="text" placeholder="Search hex/ascii..." id="binary-search">
+                <button class="btn btn-sm btn-info" id="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="viewer-content">
+            <div class="hex-view active" id="hex-view">
+                <div class="address-column"></div>
+                <div class="hex-column"></div>
+                <div class="ascii-column"></div>
+            </div>
+            <div class="strings-view" id="strings-view"></div>
+            <div class="disasm-view" id="disasm-view"></div>
+        </div>
+        
+        <div class="viewer-footer">
+            <div class="file-info">
+                <span class="size">Size: <span id="file-size">0</span> bytes</span>
+                <span class="type">Type: <span id="file-type">Unknown</span></span>
+            </div>
+            <div class="navigation">
+                <button class="btn btn-sm btn-secondary" id="prev-page">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                <button class="btn btn-sm btn-secondary" id="next-page">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="binary-tools mt-4">
+        <h6>Analysis Tools</h6>
+        <div class="tool-buttons">
+            <button class="btn btn-sm btn-info" id="find-strings">Find Strings</button>
+            <button class="btn btn-sm btn-info" id="check-headers">Check Headers</button>
+            <button class="btn btn-sm btn-info" id="entropy-analysis">Entropy Analysis</button>
+        </div>
+        <div id="analysis-results" class="analysis-results"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block available_commands %}
+<li><code>strings binary</code> - Extract readable strings</li>
+<li><code>hexdump -C file</code> - Hex dump with ASCII</li>
+<li><code>file binary</code> - Determine file type</li>
+<li><code>objdump -d binary</code> - Disassemble binary</li>
+<li><code>readelf -a binary</code> - Display ELF info</li>
+{% endblock %}
+
+{% block level_scripts %}
+const binaryAnalyzer = {
+    init: function() {
+        this.currentView = 'hex';
+        this.currentPage = 1;
+        this.bytesPerPage = 256;
+        this.binaryData = null;
+        
+        this.setupEventListeners();
+        this.loadBinaryData();
+    },
+
+    setupEventListeners: function() {
+        document.querySelectorAll('.view-modes button').forEach(btn => {
+            btn.addEventListener('click', () => this.switchView(btn.dataset.view));
+        });
+
+        document.getElementById('search-btn').addEventListener('click', () => this.search());
+        document.getElementById('prev-page').addEventListener('click', () => this.prevPage());
+        document.getElementById('next-page').addEventListener('click', () => this.nextPage());
+        
+        document.querySelectorAll('.binary-tools button').forEach(btn => {
+            btn.addEventListener('click', () => this.runAnalysis(btn.id));
+        });
+    },
+
+    async loadBinaryData: function() {
+        try {
+            const response = await fetch('/get_binary_data');
+            this.binaryData = await response.arrayBuffer();
+            this.updateFileInfo();
+            this.displayCurrentView();
+        } catch (error) {
+            console.error('Error loading binary:', error);
+        }
+    },
+
+    switchView: function(view) {
+        document.querySelectorAll('.view-modes button').forEach(btn => {
+            btn.classList.toggle('btn-primary', btn.dataset.view === view);
+            btn.classList.toggle('btn-secondary', btn.dataset.view !== view);
+        });
+
+        document.querySelectorAll('.viewer-content > div').forEach(div => {
+            div.classList.toggle('active', div.id === `${view}-view`);
+        });
+
+        this.currentView = view;
+        this.displayCurrentView();
+    },
+
+    displayCurrentView: function() {
+        if (!this.binaryData) return;
+
+        const start = (this.currentPage - 1) * this.bytesPerPage;
+        const end = Math.min(start + this.bytesPerPage, this.binaryData.byteLength);
+        const bytes = new Uint8Array(this.binaryData.slice(start, end));
+
+        switch (this.currentView) {
+            case 'hex':
+                this.displayHexView(bytes, start);
+                break;
+            case 'strings':
+                this.displayStringsView(bytes);
+                break;
+            case 'disasm':
+                this.displayDisasmView(bytes, start);
+                break;
+        }
+    },
+
+    displayHexView: function(bytes, offset) {
+        const hexView = document.getElementById('hex-view');
+        const addrColumn = hexView.querySelector('.address-column');
+        const hexColumn = hexView.querySelector('.hex-column');
+        const asciiColumn = hexView.querySelector('.ascii-column');
+
+        addrColumn.innerHTML = '';
+        hexColumn.innerHTML = '';
+        asciiColumn.innerHTML = '';
+
+        for (let i = 0; i < bytes.length; i += 16) {
+            const addr = document.createElement('div');
+            addr.textContent = (offset + i).toString(16).padStart(8, '0');
+            addrColumn.appendChild(addr);
+
+            const hexLine = document.createElement('div');
+            const asciiLine = document.createElement('div');
+            
+            for (let j = 0; j < 16 && i + j < bytes.length; j++) {
+                const byte = bytes[i + j];
+                hexLine.innerHTML += byte.toString(16).padStart(2, '0') + ' ';
+                asciiLine.innerHTML += byte >= 32 && byte <= 126 ? 
+                    String.fromCharCode(byte) : '.';
+            }
+            
+            hexColumn.appendChild(hexLine);
+            asciiColumn.appendChild(asciiLine);
+        }
+    },
+
+    async runAnalysis: function(toolId) {
+        try {
+            const response = await fetch('/analyze_binary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tool: toolId
+                })
+            });
+
+            const result = await response.json();
+            this.displayAnalysisResults(result);
+        } catch (error) {
+            console.error('Analysis error:', error);
+        }
+    },
+
+    displayAnalysisResults: function(results) {
+        const container = document.getElementById('analysis-results');
+        container.innerHTML = '';
+
+        if (results.error) {
+            container.innerHTML = `<div class="error">${results.error}</div>`;
+            return;
+        }
+
+        results.forEach(result => {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'analysis-result';
+            resultDiv.innerHTML = `
+                <div class="result-header">${result.type}</div>
+                <div class="result-content">${result.content}</div>
+            `;
+            container.appendChild(resultDiv);
+        });
+    },
+
+    updateFileInfo: function() {
+        document.getElementById('file-size').textContent = this.binaryData.byteLength;
+        const totalPages = Math.ceil(this.binaryData.byteLength / this.bytesPerPage);
+        document.getElementById('total-pages').textContent = totalPages;
+    },
+
+    prevPage: function() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            document.getElementById('current-page').textContent = this.currentPage;
+            this.displayCurrentView();
+        }
+    },
+
+    nextPage: function() {
+        const totalPages = Math.ceil(this.binaryData.byteLength / this.bytesPerPage);
+        if (this.currentPage < totalPages) {
+            this.currentPage++;
+            document.getElementById('current-page').textContent = this.currentPage;
+            this.displayCurrentView();
+        }
+    },
+
+    search: function() {
+        const query = document.getElementById('binary-search').value;
+        if (!query) return;
+
+        // Implement binary search functionality
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     window.currentLevel = 7;
+    binaryAnalyzer.init();
 });
-</script>
 {% endblock %}
