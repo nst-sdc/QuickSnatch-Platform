@@ -1,204 +1,103 @@
-# QuickSnatch - Hackathon Challenge Platform
+# Quick-Snatch: Interactive Terminal Challenge Platform 🚀
 
-A secure, production-ready Flask application for hosting terminal-based hackathon challenges. Features team registration, real-time leaderboard, and progressive challenge system.
+Quick-Snatch is an engaging web-based terminal challenge platform designed to help users learn and practice terminal commands in a fun, gamified environment. Created during the NST-SDC Hackathon, this platform offers progressive challenges that test and improve your command-line skills.
 
-## 🚀 Features
+![Quick-Snatch Demo](demo.gif)
 
-- **Secure Authentication System**
-  - Team-based registration
-  - Session management
+## 🌟 Features
+
+- 🎮 Interactive terminal simulator
+- 🎯 Progressive difficulty levels
+- 🔒 Secure authentication system
+- 📊 Real-time progress tracking
+- 🏆 Leaderboard system
+- 💡 Helpful hints and documentation
+- 🎨 Modern, dark-themed UI
+
+## 🛠️ Technology Stack
+
+- **Frontend**:
+  - HTML5, CSS3, JavaScript
+  - Bootstrap 5 for responsive design
+  - Custom terminal emulator
+
+- **Backend**:
+  - Flask (Python web framework)
+  - SQLite database
+  - Jinja2 templating engine
+
+- **Security**:
+  - Flask-Login for user authentication
   - Password hashing
   - CSRF protection
 
-- **Interactive Challenge System**
-  - Progressive difficulty levels
-  - Real-time feedback
-  - Time tracking
-  - Secure answer validation
-
-- **Dynamic Leaderboard**
-  - Real-time updates
-  - Team rankings
-  - Progress tracking
-  - Time-based scoring
-
-- **Production-Ready Security**
-  - HTTPS enforcement
-  - Security headers
-  - Rate limiting
-  - XSS protection
-  - Content Security Policy
-  - Input validation
-
-- **Performance Optimizations**
-  - Response caching
-  - Database optimization
-  - Static file compression
-  - Efficient session handling
-
-## 🛠️ Tech Stack
-
-- **Backend**: Flask (Python)
-- **Database**: MongoDB
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Security**: Flask-Talisman, Flask-SeaSurf
-- **Authentication**: Flask-Login
-- **Styling**: Bootstrap 5
-- **Icons**: Font Awesome
-
-## 🔧 Installation
+## 🚀 Getting Started
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/QuickSnatch.git
+git clone https://github.com/AryanVBW/QuickSnatch.git
 cd QuickSnatch
 ```
 
-2. Create and activate virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Set up environment variables:
+3. Run the application:
 ```bash
-cp .env.example .env
-# Edit .env with your configurations
+python app.py
 ```
 
-5. Initialize the database:
-```bash
-# Ensure MongoDB is running
-python init_db.py
-```
+4. Visit `http://localhost:5000` in your browser
 
-## 🚀 Development Setup
+## 🎯 Challenge Levels
 
-1. Set environment variables:
-```bash
-export FLASK_ENV=development
-export FLASK_DEBUG=1
-```
+1. **Level 1**: Basic Terminal Commands
+   - Learn to navigate directories
+   - Find hidden files
+   - Read file contents
 
-2. Run the development server:
-```bash
-flask run
-```
+2. **Level 2**: File Permissions
+   - Understand permission system
+   - Modify file permissions
+   - Secure file access
 
-## 🌐 Production Deployment
-
-1. Set production environment variables:
-```bash
-export FLASK_ENV=production
-export FLASK_DEBUG=0
-export SECRET_KEY=<your-secure-key>
-export MONGO_URI=<your-mongodb-uri>
-```
-
-2. Run with Gunicorn:
-```bash
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
-```
-
-### Nginx Configuration
-
-```nginx
-server {
-    listen 443 ssl;
-    server_name yourdomain.com;
-
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
-
-## 🔒 Security Features
-
-- HTTPS enforcement
-- Secure session configuration
-- XSS protection
-- CSRF protection
-- Rate limiting
-- Content Security Policy
-- Secure headers
-- Input validation
-- Password hashing
-- Session management
-
-## 📈 Performance Features
-
-- Response caching
-- Database optimization
-- Static file compression
-- Efficient session handling
-- Resource optimization
-
-## 📝 Environment Variables
-
-Create a `.env` file with the following variables:
-
-```env
-FLASK_ENV=development
-FLASK_DEBUG=1
-SECRET_KEY=your-secret-key
-MONGO_URI=mongodb://localhost:27017/quicksnatch
-```
-
-## 🔍 Monitoring
-
-- Application logging
-- Error tracking
-- Request logging
-- Performance monitoring
-- Custom error pages
-
-## 🧪 Testing
-
-Run the test suite:
-```bash
-python -m pytest
-```
-
-## 📦 Project Structure
-
-```
-QuickSnatch/
-├── app.py              # Main application file
-├── config.py           # Configuration settings
-├── requirements.txt    # Project dependencies
-├── init_db.py         # Database initialization
-├── static/            # Static files (CSS, JS)
-├── templates/         # HTML templates
-├── views/             # Template components
-└── logs/              # Application logs
-```
+*More levels coming soon!*
 
 ## 🤝 Contributing
 
+We welcome contributions! Here's how you can help:
+
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch:
+```bash
+git checkout -b feature/AmazingFeature
+```
+3. Commit your changes:
+```bash
+git commit -m 'Add some AmazingFeature'
+```
+4. Push to the branch:
+```bash
+git push origin feature/AmazingFeature
+```
 5. Open a Pull Request
 
-## 👥 Team
+## 📝 License
 
-- Vivek W - Developer and Maintainer
-
-## 📞 Support
-
-For support, email [support@nstsdc.org] or create an issue in the repository.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
+
 - Special thanks to [ForrestKnight](https://www.youtube.com/@fknight) for the amazing [tutorial](https://youtu.be/KtYby2QN0kQ?si=gTshuFyfizpJyiM-) that inspired this project
+- NST-SDC Hackathon for the opportunity
+- All contributors and supporters
+
+## 🔗 Connect with Us
+
+- Created with ❤️ by [Vivek W](https://github.com/AryanVBW)
+- Quick-Snatch Hackathon by NST-SDC
+
+---
+*Note: This project is part of the NST-SDC Hackathon and is intended for educational purposes.*
