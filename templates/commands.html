@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="terminal-page">
+    <h2 class="text-center mb-4">Interactive Terminal Commands</h2>
+    
+    <div class="terminal-sections">
+        <!-- Navigation Commands -->
+        <div class="terminal-section">
+            <h3 class="terminal-title">1. Navigation</h3>
+            <div class="terminal">
+                <div class="command-group">
+                    <div class="command-block">
+                        <div class="command-input">
+                            <span class="prompt">user@quicksnatch:~$</span>
+                            <span class="cmd">ls -la</span>
+                        </div>
+                        <div class="command-output">
+total 32
+drwxr-xr-x  5 user  user  4096 Jan 16 14:16 .
+drwxr-xr-x  3 user  user  4096 Jan 16 14:16 ..
+-rw-------  1 user  user   220 Jan 16 14:16 .bash_history
+-rw-r--r--  1 user  user  3771 Jan 16 14:16 .bashrc
+drwxr-xr-x  2 user  user  4096 Jan 16 14:16 Documents
+drwxr-xr-x  2 user  user  4096 Jan 16 14:16 Downloads
+-rw-r--r--  1 user  user   807 Jan 16 14:16 .profile
+                        </div>
+                    </div>
+                    
+                    <div class="command-block">
+                        <div class="command-input">
+                            <span class="prompt">user@quicksnatch:~$</span>
+                            <span class="cmd">pwd</span>
+                        </div>
+                        <div class="command-output">/home/user</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="terminal-section">
+            <h3 class="terminal-title">2. System Information</h3>
+            <div class="terminal">
+                <div class="command-group">
+                    <div class="command-block">
+                        <div class="command-input">
+                            <span class="prompt">user@quicksnatch:~$</span>
+                            <span class="cmd">top</span>
+                        </div>
+                        <div class="command-output">
+top - 14:16:12 up 2:30, 1 user, load average: 0.52, 0.58, 0.59
+Tasks: 180 total,   1 running, 179 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  5.9 us,  3.1 sy,  0.0 ni, 90.3 id,  0.7 wa,  0.0 hi
+MiB Mem :  7861.1 total,   2913.5 free,   2947.6 used,   2000.0 buff/cache
+MiB Swap:  2048.0 total,   2048.0 free,      0.0 used.   4913.5 avail Mem
+
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+   1520 user      20   0 3465088 252816 161084 S   6.0   3.1   5:12.89 firefox
+    890 user      20   0  724816  58372  39416 S   0.7   0.7   1:23.45 terminal
+                        </div>
+                    </div>
+
+                    <div class="command-block">
+                        <div class="command-input">
+                            <span class="prompt">user@quicksnatch:~$</span>
+                            <span class="cmd">uname -a</span>
+                        </div>
+                        <div class="command-output">Linux quicksnatch 5.15.0-88-generic #98-Ubuntu SMP Mon Oct 2 14:17:39 UTC 2023 x86_64 GNU/Linux</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Commands -->
+        <div class="terminal-section">
+            <h3 class="terminal-title">3. Network Commands</h3>
+            <div class="terminal">
+                <div class="command-group">
+                    <div class="command-block">
+                        <div class="command-input">
+                            <span class="prompt">user@quicksnatch:~$</span>
+                            <span class="cmd">ifconfig</span>
+                        </div>
+                        <div class="command-output">
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+        inet6 fe80::216:3eff:fe74:5555  prefixlen 64  scopeid 0x20<link>
+        ether 00:16:3e:74:55:55  txqueuelen 1000  (Ethernet)
+        RX packets 1234567  bytes 1234567890 (1.2 GB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 891234  bytes 891234567 (891.2 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Local Loopback)
+        RX packets 12345  bytes 1234567 (1.2 MB)
+        TX packets 12345  bytes 1234567 (1.2 MB)
+                        </div>
+                    </div>
+
+                    <div class="command-block">
+                        <div class="command-input">
+                            <span class="prompt">user@quicksnatch:~$</span>
+                            <span class="cmd">ping google.com -c 4</span>
+                        </div>
+                        <div class="command-output">
+PING google.com (142.250.190.78) 56(84) bytes of data.
+64 bytes from lga25s74-in-f14.1e100.net (142.250.190.78): icmp_seq=1 ttl=57 time=15.6 ms
+64 bytes from lga25s74-in-f14.1e100.net (142.250.190.78): icmp_seq=2 ttl=57 time=14.8 ms
+64 bytes from lga25s74-in-f14.1e100.net (142.250.190.78): icmp_seq=3 ttl=57 time=15.2 ms
+64 bytes from lga25s74-in-f14.1e100.net (142.250.190.78): icmp_seq=4 ttl=57 time=15.1 ms
+
+--- google.com ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3005ms
+rtt min/avg/max/mdev = 14.823/15.175/15.633/0.298 ms
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Pages -->
+        <div class="terminal-section">
+            <h3 class="terminal-title">4. Manual Pages</h3>
+            <div class="terminal">
+                <div class="command-group">
+                    <div class="command-block">
+                        <div class="command-input">
+                            <span class="prompt">user@quicksnatch:~$</span>
+                            <span class="cmd">man ls</span>
+                        </div>
+                        <div class="command-output">
+LS(1)                            User Commands                           LS(1)
+
+NAME
+       ls - list directory contents
+
+SYNOPSIS
+       ls [OPTION]... [FILE]...
+
+DESCRIPTION
+       List information about the FILEs (the current directory by default).
+       Sort entries alphabetically if none of -cftuvSUX nor --sort is specified.
+
+       Mandatory arguments to long options are mandatory for short options too.
+
+       -a, --all
+              do not ignore entries starting with .
+
+       -l     use a long listing format
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event to command inputs to toggle output visibility
+    const commandBlocks = document.querySelectorAll('.command-block');
+    commandBlocks.forEach(block => {
+        const input = block.querySelector('.command-input');
+        const output = block.querySelector('.command-output');
+        
+        if (input && output) {
+            output.style.display = 'none';
+            input.addEventListener('click', () => {
+                const isVisible = output.style.display === 'block';
+                output.style.display = isVisible ? 'none' : 'block';
+                input.classList.toggle('active');
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

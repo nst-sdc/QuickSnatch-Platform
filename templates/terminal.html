@@ -1,0 +1,204 @@
+<!-- Interactive Terminal Component -->
+<div class="terminal-container">
+    <div class="terminal-header">
+        <div class="terminal-controls">
+            <span class="control close">×</span>
+            <span class="control minimize">−</span>
+            <span class="control maximize">□</span>
+        </div>
+        <div class="terminal-title">Terminal</div>
+    </div>
+    <div class="terminal">
+        <div id="terminal-output"></div>
+        <div class="terminal-input-line">
+            <span class="prompt">user@quicksnatch:~$</span>
+            <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+</div>
+
+<style>
+.terminal-container {
+    background: #1e1e1e;
+    border-radius: 6px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.terminal-header {
+    background: #2d2d2d;
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3d3d3d;
+}
+
+.terminal-title {
+    color: #fff;
+    font-size: 14px;
+    margin-left: 8px;
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    color: #000;
+}
+
+.minimize { background: #ffbd4c; }
+.maximize { background: #00ca56; }
+.close { background: #ff5f56; }
+
+.terminal {
+    padding: 12px;
+    height: 400px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #f0f0f0;
+}
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+}
+
+.prompt {
+    color: #00ff00;
+    margin-right: 8px;
+    user-select: none;
+}
+
+#terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #f0f0f0;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+}
+
+#terminal-input:focus {
+    outline: none;
+}
+
+.output-line {
+    margin-bottom: 8px;
+}
+
+.error {
+    color: #ff5f56;
+}
+
+.command-line {
+    margin-bottom: 4px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const terminal = document.querySelector('.terminal');
+    const terminalOutput = document.getElementById('terminal-output');
+    const input = document.getElementById('terminal-input');
+    const commandHistory = [];
+    let historyIndex = -1;
+
+    function addOutput(text, isError = false) {
+        const output = document.createElement('div');
+        output.classList.add('output-line');
+        if (isError) output.classList.add('error');
+        output.textContent = text;
+        terminalOutput.appendChild(output);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function addCommand(command) {
+        const commandLine = document.createElement('div');
+        commandLine.classList.add('command-line');
+        commandLine.innerHTML = `<span class="prompt">user@quicksnatch:~$</span> ${command}`;
+        terminalOutput.appendChild(commandLine);
+    }
+
+    async function executeCommand(command) {
+        if (!command) return;
+
+        addCommand(command);
+        commandHistory.push(command);
+        historyIndex = commandHistory.length;
+
+        if (command === 'clear') {
+            terminalOutput.innerHTML = '';
+            return;
+        }
+
+        try {
+            const response = await fetch('/execute_command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    command: command,
+                    level: window.currentLevel
+                })
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                addOutput(data.error, true);
+            } else {
+                addOutput(data.output);
+            }
+        } catch (error) {
+            addOutput('Error executing command: ' + error.message, true);
+        }
+    }
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const command = input.value.trim();
+            executeCommand(command);
+            input.value = '';
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (historyIndex > 0) {
+                historyIndex--;
+                input.value = commandHistory[historyIndex];
+            }
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                input.value = commandHistory[historyIndex];
+            } else {
+                historyIndex = commandHistory.length;
+                input.value = '';
+            }
+        }
+    });
+
+    // Focus input when clicking anywhere in the terminal
+    terminal.addEventListener('click', function() {
+        input.focus();
+    });
+
+    // Initial focus
+    input.focus();
+});
+</script>

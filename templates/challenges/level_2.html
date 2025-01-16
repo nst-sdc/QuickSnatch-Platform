@@ -8,23 +8,34 @@
     </div>
     
     <div class="mb-4">
-        <p>Great job on completing Level 1! Now let's learn about file permissions.</p>
-        <p>Your task: Check the permissions of the file 'secret.txt' and change them to make it readable.</p>
+        <p>Understanding file permissions is crucial for system security.</p>
+        <p>Your mission:</p>
+        <ol>
+            <li>List files and check their permissions using <code>ls -l</code></li>
+            <li>Read the instructions and permissions info files</li>
+            <li>Change permissions of secret.txt to make it readable</li>
+            <li>Read the flag from secret.txt</li>
+        </ol>
     </div>
 
-    <div class="terminal" id="terminal-2" data-current-dir="/home/user">
-        <div class="terminal-output" id="output-2">
-            Welcome to Quick-Snatch Terminal
-            Type 'help' for available commands
-        </div>
-        <div class="terminal-prompt">
-            <input type="text" class="terminal-input" id="terminal-input-2" autocomplete="off">
-        </div>
-    </div>
+    {% include 'terminal.html' %}
 
-    <div class="hint-box">
-        <h5>Hint:</h5>
-        <p>Use 'ls -l' to check file permissions and 'chmod' to modify them.</p>
+    <div class="hint-box mt-4">
+        <h5>Available Commands:</h5>
+        <ul>
+            <li><code>ls -l</code> - List files with permissions</li>
+            <li><code>cat filename</code> - Display contents of a file</li>
+            <li><code>chmod permissions filename</code> - Change file permissions</li>
+        </ul>
+        <div class="mt-2">
+            <strong>Permission Numbers:</strong>
+            <ul>
+                <li>4 = read (r)</li>
+                <li>2 = write (w)</li>
+                <li>1 = execute (x)</li>
+                <li>Example: chmod 644 file (rw-r--r--)</li>
+            </ul>
+        </div>
     </div>
 
     <form method="POST" class="mt-4">
@@ -36,5 +47,9 @@
     </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.currentLevel = 2;
+});
+</script>
 {% endblock %}

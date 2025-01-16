@@ -8,24 +8,32 @@
     </div>
     
     <div class="mb-4">
-        <p>Time for some scripting! You'll need to create and run a script to solve this puzzle.</p>
-        <p>Your task: Create a script that finds all files containing 'secret' in their name, sorts them by size, and reads the middle file.</p>
+        <p>Shell scripting is a powerful tool for automating tasks.</p>
+        <p>Your mission:</p>
+        <ol>
+            <li>Examine the contents of data.txt and process.sh</li>
+            <li>Make the script executable with <code>chmod</code></li>
+            <li>Run the script to extract the flag</li>
+        </ol>
     </div>
 
-    <div class="terminal" id="terminal-6" data-current-dir="/home/user">
-        <div class="terminal-output" id="output-6">
-            Welcome to Quick-Snatch Terminal
-            Type 'help' for available commands
-            [Files have been scattered in the system]
-        </div>
-        <div class="terminal-prompt">
-            <input type="text" class="terminal-input" id="terminal-input-6" autocomplete="off">
-        </div>
-    </div>
+    {% include 'terminal.html' %}
 
-    <div class="hint-box">
-        <h5>Hint:</h5>
-        <p>Use 'nano' or 'vim' to create a script. Remember to make it executable with chmod. Use pipes (|) to chain commands.</p>
+    <div class="hint-box mt-4">
+        <h5>Available Commands:</h5>
+        <ul>
+            <li><code>cat filename</code> - View file contents</li>
+            <li><code>chmod +x script.sh</code> - Make script executable</li>
+            <li><code>./script.sh</code> - Run a script</li>
+        </ul>
+        <div class="mt-2">
+            <strong>Tips:</strong>
+            <ul>
+                <li>Scripts need execute permission to run</li>
+                <li>Use ./ to run scripts in current directory</li>
+                <li>Check script contents before running</li>
+            </ul>
+        </div>
     </div>
 
     <form method="POST" class="mt-4">
@@ -37,5 +45,9 @@
     </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.currentLevel = 6;
+});
+</script>
 {% endblock %}

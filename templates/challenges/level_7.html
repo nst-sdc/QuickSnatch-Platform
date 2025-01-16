@@ -2,30 +2,40 @@
 
 {% block content %}
 <div class="challenge-card">
-    <h2>Level 7: Archive Management</h2>
+    <h2>Level 7: Archive Investigation</h2>
     <div class="progress mb-3">
         <div class="progress-bar" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">7/10</div>
     </div>
     
     <div class="mb-4">
-        <p>We've got a nested archive challenge for you!</p>
-        <p>Your task: Navigate through multiple layers of compressed files to find the flag. Each archive might use different compression methods.</p>
+        <p>Archives are commonly used to package and compress files. Let's explore different archive formats.</p>
+        <p>Your mission:</p>
+        <ol>
+            <li>Examine mystery.tar.gz using <code>file</code> command</li>
+            <li>Extract the archive with <code>tar xzf</code></li>
+            <li>Follow the trail of compressed files</li>
+            <li>Find and extract the flag</li>
+        </ol>
     </div>
 
-    <div class="terminal" id="terminal-7" data-current-dir="/home/user">
-        <div class="terminal-output" id="output-7">
-            Welcome to Quick-Snatch Terminal
-            Type 'help' for available commands
-            [File mystery.tar.gz has been created]
-        </div>
-        <div class="terminal-prompt">
-            <input type="text" class="terminal-input" id="terminal-input-7" autocomplete="off">
-        </div>
-    </div>
+    {% include 'terminal.html' %}
 
-    <div class="hint-box">
-        <h5>Hint:</h5>
-        <p>You'll need to use various commands like 'tar', 'gzip', 'bzip2', and 'unzip'. Check file types with 'file' command.</p>
+    <div class="hint-box mt-4">
+        <h5>Available Commands:</h5>
+        <ul>
+            <li><code>file filename</code> - Determine file type</li>
+            <li><code>tar xzf file.tar.gz</code> - Extract .tar.gz</li>
+            <li><code>unzip file.zip</code> - Extract .zip</li>
+            <li><code>bzip2 -d file.bz2</code> - Decompress .bz2</li>
+        </ul>
+        <div class="mt-2">
+            <strong>Tips:</strong>
+            <ul>
+                <li>Use file command to identify archive types</li>
+                <li>Different archives need different tools</li>
+                <li>Archives might contain other archives</li>
+            </ul>
+        </div>
     </div>
 
     <form method="POST" class="mt-4">
@@ -37,5 +47,9 @@
     </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.currentLevel = 7;
+});
+</script>
 {% endblock %}

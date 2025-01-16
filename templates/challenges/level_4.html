@@ -2,30 +2,40 @@
 
 {% block content %}
 <div class="challenge-card">
-    <h2>Level 4: Process Management</h2>
+    <h2>Level 4: Process Investigation</h2>
     <div class="progress mb-3">
         <div class="progress-bar" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">4/10</div>
     </div>
     
     <div class="mb-4">
-        <p>Time to learn about processes! There's a background process running that contains the flag.</p>
-        <p>Your task: Find the process, examine its details, and retrieve the flag.</p>
+        <p>Process management is a crucial skill for system administrators.</p>
+        <p>Your mission:</p>
+        <ol>
+            <li>List all running processes using <code>ps aux</code></li>
+            <li>Find suspicious processes</li>
+            <li>Investigate process details in /proc directory</li>
+            <li>Extract the flag from process information</li>
+        </ol>
     </div>
 
-    <div class="terminal" id="terminal-4" data-current-dir="/home/user">
-        <div class="terminal-output" id="output-4">
-            Welcome to Quick-Snatch Terminal
-            Type 'help' for available commands
-            [Background process started: flag_service]
-        </div>
-        <div class="terminal-prompt">
-            <input type="text" class="terminal-input" id="terminal-input-4" autocomplete="off">
-        </div>
-    </div>
+    {% include 'terminal.html' %}
 
-    <div class="hint-box">
-        <h5>Hint:</h5>
-        <p>Use 'ps', 'top', or 'htop' to view processes. The flag might be in the process details or its memory.</p>
+    <div class="hint-box mt-4">
+        <h5>Available Commands:</h5>
+        <ul>
+            <li><code>ps aux</code> - List all processes</li>
+            <li><code>ps -p PID</code> - Show specific process info</li>
+            <li><code>cat /proc/PID/cmdline</code> - View process command line</li>
+            <li><code>strings /proc/PID/environ</code> - View process environment</li>
+        </ul>
+        <div class="mt-2">
+            <strong>Tips:</strong>
+            <ul>
+                <li>Look for processes with suspicious names or high resource usage</li>
+                <li>The /proc directory contains detailed process information</li>
+                <li>Process environment variables may contain sensitive data</li>
+            </ul>
+        </div>
     </div>
 
     <form method="POST" class="mt-4">
@@ -37,5 +47,9 @@
     </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.currentLevel = 4;
+});
+</script>
 {% endblock %}

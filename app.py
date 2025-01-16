@@ -37,10 +37,194 @@ ANSWERS = {
     4: "flag{process_hunter}",
     5: "flag{network_ninja}",
     6: "flag{bash_wizard}",
-    7: "flag{archive_explorer}",
-    8: "flag{system_stalker}",
-    9: "flag{cron_master}",
-    10: "flag{ultimate_champion}"
+    7: "flag{archive_master_explorer}",
+    8: "flag{system_monitor_pro}",
+    9: "flag{cr0n_master_detective}",
+    10: "flag{ultimate_hacker_pro}"
+}
+
+# Command outputs for each level
+COMMAND_OUTPUTS = {
+    1: {
+        "pwd": "/home/user",
+        "ls": "Documents  Downloads  readme.txt  .secret_flag",
+        "ls -la": """total 32
+drwxr-xr-x  5 user  user  4096 Jan 16 14:30 .
+drwxr-xr-x  3 user  user  4096 Jan 16 14:30 ..
+-rw-------  1 user  user   220 Jan 16 14:30 .bash_history
+-rw-r--r--  1 user  user  3771 Jan 16 14:30 .bashrc
+drwxr-xr-x  2 user  user  4096 Jan 16 14:30 Documents
+drwxr-xr-x  2 user  user  4096 Jan 16 14:30 Downloads
+-rw-r--r--  1 user  user   807 Jan 16 14:30 .profile
+-rw-r--r--  1 user  user   102 Jan 16 14:30 readme.txt
+-rw-r--r--  1 user  user    24 Jan 16 14:30 .secret_flag""",
+        "cat readme.txt": """Welcome to Level 1!
+Navigate through the files to find the flag.
+Hint: Sometimes important files are hidden...""",
+        "cat .secret_flag": "flag{quick_basics}"
+    },
+    2: {
+        "ls -l": """total 16
+-rw-r--r-- 1 user user  158 Jan 16 14:30 instructions.txt
+-rw-r--r-- 1 user user  237 Jan 16 14:30 permissions_info.txt
+-rw------- 1 user user   21 Jan 16 14:30 secret.txt""",
+        "cat instructions.txt": """Welcome to Level 2!
+You need to understand file permissions to proceed.
+Check permissions_info.txt for more details.""",
+        "cat permissions_info.txt": """File permissions in Linux:
+r (read) = 4
+w (write) = 2
+x (execute) = 1
+
+Example: chmod 644 file
+6 (rw-) for owner
+4 (r--) for group
+4 (r--) for others""",
+        "chmod 644 secret.txt": "",
+        "cat secret.txt": "flag{chmod_master}"
+    },
+    3: {
+        "ls": "logs",
+        "cd logs": "",
+        "ls logs": "access.log.gz  error.log  system.log",
+        "grep ERROR error.log": "ERROR: flag{grep_master_123} - Critical system error at 14:30:00",
+        "zcat access.log.gz": """127.0.0.1 - - [16/Jan/2025:14:30:00 +0530] "GET /admin HTTP/1.1" 403 123
+127.0.0.1 - - [16/Jan/2025:14:30:01 +0530] "GET /login HTTP/1.1" 200 456""",
+        "cat system.log": """[2025-01-16 14:30:00] System started
+[2025-01-16 14:30:01] User authentication successful
+[2025-01-16 14:30:02] Database connection established"""
+    },
+    4: {
+        "ps aux": """USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0   2384   668 ?        Ss   14:30   0:00 /sbin/init
+root       423  0.0  0.0   2880   712 ?        S    14:30   0:00 sshd
+user      1234  0.0  0.1   5984  1024 pts/0    S+   14:30   0:00 suspicious_process
+user      1337  0.0  0.1  10240  1024 pts/0    S+   14:30   0:00 flag_service""",
+        "ps -p 1337": """  PID TTY      STAT   TIME COMMAND
+ 1337 pts/0    S+     0:00 flag_service""",
+        "cat /proc/1337/cmdline": "flag_service--secret--flag=flag{process_hunter}",
+        "strings /proc/1337/environ": """SHELL=/bin/bash
+PWD=/home/user
+FLAG=flag{process_hunter}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"""
+    },
+    5: {
+        "ifconfig": """eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
+        ether 00:11:22:33:44:55  txqueuelen 1000  (Ethernet)""",
+        "netstat -tuln": """Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:1337            0.0.0.0:*               LISTEN""",
+        "nc localhost 1337": "Welcome! The flag is: flag{network_ninja}",
+        "curl localhost:1337": "Welcome! The flag is: flag{network_ninja}"
+    },
+    6: {
+        "ls": "data.txt  process.sh",
+        "cat data.txt": """user1,100
+user2,200
+user3,300
+admin,flag{bash_wizard}
+user4,400""",
+        "cat process.sh": """#!/bin/bash
+# This script processes data.txt
+grep "admin" data.txt | cut -d',' -f2""",
+        "chmod +x process.sh": "",
+        "./process.sh": "flag{bash_wizard}"
+    },
+    7: {
+        "ls -l mystery.tar.gz": "-rw-r--r-- 1 user user 2048 Jan 16 14:30 mystery.tar.gz",
+        "file mystery.tar.gz": "mystery.tar.gz: gzip compressed data, from Unix, original size 10240",
+        "tar xzf mystery.tar.gz": "",
+        "ls -l": """total 8
+-rw-r--r-- 1 user user 2048 Jan 16 14:30 mystery.tar.gz
+-rw-r--r-- 1 user user 4096 Jan 16 14:30 secret.zip""",
+        "file secret.zip": "secret.zip: Zip archive data, at least v2.0 to extract",
+        "unzip secret.zip": """Archive:  secret.zip
+  inflating: hidden.bz2""",
+        "file hidden.bz2": "hidden.bz2: bzip2 compressed data, block size = 900k",
+        "bzip2 -d hidden.bz2": "",
+        "ls -l hidden": "-rw-r--r-- 1 user user 32 Jan 16 14:30 hidden",
+        "cat hidden": "flag{archive_master_explorer}"
+    },
+    8: {
+        "top": """top - 14:30:00 up 0 min,  1 user,  load average: 0.15, 0.05, 0.01
+Tasks: 105 total,   1 running, 103 sleeping,   0 stopped,   1 zombie
+%Cpu(s):  5.9 us,  2.0 sy,  0.0 ni, 91.2 id,  0.0 wa,  0.0 hi,  0.9 si,  0.0 st
+MiB Mem :   7950.8 total,   7450.8 free,    300.0 used,    200.0 buff/cache
+MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   7450.8 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 1337 user      20   0   10240   1024    512 R  13.37  0.1   0:01.23 suspicious_svc
+  423 root      20   0    2880    712    644 S   0.0   0.0   0:00.00 sshd
+    1 root      20   0    2384    668    612 S   0.0   0.0   0:00.00 init""",
+        "ps aux | grep suspicious": """user     1337  13.37  0.1  10240  1024 pts/0    R    14:30   0:01 suspicious_svc --secret
+user     1338   0.0  0.0   5504   832 pts/0    S+   14:30   0:00 grep suspicious""",
+        "cat /proc/1337/status": """Name:   suspicious_svc
+State:  R (running)
+Tgid:   1337
+Pid:    1337
+PPid:   1
+Uid:    1000    1000    1000    1000
+Gid:    1000    1000    1000    1000
+FDSize: 256
+Groups: 4 24 27 30 46 113 128
+VmPeak:    10240 kB
+VmSize:    10240 kB
+VmLck:         0 kB
+VmRSS:      1024 kB""",
+        "strings /proc/1337/environ": """SHELL=/bin/bash
+PWD=/home/user
+LOGNAME=user
+HOME=/home/user
+LANG=en_US.UTF-8
+SECRET_FLAG=flag{system_monitor_pro}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin""",
+        "cat /proc/1337/cmdline": "suspicious_svc--secret--flag=flag{system_monitor_pro}"
+    },
+    9: {
+        "systemctl status flag-service": """● flag-service.service - Flag Exposure Service
+     Loaded: loaded (/etc/systemd/system/flag-service.service; enabled; vendor preset: enabled)
+     Active: active (running) since Thu 2025-01-16 14:30:00 IST; 1min ago
+   Main PID: 1234 (flag_exposer)
+      Tasks: 1 (limit: 4915)
+     Memory: 1.2M
+     CGroup: /system.slice/flag-service.service
+             └─1234 /usr/local/bin/flag_exposer --interval=60
+
+Jan 16 14:30:00 quicksnatch systemd[1]: Started Flag Exposure Service.
+Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Service started, exposing flag every minute""",
+        "crontab -l": """# Flag exposure cron job
+* * * * * /usr/local/bin/expose_flag.sh
+# Clean up exposed flags
+*/2 * * * * /usr/local/bin/cleanup_flags.sh""",
+        "cat /usr/local/bin/expose_flag.sh": """#!/bin/bash
+# This script exposes the flag temporarily
+echo "flag{cr0n_master_detective}" > /tmp/exposed_flag
+logger "Flag has been exposed in /tmp/exposed_flag\"""",
+        "tail -f /var/log/syslog": """Jan 16 14:30:00 quicksnatch systemd[1]: Started Flag Exposure Service.
+Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Service started
+Jan 16 14:30:00 quicksnatch CRON[1235]: (user) CMD (/usr/local/bin/expose_flag.sh)
+Jan 16 14:30:00 quicksnatch user: Flag has been exposed in /tmp/exposed_flag
+Jan 16 14:30:00 quicksnatch CRON[1236]: (user) CMD (/usr/local/bin/cleanup_flags.sh)""",
+        "cat /tmp/exposed_flag": "flag{cr0n_master_detective}",
+        "journalctl -u flag-service": """-- Logs begin at Thu 2025-01-16 14:30:00 IST, end at Thu 2025-01-16 14:30:00 IST. --
+Jan 16 14:30:00 quicksnatch systemd[1]: Started Flag Exposure Service.
+Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Service started, exposing flag every minute
+Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Flag value: flag{cr0n_master_detective}"""
+    },
+    10: {
+        "netstat -tuln": """Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:31337           0.0.0.0:*               LISTEN     
+tcp6       0      0 :::22                   :::*                    LISTEN     
+tcp6       0      0 :::31337                :::*                    LISTEN""",
+        "nc localhost 31337": """Welcome to the Flag Service!
+Here's your encrypted flag:
+SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=""",
+        'echo "SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=" | base64 -d': "Here's your flag: flag{ultimate_hacker_pro}"
+    }
 }
 
 @login_manager.user_loader
@@ -63,9 +247,10 @@ def login():
             if not user.start_time:
                 user.start_time = datetime.now(pytz.UTC)
                 db.session.commit()
+            flash('Successfully logged in!', 'success')
             return redirect(url_for('challenge', level=user.current_level))
         
-        flash('Invalid username or password')
+        flash('Invalid username or password', 'danger')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -76,11 +261,11 @@ def register():
         confirm_password = request.form.get('confirm_password')
         
         if password != confirm_password:
-            flash('Passwords do not match')
+            flash('Passwords do not match', 'warning')
             return render_template('register.html')
         
         if User.query.filter_by(username=username).first():
-            flash('Username already exists')
+            flash('Username already exists', 'warning')
             return render_template('register.html')
         
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -88,7 +273,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        flash('Registration successful! Please login.')
+        flash('Registration successful! Please login.', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html')
@@ -120,7 +305,7 @@ def challenge(level):
                 current_user.current_level += 1
             current_user.last_submission = datetime.now(pytz.UTC)
             db.session.commit()
-            flash('Correct! Moving to next level.')
+            flash('Correct! Moving to next level.', 'success')
             return redirect(url_for('challenge', level=level+1))
         else:
             submission = Submission(
@@ -131,7 +316,7 @@ def challenge(level):
             )
             db.session.add(submission)
             db.session.commit()
-            flash('Incorrect answer. Try again!')
+            flash('Incorrect answer. Try again!', 'danger')
     
     return render_template(f'challenges/level_{level}.html')
 
@@ -140,7 +325,38 @@ def leaderboard():
     users = User.query.order_by(User.current_level.desc(), User.last_submission).all()
     return render_template('leaderboard.html', users=users)
 
+@app.route('/commands')
+def commands():
+    return render_template('commands.html')
+
+@app.route('/execute_command', methods=['POST'])
+@login_required
+def execute_command():
+    data = request.get_json()
+    if not data or 'command' not in data or 'level' not in data:
+        return jsonify({'error': 'Invalid request data'}), 400
+
+    command = data['command'].strip()
+    level = int(data['level'])
+
+    # Get level-specific command outputs
+    level_outputs = COMMAND_OUTPUTS.get(level, {})
+    
+    # Check if the command exists in the level's allowed commands
+    output = level_outputs.get(command)
+    
+    if output is not None:
+        return jsonify({'output': output})
+    else:
+        # Handle common commands that might not be in COMMAND_OUTPUTS
+        if command == 'clear':
+            return jsonify({'output': ''})
+        elif command == 'help':
+            return jsonify({'output': 'Available commands:\n' + '\n'.join(level_outputs.keys())})
+        else:
+            return jsonify({'error': f'Command not found: {command}'})
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=7771, debug=True)
