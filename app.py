@@ -84,15 +84,40 @@ Example: chmod 644 file
         "cat secret.txt": "flag{chmod_master}"
     },
     3: {
-        "ls": "logs",
+        "ls": "logs  system.log",
+        "ls -l": """total 8
+drwxr-xr-x 2 user user 4096 Jan 16 14:49 logs
+-rw-r--r-- 1 user user 2048 Jan 16 14:49 system.log""",
         "cd logs": "",
-        "ls logs": "access.log.gz  error.log  system.log",
-        "grep ERROR error.log": "ERROR: flag{grep_master_123} - Critical system error at 14:30:00",
-        "zcat access.log.gz": """127.0.0.1 - - [16/Jan/2025:14:30:00 +0530] "GET /admin HTTP/1.1" 403 123
-127.0.0.1 - - [16/Jan/2025:14:30:01 +0530] "GET /login HTTP/1.1" 200 456""",
-        "cat system.log": """[2025-01-16 14:30:00] System started
-[2025-01-16 14:30:01] User authentication successful
-[2025-01-16 14:30:02] Database connection established"""
+        "ls logs": "error.log  access.log  debug.log",
+        "cat logs/error.log": """[ERROR] 14:30:00 - Critical system failure
+[ERROR] 14:30:15 - Database connection lost
+[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
+[ERROR] 14:30:45 - Memory allocation error""",
+        "cat logs/access.log": """192.168.1.100 - - [16/Jan/2025:14:30:00 +0530] "GET /admin HTTP/1.1" 403 287
+192.168.1.101 - - [16/Jan/2025:14:30:15 +0530] "POST /login HTTP/1.1" 401 401
+192.168.1.102 - - [16/Jan/2025:14:30:30 +0530] "GET /flag HTTP/1.1" 404 289""",
+        "cat logs/debug.log": """DEBUG: Initializing system components...
+DEBUG: Loading configuration from /etc/config.json
+DEBUG: Starting background services
+DEBUG: flag{grep_master_123} found in memory
+DEBUG: Cleanup routine started""",
+        "cat system.log": """System startup completed
+Services initialized
+Background tasks running
+Security audit in progress
+No critical issues found""",
+        "grep flag logs/error.log": "[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed",
+        "grep -r flag logs": """logs/error.log:[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
+logs/debug.log:DEBUG: flag{grep_master_123} found in memory""",
+        "grep flag": "ERROR: flag{grep_master_123} - Critical system error at 14:30:00",
+        "help": """Available commands:
+ls          - List directory contents
+cd          - Change directory
+cat         - Display file contents
+grep        - Search for patterns
+grep -r     - Search recursively""",
+        "pwd": "/home/user"
     },
     4: {
         "ps aux": """USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
@@ -106,7 +131,21 @@ user      1337  0.0  0.1  10240  1024 pts/0    S+   14:30   0:00 flag_service"""
         "strings /proc/1337/environ": """SHELL=/bin/bash
 PWD=/home/user
 FLAG=flag{process_hunter}
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"""
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin""",
+        "cat /proc/1337/status": """Name:   flag_service
+State:  S (sleeping)
+Tgid:   1337
+Pid:    1337
+PPid:   1
+Uid:    1000    1000    1000    1000
+Gid:    1000    1000    1000    1000
+FDSize: 256
+Groups: 4 24 27 30 46 113 128
+VmPeak:    10240 kB
+VmSize:    10240 kB
+VmLck:         0 kB
+VmRSS:      1024 kB""",
+        "cat /proc/1337/cmdline": "flag_service--secret--flag=flag{process_hunter}"
     },
     5: {
         "ifconfig": """eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
@@ -346,16 +385,32 @@ def execute_command():
     output = level_outputs.get(command)
     
     if output is None:
-        # If no exact match, try to match command with arguments
         # Split command and try common variations
         cmd_parts = command.split()
         base_cmd = cmd_parts[0]
         
-        # Try to match commands with arguments
-        for cmd_key in level_outputs.keys():
-            if cmd_key.startswith(command):
-                output = level_outputs[cmd_key]
-                break
+        # Handle grep commands specially
+        if base_cmd == 'grep':
+            # Try different grep patterns
+            for cmd_key in level_outputs.keys():
+                if cmd_key.startswith('grep'):
+                    # Check if arguments match
+                    cmd_key_parts = cmd_key.split()
+                    if len(cmd_key_parts) == len(cmd_parts):
+                        matches = True
+                        for i in range(len(cmd_parts)):
+                            if cmd_parts[i] != cmd_key_parts[i]:
+                                matches = False
+                                break
+                        if matches:
+                            output = level_outputs[cmd_key]
+                            break
+        else:
+            # Try to match other commands with arguments
+            for cmd_key in level_outputs.keys():
+                if cmd_key.startswith(command):
+                    output = level_outputs[cmd_key]
+                    break
     
     if output is not None:
         return jsonify({'output': output})
