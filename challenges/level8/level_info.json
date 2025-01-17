@@ -1,0 +1,31 @@
+{
+    "level": 8,
+    "title": "System Administrator",
+    "description": "Investigate system services and configuration to find the hidden flag.",
+    "prompt": "sysadmin@quicksnatch",
+    "difficulty": "Hard",
+    "flag": "flag{service_config_master}",
+    "files": {
+        "/etc/systemd/system/flag-service.service": "[Unit]\nDescription=Flag Service\nAfter=network.target\n\n[Service]\nType=simple\nEnvironment=FLAG=flag{service_config_master}\nExecStart=/usr/local/bin/flag-service\nRestart=always\n\n[Install]\nWantedBy=multi-user.target",
+        "/etc/systemd/system/web-server.service": "[Unit]\nDescription=Web Server\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=/usr/local/bin/web-server\nRestart=always",
+        "/var/log/syslog": "Jan 17 14:30:00 quicksnatch systemd[1]: Started Flag Service.\nJan 17 14:30:01 quicksnatch flag-service[1234]: Service started with flag\nJan 17 14:30:02 quicksnatch systemd[1]: Started Web Server.",
+        "/etc/default/flag-service": "# Default settings for flag-service\nSERVICE_PORT=8080\nSERVICE_USER=flaguser\nDEBUG_MODE=true",
+        "/home/user/README.txt": "Level 8: System Services\nInvestigate the system services and their configurations.\nThe flag is hidden in one of the service configurations.\nCheck systemd service files and their environment variables."
+    },
+    "hints": [
+        "Look into systemd service configurations",
+        "Check service environment variables",
+        "Service logs might contain useful information",
+        "Default configuration files might help"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat",
+        "systemctl",
+        "journalctl",
+        "grep",
+        "env"
+    ]
+}

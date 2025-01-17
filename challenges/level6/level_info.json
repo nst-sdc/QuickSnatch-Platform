@@ -1,0 +1,29 @@
+{
+    "level": 6,
+    "title": "Bash Scripting Master",
+    "description": "Find the flag by analyzing and understanding bash scripts and environment variables.",
+    "prompt": "bashmaster@quicksnatch",
+    "difficulty": "Hard",
+    "flag": "flag{bash_script_master}",
+    "files": {
+        "/home/user/scripts/backup.sh": "#!/bin/bash\n# Backup script\nBACKUP_DIR=/tmp/backup\nSECRET_KEY=\"flag{bash_script_master}\"\n\necho \"Starting backup...\"\nif [ ! -d \"$BACKUP_DIR\" ]; then\n    mkdir -p \"$BACKUP_DIR\"\nfi\n\n# Encrypted backup\nopenssl enc -aes-256-cbc -salt -in /home/user/data -out \"$BACKUP_DIR/backup.enc\" -k \"$SECRET_KEY\"\n",
+        "/home/user/scripts/clean.sh": "#!/bin/bash\n# Cleanup script\nfind /tmp/backup -type f -mtime +7 -delete",
+        "/home/user/.env": "BACKUP_PASSPHRASE=supersecret\nBACKUP_DIR=/tmp/backup\nDEBUG_MODE=true",
+        "/home/user/README.txt": "Level 6: Bash Scripting\nAnalyze the scripts in the scripts directory.\nPay attention to environment variables and script logic.\nThe flag is hidden in one of the script's variables."
+    },
+    "hints": [
+        "Check the backup script's variables",
+        "Environment variables might be useful",
+        "Look for encryption keys or secrets in scripts"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat",
+        "grep",
+        "env",
+        "source",
+        "bash"
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "level": 2,
+    "title": "Permission Master",
+    "description": "Learn about Linux file permissions and find the hidden flag by managing file permissions correctly.",
+    "prompt": "chmod@quicksnatch",
+    "difficulty": "Easy",
+    "flag": "flag{chmod_master}",
+    "files": {
+        "/home/user/hidden_file": "This file needs proper permissions\n",
+        "/home/user/.permissions": "flag{chmod_master}",
+        "/home/user/README.txt": "Level 2: File Permissions\nSome files may require specific permissions to access.\nTry using chmod to modify file permissions."
+    },
+    "hints": [
+        "Use chmod to modify file permissions",
+        "Check file permissions with ls -l",
+        "Some files might be hidden and need permission changes"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat",
+        "chmod",
+        "ls -l"
+    ]
+}

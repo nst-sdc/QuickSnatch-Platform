@@ -1,0 +1,32 @@
+{
+    "level": 7,
+    "title": "Archive Explorer",
+    "description": "Navigate through compressed archives to find the hidden flag.",
+    "prompt": "archiver@quicksnatch",
+    "difficulty": "Hard",
+    "flag": "flag{archive_master_2025}",
+    "files": {
+        "/home/user/archives/data.tar.gz": "Binary content of compressed archive",
+        "/home/user/archives/backup.zip": "Binary content of zip archive",
+        "/home/user/archives/secret.rar": "Binary content of RAR archive",
+        "/home/user/archives/README.txt": "The flag is hidden in one of these archives.\nYou'll need to extract and analyze them.\nSome archives might be password protected.\nPassword hint: The year this challenge was created",
+        "/home/user/archives/passwords.txt": "data.tar.gz: quicksnatch\nbackup.zip: 2025\nsecret.rar: archivemaster",
+        "/home/user/README.txt": "Level 7: Archive Investigation\nExplore the archives in the archives directory.\nUse appropriate tools to extract and examine archive contents.\nSome archives might contain other archives (nested)."
+    },
+    "hints": [
+        "Try different archive extraction tools",
+        "Check for password-protected archives",
+        "Archives might be nested within each other",
+        "The current year might be useful"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat",
+        "tar",
+        "gzip",
+        "unzip",
+        "gunzip"
+    ]
+}

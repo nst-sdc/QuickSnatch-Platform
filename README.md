@@ -1,144 +1,138 @@
-# Quick-Snatch: Interactive Terminal Challenge Platform 🚀
+# QuickSnatch CTF Platform
 
-Quick-Snatch is an engaging web-based terminal challenge platform designed to help users learn and practice terminal commands in a fun, gamified environment. Created during the NST-SDC Hackathon, this platform offers progressive challenges that test and improve your command-line skills.
+A web-based Capture The Flag (CTF) platform focused on Linux command-line skills and system administration challenges.
 
-![Quick-Snatch Demo](demo.gif)
+## Features
 
-## 🌟 Features
+- 10 Progressive difficulty levels
+- Real-time terminal emulation
+- Time tracking for each level
+- User authentication and progress tracking
+- Secure flag submission system
+- Comprehensive hint system
+- Level-specific challenges
 
-- 🎮 Interactive terminal simulator
-- 🎯 Progressive difficulty levels
-- 🔒 Secure authentication system
-- 📊 Real-time progress tracking
-- 🏆 Leaderboard system
-- 💡 Helpful hints and documentation
-- 🎨 Modern, dark-themed UI
+## Prerequisites
 
-## 🛠️ Technology Stack
+- Python 3.8+
+- pip (Python package manager)
+- Virtual environment (recommended)
 
-- **Frontend**:
-  - HTML5, CSS3, JavaScript
-  - Bootstrap 5 for responsive design
-  - Custom terminal emulator
-
-- **Backend**:
-  - Flask (Python web framework)
-  - SQLite database
-  - Jinja2 templating engine
-
-- **Security**:
-  - Flask-Login for user authentication
-  - Password hashing
-  - CSRF protection
-
-## 🚀 Getting Started
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/AryanVBW/QuickSnatch.git
+git clone https://github.com/yourusername/QuickSnatch.git
 cd QuickSnatch
 ```
 
-2. Install dependencies:
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the application:
+4. Set up environment variables:
 ```bash
-python app.py
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-4. Visit `http://localhost:5000` in your browser
+5. Initialize the database:
+```bash
+flask db upgrade
+```
 
-## 🎯 Challenge Levels
+## Running in Development
 
-1. **Level 1**: Basic Terminal Commands
-   - Learn to navigate directories
-   - Find hidden files
-   - Read file contents
+```bash
+flask run --debug
+```
 
-2. **Level 2**: File Permissions
-   - Understand permission system
-   - Modify file permissions
-   - Secure file access
+## Production Deployment
 
-*More levels coming soon!*
+1. Set environment variables:
+```bash
+export FLASK_ENV=production
+export FLASK_APP=app.py
+```
 
-## 📚 Learning Resources
+2. Run with Gunicorn:
+```bash
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
 
-### Terminal Fundamentals
-- Understanding file systems and paths
-- Basic terminal navigation
-- File and directory operations
-- Permissions and access control
-- Process management
-- Text manipulation and search
+## Security Features
 
-### Study Materials
-1. **Command Line Basics**
-   - `man` pages for detailed command documentation
-   - Online terminal tutorials and interactive guides
-   - Command cheatsheets and reference guides
+- Secure session management
+- CSRF protection
+- XSS prevention
+- SQL injection protection
+- Secure password hashing
+- Rate limiting
+- Security headers
 
-2. **File System Navigation**
-   - Directory structure and hierarchy
-   - Path types (absolute vs relative)
-   - File operations and management
-   - Hidden files and special directories
+## Challenge Levels
 
-3. **Security Concepts**
-   - Permission models and access control
-   - User and group management
-   - File encryption and security
-   - System monitoring and logging
+1. File Explorer (Easy)
+   - Basic Linux commands
+   - File system navigation
 
-4. **Advanced Topics**
-   - Shell scripting fundamentals
+2. Permission Master (Easy)
+   - File permissions
+   - chmod command
+
+3. Log Detective (Medium)
+   - Log file analysis
+   - grep and search
+
+4. Process Inspector (Medium)
    - Process management
-   - Network utilities
-   - System administration
+   - System monitoring
 
-### Practice Tips
-1. Start with basic commands and understand them thoroughly
-2. Use the built-in help system (`man`, `--help`)
-3. Practice in a safe environment
-4. Take notes and document your learning
-5. Join the community and share knowledge
+5. Network Ninja (Medium)
+   - Network configuration
+   - Service management
 
-## 🤝 Contributing
+6. Bash Scripting Master (Hard)
+   - Shell scripting
+   - Environment variables
 
-We welcome contributions! Here's how you can help:
+7. Archive Explorer (Hard)
+   - File compression
+   - Archive management
+
+8. System Administrator (Hard)
+   - System services
+   - Configuration management
+
+9. Cron Master (Expert)
+   - Scheduled tasks
+   - Job automation
+
+10. Final Challenge (Expert)
+    - Combined skills
+    - Advanced problem-solving
+
+## Contributing
 
 1. Fork the repository
-2. Create your feature branch:
-```bash
-git checkout -b feature/AmazingFeature
-```
-3. Commit your changes:
-```bash
-git commit -m 'Add some AmazingFeature'
-```
-4. Push to the branch:
-```bash
-git push origin feature/AmazingFeature
-```
-5. Open a Pull Request
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- Special thanks to [ForrestKnight](https://www.youtube.com/@fknight) for the amazing [tutorial](https://youtu.be/KtYby2QN0kQ?si=gTshuFyfizpJyiM-) that inspired this project
-- NST-SDC Hackathon for the opportunity
-- All contributors and supporters
-
-## 🔗 Connect with Us
-
-- Created with ❤️ by [Vivek W](https://github.com/AryanVBW)
-- Quick-Snatch Hackathon by NST-SDC
-
----
-*Note: This project is part of the NST-SDC Hackathon and is intended for educational purposes.*
+- Flask team for the excellent web framework
+- Contributors and testers
+- CTF community for inspiration

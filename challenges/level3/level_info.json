@@ -1,0 +1,28 @@
+{
+    "level": 3,
+    "title": "Log Detective",
+    "description": "Investigate system logs to find suspicious activity and uncover the hidden flag.",
+    "prompt": "logger@quicksnatch",
+    "difficulty": "Medium",
+    "flag": "flag{grep_master_123}",
+    "files": {
+        "/var/log/system.log": "Jan 17 14:30:01 quicksnatch systemd[1]: Starting system...\nJan 17 14:30:05 quicksnatch kernel: Initializing...\nJan 17 14:35:12 quicksnatch auth: flag{grep_master_123}\nJan 17 14:36:00 quicksnatch systemd[1]: System started.",
+        "/var/log/auth.log": "Jan 17 14:30:00 quicksnatch sshd[1234]: Failed password for invalid user test from 192.168.1.100\nJan 17 14:31:00 quicksnatch sudo: user : TTY=pts/0 ; PWD=/home/user ; USER=root ; COMMAND=/usr/bin/find",
+        "/var/log/application.log": "2025-01-17 14:30:00 [INFO] Application starting\n2025-01-17 14:31:00 [ERROR] Failed to authenticate user\n2025-01-17 14:32:00 [INFO] Service restarted",
+        "/home/user/README.txt": "Level 3: System Logs\nCheck the system logs in /var/log/ for any suspicious activities.\nTry using grep to search through the logs efficiently."
+    },
+    "hints": [
+        "The flag is hidden in one of the log files",
+        "Use grep to search through log files",
+        "Check all log files in /var/log/"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat",
+        "grep",
+        "tail",
+        "head"
+    ]
+}

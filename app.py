@@ -9,13 +9,71 @@ import shlex
 from riddles import riddle_manager
 import io
 import math
+import json
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(24)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ctf.db'
+
+# Production configurations
+class Config:
+    # Security settings
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'development-key-CHANGE-THIS-IN-PRODUCTION'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///quicksnatch.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Session settings
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
+    SESSION_COOKIE_HTTPONLY = os.environ.get('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
+    SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
+    
+    # Security headers
+    SECURE_HEADERS = {
+        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-XSS-Protection': '1; mode=block',
+        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+    }
+    
+    # Rate limiting
+    RATELIMIT_DEFAULT = os.environ.get('RATELIMIT_DEFAULT', '100/hour')
+    RATELIMIT_STORAGE_URL = os.environ.get('RATELIMIT_STORAGE_URL', 'memory://')
+    
+    # Challenge settings
+    MAX_ATTEMPTS_PER_LEVEL = int(os.environ.get('MAX_ATTEMPTS_PER_LEVEL', 10))
+    HINT_PENALTY_MINUTES = int(os.environ.get('HINT_PENALTY_MINUTES', 5))
+    
+    # Logging
+    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
+    LOG_FILE = os.environ.get('LOG_FILE', 'logs/quicksnatch.log')
+
+app.config.from_object(Config)
+
+# Initialize extensions
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# Set up logging
+if not app.debug:
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+    file_handler = RotatingFileHandler('logs/quicksnatch.log', maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('QuickSnatch startup')
+
+# Security headers middleware
+@app.after_request
+def add_security_headers(response):
+    for header, value in Config.SECURE_HEADERS.items():
+        response.headers[header] = value
+    return response
 
 # Database Models
 class User(UserMixin, db.Model):
@@ -25,6 +83,45 @@ class User(UserMixin, db.Model):
     current_level = db.Column(db.Integer, default=1)
     start_time = db.Column(db.DateTime, nullable=True)
     last_submission = db.Column(db.DateTime, nullable=True)
+    level_times = db.relationship('LevelTime', backref='user', lazy=True)
+
+    def get_level_time(self, level):
+        level_time = LevelTime.query.filter_by(user_id=self.id, level=level).order_by(LevelTime.start_time.desc()).first()
+        if level_time:
+            return level_time.calculate_time_spent()
+        return None
+
+    def format_time_spent(self, level):
+        time_spent = self.get_level_time(level)
+        if not time_spent:
+            return "Not started"
+        
+        total_seconds = int(time_spent.total_seconds())
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+        
+        if hours > 0:
+            return f"{hours}h {minutes}m {seconds}s"
+        elif minutes > 0:
+            return f"{minutes}m {seconds}s"
+        else:
+            return f"{seconds}s"
+
+class LevelTime(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    level = db.Column(db.Integer, nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=True)
+    time_spent = db.Column(db.Interval, nullable=True)
+
+    def calculate_time_spent(self):
+        if self.end_time and self.start_time:
+            return self.end_time - self.start_time
+        elif self.start_time:
+            return datetime.now(pytz.UTC) - self.start_time
+        return None
 
 class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,6 +129,10 @@ class Submission(db.Model):
     level = db.Column(db.Integer, nullable=False)
     submitted_at = db.Column(db.DateTime, nullable=False)
     is_correct = db.Column(db.Boolean, nullable=False)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Challenge answers (in production, these should be stored securely)
 ANSWERS = {
@@ -270,10 +371,6 @@ SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=""",
     }
 }
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -296,6 +393,7 @@ def login():
             return redirect(url_for('level', level_number=user.current_level))
         
         flash('Invalid username or password', 'danger')
+        print("Thios")
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -350,28 +448,71 @@ def leaderboard():
     users = User.query.order_by(User.current_level.desc(), User.username).all()
     return render_template('leaderboard.html', users=users)
 
-@app.route('/check_flag/<int:level>', methods=['POST'])
+@app.route('/verify_flag', methods=['POST'])
 @login_required
-def check_flag(level):
-    if level != current_user.current_level:
-        return jsonify({'success': False, 'message': 'Invalid level!'})
-    
-    submitted_flag = request.json.get('flag', '').strip()
-    if not submitted_flag:
-        return jsonify({'success': False, 'message': 'Please enter a flag'})
+def verify_flag():
+    data = request.get_json()
+    level = data.get('level')
+    submitted_flag = data.get('flag')
 
-    expected_flag = ANSWERS.get(level)
-    
-    if submitted_flag == expected_flag:
-        # Redirect to riddle instead of next level
+    if not level or not submitted_flag:
+        return jsonify({'success': False, 'message': 'Missing level or flag'})
+
+    # Check if user has access to this level
+    if current_user.current_level < level:
+        return jsonify({'success': False, 'message': 'Level not unlocked'})
+
+    # Verify the flag
+    if submitted_flag == ANSWERS.get(level):
+        # Complete the current level timing
+        level_time = LevelTime.query.filter_by(
+            user_id=current_user.id, 
+            level=level, 
+            end_time=None
+        ).first()
+        
+        if level_time:
+            level_time.end_time = datetime.now(pytz.UTC)
+            level_time.time_spent = level_time.calculate_time_spent()
+        
+        # Update user progress if this is their current level
+        if current_user.current_level == level:
+            current_user.current_level += 1
+            current_user.last_submission = datetime.now(pytz.UTC)
+            
+            # Start timing for next level
+            next_level_time = LevelTime(
+                user_id=current_user.id,
+                level=current_user.current_level,
+                start_time=datetime.now(pytz.UTC)
+            )
+            db.session.add(next_level_time)
+        
+        db.session.commit()
+        
+        # Get formatted time spent
+        time_spent = current_user.format_time_spent(level)
+        
         return jsonify({
             'success': True,
-            'redirect': url_for('level_complete', level=level)
+            'message': f'Correct flag! Level completed in {time_spent}',
+            'next_level': current_user.current_level,
+            'time_spent': time_spent
         })
     else:
+        # Record failed attempt
+        submission = Submission(
+            user_id=current_user.id,
+            level=level,
+            submitted_at=datetime.now(pytz.UTC),
+            is_correct=False
+        )
+        db.session.add(submission)
+        db.session.commit()
+        
         return jsonify({
             'success': False,
-            'message': 'Incorrect flag. Try again!'
+            'message': 'Incorrect flag. Keep trying!'
         })
 
 @app.route('/level/<int:level>/complete', methods=['GET', 'POST'])
@@ -930,6 +1071,53 @@ def analyze_entropy():
             'content': '\n'.join(entropy_data)
         }
     ]
+
+@app.route('/terminal/<int:level>')
+@login_required
+def terminal(level):
+    if level < 1 or level > 10 or level > current_user.current_level:
+        return redirect(url_for('level', level_number=current_user.current_level))
+    
+    # Start timing for this level if not already started
+    level_time = LevelTime.query.filter_by(
+        user_id=current_user.id, 
+        level=level, 
+        end_time=None
+    ).first()
+    
+    if not level_time:
+        level_time = LevelTime(
+            user_id=current_user.id,
+            level=level,
+            start_time=datetime.now(pytz.UTC)
+        )
+        db.session.add(level_time)
+        db.session.commit()
+    
+    time_spent = current_user.format_time_spent(level)
+    return render_template(f'level{level}_terminal.html', level=level, time_spent=time_spent)
+
+@app.route('/level_time/<int:level>')
+@login_required
+def level_time(level):
+    time_spent = current_user.format_time_spent(level)
+    return jsonify({'time_spent': time_spent})
+
+@app.route('/challenges/level<int:level>/level_info.json')
+@login_required
+def level_info(level):
+    try:
+        with open(f'challenges/level{level}/level_info.json', 'r') as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({
+            'level': level,
+            'title': 'Unknown Level',
+            'description': 'Level information not available.',
+            'prompt': 'user@quicksnatch',
+            'files': {},
+            'hints': ['Level information not available']
+        })
 
 if __name__ == '__main__':
     with app.app_context():

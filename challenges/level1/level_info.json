@@ -1,0 +1,24 @@
+{
+    "level": 1,
+    "title": "File Explorer",
+    "description": "Welcome to Level 1! Your task is to explore the filesystem and find the hidden flag.",
+    "prompt": "rookie@quicksnatch",
+    "difficulty": "Easy",
+    "flag": "flag{file_explorer_pro}",
+    "files": {
+        "/home/user/secret.txt": "flag{file_explorer_pro}",
+        "/home/user/README.txt": "Welcome to Level 1! Start by exploring the files in your home directory.",
+        "/home/user/.bash_history": "ls\ncd Documents\npwd\ncd ..\nls -la"
+    },
+    "hints": [
+        "Try using basic Linux commands like ls, cd, and cat",
+        "Don't forget to check hidden files (files starting with .)",
+        "The flag is somewhere in your home directory"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat"
+    ]
+}

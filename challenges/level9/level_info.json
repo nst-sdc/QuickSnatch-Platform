@@ -1,0 +1,31 @@
+{
+    "level": 9,
+    "title": "Cron Master",
+    "description": "Investigate cron jobs and scheduled tasks to find the hidden flag.",
+    "prompt": "cronmaster@quicksnatch",
+    "difficulty": "Expert",
+    "flag": "flag{cron_master_2025}",
+    "files": {
+        "/etc/crontab": "# System crontab\nPATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\n\n# Example of job definition:\n# .---------------- minute (0 - 59)\n# |  .------------- hour (0 - 23)\n# |  |  .---------- day of month (1 - 31)\n# |  |  |  .------- month (1 - 12)\n# |  |  |  |  .---- day of week (0 - 6)\n# |  |  |  |  |\n# *  *  *  *  * user command\n\n0 * * * * root /usr/local/bin/flag-rotator.sh\n*/15 * * * * root /usr/local/bin/system-check.sh\n0 0 * * * root /usr/local/bin/backup.sh",
+        "/var/log/cron.log": "Jan 17 14:00:00 quicksnatch CRON[1234]: (root) CMD (/usr/local/bin/flag-rotator.sh)\nJan 17 14:00:00 quicksnatch flag-rotator[1234]: Rotating flag: flag{cron_master_2025}\nJan 17 14:15:00 quicksnatch CRON[1235]: (root) CMD (/usr/local/bin/system-check.sh)",
+        "/usr/local/bin/flag-rotator.sh": "#!/bin/bash\n# Rotate system flags\necho \"Rotating flags...\"\nFLAG=\"flag{cron_master_2025}\"\necho \"Current flag: $FLAG\"\n# More code...",
+        "/usr/local/bin/system-check.sh": "#!/bin/bash\n# System health check\necho \"Checking system health...\"\n# More code...",
+        "/home/user/README.txt": "Level 9: Cron Jobs\nInvestigate the system's scheduled tasks (cron jobs).\nThe flag is being rotated by one of the cron jobs.\nCheck cron logs and scripts to find it."
+    },
+    "hints": [
+        "Examine the system's crontab file",
+        "Check cron job logs",
+        "Look into scheduled script contents",
+        "The flag might be in a script or log file"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat",
+        "crontab",
+        "grep",
+        "tail",
+        "head"
+    ]
+}

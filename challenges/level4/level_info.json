@@ -1,0 +1,27 @@
+{
+    "level": 4,
+    "title": "Process Inspector",
+    "description": "Investigate running processes to find a suspicious process containing the flag.",
+    "prompt": "inspector@quicksnatch",
+    "difficulty": "Medium",
+    "flag": "flag{process_hunter}",
+    "files": {
+        "/proc/1337/status": "Name:\tflag_service\nState:\tS (sleeping)\nPid:\t1337\nPPid:\t1\nUid:\t1000\t1000\t1000\t1000\nGid:\t1000\t1000\t1000\t1000",
+        "/proc/1337/environ": "FLAG=flag{process_hunter}\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin\nSHELL=/bin/bash",
+        "/proc/1337/cmdline": "flag_service--hidden--flag=flag{process_hunter}",
+        "/home/user/README.txt": "Level 4: Process Investigation\nA suspicious process is running on the system.\nInvestigate the /proc directory to find information about running processes."
+    },
+    "hints": [
+        "Check the /proc directory for process information",
+        "Look for suspicious process IDs",
+        "Process environment variables might contain useful information"
+    ],
+    "commands": [
+        "ls",
+        "cd",
+        "pwd",
+        "cat",
+        "ps",
+        "top"
+    ]
+}
