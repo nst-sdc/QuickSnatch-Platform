@@ -13,10 +13,26 @@
 
     <div class="riddle-card">
         <h2>Level {{ level }} Complete!</h2>
-        <p class="congratulations">Congratulations! Now solve this riddle to proceed:</p>
+        <p class="congratulations">Congratulations! Find the location described below to proceed:</p>
         
-        <div class="riddle-text">
-            {{ riddle }}
+        <div class="location-hint">
+            {% if level == 1 %}
+            Near the Dental Clinic - Look for the statue/portrait of the female founder in white, located in the medical building's hallway.
+            {% elif level == 2 %}
+            The Meditation Center - A peaceful temple-like structure surrounded by greenery with a panoramic view.
+            {% elif level == 3 %}
+            The Small Hut - Located near the parking area, in front of the dental clinic.
+            {% elif level == 4 %}
+            The Bollywood Garden - A green space near the halls, reminiscent of scenes from the movie Sholay.
+            {% elif level == 5 %}
+            The Study Nook - A quiet space situated between the sports field and library.
+            {% elif level == 6 %}
+            The Memorial Fountain - A statue installation near the water feature, in front of the main building with prominent signage.
+            {% elif level == 7 %}
+            The Main Gate - The primary entrance where buses arrive and depart.
+            {% elif level == 8 %}
+            The Press Garden - A green space with wooden shade structures, located near the press building and assembly hall.
+            {% endif %}
         </div>
 
         <form method="POST" class="riddle-form">
@@ -98,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-bottom: 1.5rem;
 }
 
-.riddle-text {
+.location-hint {
     font-size: 1.2rem;
     color: var(--text-color);
     margin-bottom: 2rem;

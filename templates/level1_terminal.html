@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="terminal-container">
+    <div class="terminal">
+        <div class="terminal-header">
+            <span class="terminal-title">Level 1 Terminal</span>
+            <div class="terminal-controls">
+                <span class="control close"></span>
+                <span class="control minimize"></span>
+                <span class="control maximize"></span>
+            </div>
+        </div>
+        <div class="terminal-content" id="terminalContent">
+            <div class="output-line">Welcome to Level 1 Terminal</div>
+            <div class="output-line">Type 'help' to see available commands</div>
+            <div class="output-line">Current directory: /home/user</div>
+        </div>
+        <div class="terminal-input-line">
+            <span class="prompt">user@quicksnatch:~$</span>
+            <input type="text" id="terminalInput" autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+</div>
+
+<style>
+.terminal-container {
+    width: 80%;
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.terminal {
+    background-color: #2b2b2b;
+    border-radius: 6px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+}
+
+.terminal-header {
+    background-color: #3c3c3c;
+    padding: 8px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.terminal-title {
+    color: #fff;
+    font-size: 14px;
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.close { background-color: #ff5f56; }
+.minimize { background-color: #ffbd2e; }
+.maximize { background-color: #27c93f; }
+
+.terminal-content {
+    padding: 16px;
+    color: #f0f0f0;
+    font-family: 'Courier New', monospace;
+    min-height: 300px;
+    overflow-y: auto;
+}
+
+.output-line {
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+}
+
+.terminal-input-line {
+    display: flex;
+    padding: 8px 16px 16px;
+    align-items: center;
+}
+
+.prompt {
+    color: #27c93f;
+    margin-right: 8px;
+}
+
+#terminalInput {
+    background: transparent;
+    border: none;
+    color: #f0f0f0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    flex-grow: 1;
+    outline: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('terminalInput');
+    const terminal = document.getElementById('terminalContent');
+    
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const command = input.value.trim().toLowerCase();
+            const outputLine = document.createElement('div');
+            outputLine.className = 'output-line';
+            
+            // Show the command that was entered
+            outputLine.textContent = `user@quicksnatch:~$ ${command}`;
+            terminal.appendChild(outputLine);
+            
+            // Process the command
+            const responseDiv = document.createElement('div');
+            responseDiv.className = 'output-line';
+            
+            switch(command) {
+                case 'help':
+                    responseDiv.textContent = `Available commands:
+help     - Show this help message
+ls       - List directory contents
+ls -a    - List all files including hidden
+ls -al   - List all files in long format
+cat      - Concatenate and display file contents
+strings  - Print printable strings in binary files
+hexdump  - Display file contents in hexadecimal
+clear    - Clear terminal screen`;
+                    break;
+                    
+                case 'ls':
+                    responseDiv.textContent = `binary
+strings.txt
+dump.hex
+analysis.log`;
+                    break;
+                    
+                case 'ls -a':
+                    responseDiv.textContent = `.
+..
+.secret.txt
+binary
+strings.txt
+dump.hex
+analysis.log`;
+                    break;
+                    
+                case 'ls -al':
+                    responseDiv.textContent = `total 40
+drwxr-xr-x  7 user  user  224 Jan 17 19:56 .
+drwxr-xr-x  3 user  user   96 Jan 17 19:56 ..
+-rw-r--r--  1 user  user   24 Jan 17 19:56 .secret.txt
+-rwxr-xr-x  1 user  user  512 Jan 17 19:56 binary
+-rw-r--r--  1 user  user  128 Jan 17 19:56 strings.txt
+-rw-r--r--  1 user  user  256 Jan 17 19:56 dump.hex
+-rw-r--r--  1 user  user  156 Jan 17 19:56 analysis.log`;
+                    break;
+                    
+                case 'cat .secret.txt':
+                    responseDiv.textContent = 'flag{file_explorer_pro}';
+                    break;
+                    
+                case 'clear':
+                    terminal.innerHTML = '';
+                    input.value = '';
+                    return;
+                    
+                default:
+                    if (command.startsWith('cat ')) {
+                        responseDiv.textContent = 'cat: No such file or directory';
+                    } else {
+                        responseDiv.textContent = `Command not found: ${command}`;
+                    }
+            }
+            
+            terminal.appendChild(responseDiv);
+            input.value = '';
+            
+            // Scroll to bottom
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+    });
+    
+    // Focus input when clicking anywhere in terminal
+    document.querySelector('.terminal').addEventListener('click', function() {
+        input.focus();
+    });
+    
+    // Initial focus
+    input.focus();
+});
+</script>
+{% endblock %}
