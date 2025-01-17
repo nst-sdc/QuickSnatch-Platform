@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="location-hint-container">
+    <h2>Level {{ level }} Location Hint</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-map-marker-alt me-2"></i>Location Clue</h5>
+            <p class="card-text">{{ location_hint }}</p>
+        </div>
+    </div>
+
+    <div class="qr-submission mt-4">
+        <h5><i class="fas fa-qrcode me-2"></i>Submit QR Code</h5>
+        <div class="input-group mb-3">
+            <input type="text" id="qr-input" class="form-control" placeholder="Enter QR code text or scan QR code...">
+            <button class="btn btn-primary" id="scan-qr" onclick="startQRScanner()">
+                <i class="fas fa-camera me-2"></i>Scan QR
+            </button>
+        </div>
+        <button class="btn btn-success w-100" onclick="submitQRCode()">Submit</button>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div class="modal fade" id="qrScannerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Scan QR Code</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="qr-reader"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+let html5QrcodeScanner = null;
+
+function startQRScanner() {
+    const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+    modal.show();
+    
+    if (!html5QrcodeScanner) {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", { fps: 10, qrbox: 250 }
+        );
+        
+        html5QrcodeScanner.render((decodedText) => {
+            document.getElementById('qr-input').value = decodedText;
+            modal.hide();
+            html5QrcodeScanner.clear();
+        });
+    }
+}
+
+async function submitQRCode() {
+    const qrInput = document.getElementById('qr-input');
+    const qrCode = qrInput.value.trim();
+    
+    if (!qrCode) {
+        alert('Please enter or scan a QR code');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/verify_location/${currentLevel}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ qr_code: qrCode })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert(data.message || 'Incorrect QR code. Try again!');
+            qrInput.value = '';
+            qrInput.focus();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error submitting QR code. Please try again.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    window.currentLevel = {{ level }};
+});
+</script>
+{% endblock %}

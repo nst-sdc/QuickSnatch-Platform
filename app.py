@@ -10,70 +10,13 @@ from riddles import riddle_manager
 import io
 import math
 import json
-import logging
-from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
-
-# Production configurations
-class Config:
-    # Security settings
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'development-key-CHANGE-THIS-IN-PRODUCTION'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///quicksnatch.db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    # Session settings
-    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() == 'true'
-    SESSION_COOKIE_HTTPONLY = os.environ.get('SESSION_COOKIE_HTTPONLY', 'True').lower() == 'true'
-    SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', 'Lax')
-    
-    # Security headers
-    SECURE_HEADERS = {
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'SAMEORIGIN',
-        'X-XSS-Protection': '1; mode=block',
-        'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
-    }
-    
-    # Rate limiting
-    RATELIMIT_DEFAULT = os.environ.get('RATELIMIT_DEFAULT', '100/hour')
-    RATELIMIT_STORAGE_URL = os.environ.get('RATELIMIT_STORAGE_URL', 'memory://')
-    
-    # Challenge settings
-    MAX_ATTEMPTS_PER_LEVEL = int(os.environ.get('MAX_ATTEMPTS_PER_LEVEL', 10))
-    HINT_PENALTY_MINUTES = int(os.environ.get('HINT_PENALTY_MINUTES', 5))
-    
-    # Logging
-    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
-    LOG_FILE = os.environ.get('LOG_FILE', 'logs/quicksnatch.log')
-
-app.config.from_object(Config)
-
-# Initialize extensions
+app.config['SECRET_KEY'] = os.urandom(24)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ctf.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
-# Set up logging
-if not app.debug:
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/quicksnatch.log', maxBytes=10240, backupCount=10)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-    ))
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
-    app.logger.info('QuickSnatch startup')
-
-# Security headers middleware
-@app.after_request
-def add_security_headers(response):
-    for header, value in Config.SECURE_HEADERS.items():
-        response.headers[header] = value
-    return response
 
 # Database Models
 class User(UserMixin, db.Model):
@@ -129,10 +72,6 @@ class Submission(db.Model):
     level = db.Column(db.Integer, nullable=False)
     submitted_at = db.Column(db.DateTime, nullable=False)
     is_correct = db.Column(db.Boolean, nullable=False)
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 # Challenge answers (in production, these should be stored securely)
 ANSWERS = {
@@ -371,6 +310,148 @@ SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=""",
     }
 }
 
+# Location-based challenge data
+LOCATION_HINTS = {
+    1: """Where laughter's crafted and teeth align,  
+A silent guardian bides her time.  
+Cloaked in white, serene, and still,  
+Behind the halls where smiles are filled.  
+
+Seek the lady, her story profound,  
+A mother, a founder, forever renowned.  
+Who is she, and what wisdom does she share?  
+Her presence whispers a legacy rare.""",
+
+    2: """At the edge where paths converge and bend,  
+A temple is rising, on which peace depends.  
+Cradled by green, with a view so vast,  
+A quiet refuge, where moments last.  
+
+What place is blooming, serene and bright,  
+A haven of calm, bathed in light?""",
+
+    3: """Beside the parking, where wheels often rest,  
+A humble hut stands, quiet and blessed.  
+In front of the place where smiles are made,  
+A simple retreat, in the shade.  
+
+What is this spot, serene and small,  
+A peaceful corner, welcoming all?""",
+
+    4: """Right by the halls, where footsteps fade,  
+A patch of green, like a scene in *Sholay*'s shade.  
+Amidst the hustle, a quiet space,  
+Like a Bollywood tale, full of grace.  
+
+What spot is this, where calm is found,  
+A green escape, where peace resounds?""",
+
+    5: """Beside the field where the ball does fly,  
+A quiet refuge, where footsteps lie.  
+In front of the library, shadows entwine,  
+A hidden haven where thoughts align.  
+
+What place is this, where echoes cease,  
+A secret shelter, a moment of peace?""",
+
+    6: """In front of the building where the name stands tall,  
+A statue of pride, a symbol for all.  
+Beside the waters, where ripples play,  
+A quiet corner to end your day.  
+
+What place is this, where stillness flows,  
+A monument of pride where calmness grows?""",
+
+    7: """At the gate where daily steps converge,  
+A threshold where journeys and minds emerge.  
+Buses come and go with haste,  
+Yet here, a stillness, softly embraced.  
+
+What is this space, where time slows down,  
+A fleeting moment, just beyond the town?""",
+
+    8: """Beside the press where words take flight,  
+A patch of green bathed in soft light.  
+Near the hall where voices soar,  
+A wooden shade invites to restore.  
+
+What is this place, where time stands still,  
+A quiet retreat, untouched by the thrill?""",
+
+    9: """Where coins rest and shadows blend,  
+Beside the lot where pathways end.  
+Facing knowledge, calm and wide,  
+What is this place where peace resides?""",
+
+    10: """Where hunger meets a daily need,  
+A bustling spot where students feed.  
+Coupons in hand, the rule is clear,  
+What is this place we hold so dear?""",
+
+    11: """Once alive with chatter and cheer,  
+Now silent, its purpose unclear.  
+A lone printer hums where meals once lay,  
+What is this place of a bygone day?""",
+
+    12: """Where the sky's reflection gently lies,
+And ripples echo beneath open skies.
+A haven of calm, both deep and wide,
+Where whispers of water and silence collide.
+
+A place for the bold, a retreat for the still,
+A shimmering jewel that tests your will.
+What is this space, so serene and grand,
+A liquid escape carved by hand?""",
+
+    13: """Steps of color, bright and rare,
+A lively path beyond compare.
+A place of cheer, where stories unfold,
+What is this spot so vibrant and bold?""",
+
+    14: """Where whispers of luxury fill the air,
+And every corner breathes beauty rare.
+A place where elegance and taste collide,
+What is this café, where moments reside?
+
+With each sip, a world unfolds,
+A treasure trove that quietly holds.
+What is this space, where time stands still,
+A haven of grace, both rich and tranquil?""",
+
+    15: """Where the court roars, but wheels stand still,
+A parking lot where calmness fills.
+In front of the game, where energy flows,
+What is this spot where quietness grows?""",
+
+    16: """Where access is earned, with proof in hand,
+A threshold where all must make their stand.
+Guarded and quiet, yet paths unfold,
+What is this gate, both strict and bold?"""
+}
+
+QR_CODES = {
+    1: "DENTAL_CLINIC_STATUE",
+    2: "TEMPLE_GARDEN_PEACE",
+    3: "SECURITY_HUT_DENTAL",
+    4: "GREEN_PATCH_SHOLAY",
+    5: "LIBRARY_FIELD_CORNER",
+    6: "MAIN_BUILDING_STATUE",
+    7: "BUS_STOP_ENTRANCE",
+    8: "PRESS_GREEN_PATCH",
+    9: "ATM_LIBRARY_FRONT",
+    10: "MAIN_CAFETERIA_2025",
+    11: "OLD_CANTEEN_PRINT",
+    12: "SWIMMING_POOL_ADYPU",
+    13: "RAINBOW_STAIRS_2025",
+    14: "LUXURY_CAFE_CORNER",
+    15: "SPORTS_PARKING_VIEW",
+    16: "RESTRICTED_GATE_25"
+}
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -448,72 +529,39 @@ def leaderboard():
     users = User.query.order_by(User.current_level.desc(), User.username).all()
     return render_template('leaderboard.html', users=users)
 
-@app.route('/verify_flag', methods=['POST'])
-@login_required
-def verify_flag():
+@app.route('/check_flag/<int:level>', methods=['POST'])
+def verify_flag(level):
+    if not current_user.is_authenticated:
+        return jsonify({'success': False, 'message': 'Please log in first'})
+    
     data = request.get_json()
-    level = data.get('level')
-    submitted_flag = data.get('flag')
-
-    if not level or not submitted_flag:
-        return jsonify({'success': False, 'message': 'Missing level or flag'})
-
-    # Check if user has access to this level
-    if current_user.current_level < level:
-        return jsonify({'success': False, 'message': 'Level not unlocked'})
-
-    # Verify the flag
-    if submitted_flag == ANSWERS.get(level):
-        # Complete the current level timing
-        level_time = LevelTime.query.filter_by(
-            user_id=current_user.id, 
-            level=level, 
-            end_time=None
-        ).first()
-        
-        if level_time:
-            level_time.end_time = datetime.now(pytz.UTC)
-            level_time.time_spent = level_time.calculate_time_spent()
-        
-        # Update user progress if this is their current level
-        if current_user.current_level == level:
-            current_user.current_level += 1
-            current_user.last_submission = datetime.now(pytz.UTC)
-            
-            # Start timing for next level
-            next_level_time = LevelTime(
-                user_id=current_user.id,
-                level=current_user.current_level,
-                start_time=datetime.now(pytz.UTC)
-            )
-            db.session.add(next_level_time)
-        
-        db.session.commit()
-        
-        # Get formatted time spent
-        time_spent = current_user.format_time_spent(level)
-        
+    flag = data.get('flag', '').strip()
+    
+    if current_user.current_level != level:
+        return jsonify({'success': False, 'message': 'Invalid level access'})
+    
+    if flag == ANSWERS.get(level):
+        # Instead of directly advancing to next level, redirect to location hint
         return jsonify({
             'success': True,
-            'message': f'Correct flag! Level completed in {time_spent}',
-            'next_level': current_user.current_level,
-            'time_spent': time_spent
+            'message': 'Flag correct! Proceed to find the location.',
+            'redirect': url_for('location_hint', level=level)
         })
-    else:
-        # Record failed attempt
-        submission = Submission(
-            user_id=current_user.id,
-            level=level,
-            submitted_at=datetime.now(pytz.UTC),
-            is_correct=False
-        )
-        db.session.add(submission)
-        db.session.commit()
-        
-        return jsonify({
-            'success': False,
-            'message': 'Incorrect flag. Keep trying!'
-        })
+    
+    # Record incorrect submission
+    submission = Submission(
+        user_id=current_user.id,
+        level=level,
+        submitted_at=datetime.now(pytz.UTC),
+        is_correct=False
+    )
+    db.session.add(submission)
+    db.session.commit()
+    
+    return jsonify({
+        'success': False,
+        'message': 'Incorrect flag. Please try again!'
+    })
 
 @app.route('/level/<int:level>/complete', methods=['GET', 'POST'])
 @login_required
@@ -1118,6 +1166,45 @@ def level_info(level):
             'files': {},
             'hints': ['Level information not available']
         })
+
+@app.route('/location_hint/<int:level>')
+@login_required
+def location_hint(level):
+    if current_user.current_level != level:
+        flash('Access denied: You must complete the previous level first!', 'danger')
+        return redirect(url_for('level', level_number=current_user.current_level))
+    
+    return render_template('location_hint.html', 
+                         level=level,
+                         location_hint=LOCATION_HINTS.get(level, "Location hint not available"))
+
+@app.route('/verify_location/<int:level>', methods=['POST'])
+@login_required
+def verify_location(level):
+    if current_user.current_level != level:
+        return jsonify({'success': False, 'message': 'Invalid level access'})
+    
+    data = request.get_json()
+    qr_code = data.get('qr_code', '').strip()
+    
+    if qr_code == QR_CODES.get(level):
+        # Update user progress
+        current_user.current_level = level + 1
+        db.session.commit()
+        
+        # Record completion time
+        level_complete(level)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Location verified successfully!',
+            'redirect': url_for('level', level_number=level + 1)
+        })
+    
+    return jsonify({
+        'success': False,
+        'message': 'Incorrect QR code. Please try again!'
+    })
 
 if __name__ == '__main__':
     with app.app_context():
