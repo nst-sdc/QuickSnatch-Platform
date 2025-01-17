@@ -1,0 +1,9 @@
+File permissions in Linux:
+r (read) = 4
+w (write) = 2
+x (execute) = 1
+
+Example: chmod 644 file
+6 (rw-) for owner
+4 (r--) for group
+4 (r--) for others

@@ -1,0 +1,9 @@
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 127.0.0.1:6789         0.0.0.0:*               LISTEN      1234/flag_service
+udp        0      0 127.0.0.1:1337         0.0.0.0:*               ESTABLISHED 5678/secret_server
+tcp        0      0 192.168.1.100:443      8.8.8.8:53             ESTABLISHED 9012/dns_client
+
+# Host configuration
+127.0.0.1    localhost
+127.0.0.1    flag.local    # flag{network_ninja}

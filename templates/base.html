@@ -19,6 +19,9 @@
             --accent-color: #2ecc71;
             --text-color: #e0e0e0;
             --border-color: #3d3d3d;
+            --success-color: #28a745;
+            --success-hover-color: #218838;
+            --gold-color: #ffd700;
         }
 
         body {
@@ -187,30 +190,44 @@
             display: flex;
             align-items: center;
             padding: 0.75rem 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
             color: var(--text-color);
             text-decoration: none;
+            border-radius: 8px;
             transition: all 0.3s ease;
+            background: var(--darker-bg);
+            margin-bottom: 0.5rem;
         }
 
         .level-nav-link:hover {
-            background: rgba(46, 204, 113, 0.1);
-            color: var(--accent-color);
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            transform: translateX(5px);
         }
 
         .level-nav-link.active {
             background: var(--accent-color);
-            color: #fff;
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+
+        .level-nav-link.completed {
+            background: var(--success-color);
+            color: var(--dark-bg);
+        }
+
+        .level-nav-link.completed:hover {
+            background: var(--success-hover-color);
         }
 
         .level-icon {
-            margin-right: 0.75rem;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .completed-badge {
+            margin-left: auto;
+            color: var(--gold-color);
         }
 
         /* Stats Section */
@@ -302,15 +319,23 @@
             <ul class="level-nav">
                 {% for i in range(1, 11) %}
                 <li class="level-nav-item">
-                    <a href="{{ url_for('level', level_number=i) }}" class="level-nav-link {% if current_user.current_level == i %}active{% endif %}">
+                    <a href="{{ url_for('level', level_number=i) }}" 
+                       class="level-nav-link {% if current_user.current_level == i %}active{% endif %} {% if i < current_user.current_level %}completed{% endif %}">
                         <span class="level-icon">
                             {% if i <= current_user.current_level %}
-                            <i class="fas fa-unlock"></i>
+                                {% if i < current_user.current_level %}
+                                    <i class="fas fa-check-circle text-success"></i>
+                                {% else %}
+                                    <i class="fas fa-unlock text-warning"></i>
+                                {% endif %}
                             {% else %}
-                            <i class="fas fa-lock"></i>
+                                <i class="fas fa-lock text-muted"></i>
                             {% endif %}
                         </span>
                         Level {{ i }}
+                        {% if i < current_user.current_level %}
+                            <span class="completed-badge"><i class="fas fa-star"></i></span>
+                        {% endif %}
                     </a>
                 </li>
                 {% endfor %}

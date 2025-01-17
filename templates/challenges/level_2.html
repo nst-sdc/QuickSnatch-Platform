@@ -1,38 +1,24 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}File Permissions{% endblock %}
+{% block level_title %}Permission Master Challenge{% endblock %}
 
 {% block challenge_description %}
-<p>Welcome to level 2! Let's learn about file permissions in Linux.</p>
-<p>Your mission:</p>
-<ol>
-    <li>Check file permissions using <code>ls -l</code></li>
-    <li>Find a file with restricted permissions</li>
-    <li>Use chmod to modify permissions</li>
-    <li>Read the flag from the file</li>
-</ol>
-<div class="info-box mt-3">
-    <h6>Understanding Permissions:</h6>
-    <p>Linux permissions are represented as: <code>rwx rwx rwx</code> (user, group, others)</p>
-    <ul>
-        <li><code>r</code> - Read permission (4)</li>
-        <li><code>w</code> - Write permission (2)</li>
-        <li><code>x</code> - Execute permission (1)</li>
-    </ul>
+<div class="challenge-description">
+    <h4>File Permissions</h4>
+    <p>In this challenge, you'll need to understand and manipulate Linux file permissions to access a protected file.</p>
+    
+    <div class="task-list">
+        <h5>Your Tasks:</h5>
+        <ul>
+            <li>Use <code>ls -l</code> to view file permissions</li>
+            <li>Read and understand the instructions in <code>instructions.txt</code></li>
+            <li>Study the permissions information in <code>permissions_info.txt</code></li>
+            <li>Modify permissions of <code>secret.txt</code> to read its contents</li>
+        </ul>
+    </div>
+
+    <div class="hint-box">
+        <p><strong>Hint:</strong> The <code>chmod</code> command changes file permissions. Remember the numeric values: read (4), write (2), execute (1).</p>
+    </div>
 </div>
-{% endblock %}
-
-{% block available_commands %}
-<li><code>ls -l</code> - List files with permissions</li>
-<li><code>chmod</code> - Change file permissions</li>
-<li><code>chmod +r file</code> - Add read permission</li>
-<li><code>chmod +w file</code> - Add write permission</li>
-<li><code>chmod +x file</code> - Add execute permission</li>
-<li><code>cat file</code> - Read file contents</li>
-{% endblock %}
-
-{% block level_scripts %}
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = 2;
-});
 {% endblock %}

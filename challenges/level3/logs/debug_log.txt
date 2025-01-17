@@ -1,0 +1,5 @@
+DEBUG: Initializing system components...
+DEBUG: Loading configuration from /etc/config.json
+DEBUG: Starting background services
+DEBUG: flag{grep_master_123} found in memory
+DEBUG: Cleanup routine started

@@ -1,100 +1,24 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}Network Analysis{% endblock %}
+{% block level_title %}Network Ninja Challenge{% endblock %}
 
 {% block challenge_description %}
-<p>Welcome to level 5! Let's dive into network analysis.</p>
-<p>Your mission:</p>
-<ol>
-    <li>Check network interfaces and connections</li>
-    <li>Find suspicious network activity</li>
-    <li>Connect to a specific port</li>
-    <li>Retrieve and decode the flag</li>
-</ol>
-<div class="info-box mt-3">
-    <h6>Network Analysis Tips:</h6>
-    <ul>
-        <li>Use <code>netstat</code> to view network connections</li>
-        <li>Look for unusual ports or connections</li>
-        <li>Use <code>nc</code> (netcat) to connect to services</li>
-        <li>The flag might be encoded (base64, hex, etc.)</li>
-    </ul>
+<div class="challenge-description">
+    <h4>Network Traffic Analysis</h4>
+    <p>Your mission is to analyze network traffic and connections to discover a hidden flag. You'll need to use various networking tools.</p>
+    
+    <div class="task-list">
+        <h5>Your Tasks:</h5>
+        <ul>
+            <li>Use <code>netstat</code> to view network connections</li>
+            <li>Analyze network traffic patterns</li>
+            <li>Identify suspicious connections</li>
+            <li>Investigate network statistics</li>
+        </ul>
+    </div>
+
+    <div class="hint-box">
+        <p><strong>Hint:</strong> Pay attention to unusual ports or connections. The flag might be hidden in network traffic data.</p>
+    </div>
 </div>
-
-<div id="network-monitor" class="network-monitor mt-4">
-    <h5>Live Network Activity</h5>
-    <div class="network-stats"></div>
-    <div class="connection-list"></div>
-</div>
-{% endblock %}
-
-{% block available_commands %}
-<li><code>netstat -tuln</code> - List listening ports</li>
-<li><code>netstat -an</code> - Show all connections</li>
-<li><code>nc localhost port</code> - Connect to port</li>
-<li><code>curl localhost:port</code> - Send HTTP request</li>
-<li><code>base64 -d</code> - Decode base64</li>
-<li><code>xxd</code> - Hex dump/decode</li>
-{% endblock %}
-
-{% block level_scripts %}
-// Add network monitoring visualization
-const networkMonitor = {
-    init: function() {
-        this.updateNetworkStats();
-        setInterval(() => this.updateNetworkStats(), 3000);
-    },
-
-    updateNetworkStats: async function() {
-        try {
-            const response = await fetch('/get_network_stats');
-            const stats = await response.json();
-            this.displayStats(stats);
-            this.displayConnections(stats.connections);
-        } catch (error) {
-            console.error('Error updating network stats:', error);
-        }
-    },
-
-    displayStats: function(stats) {
-        const container = document.querySelector('.network-stats');
-        if (!container) return;
-
-        container.innerHTML = `
-            <div class="stat-grid">
-                <div class="stat-item">
-                    <span class="label">Active Connections</span>
-                    <span class="value">${stats.activeConnections}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">Listening Ports</span>
-                    <span class="value">${stats.listeningPorts}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">Bytes In/Out</span>
-                    <span class="value">${stats.bytesIn}/${stats.bytesOut}</span>
-                </div>
-            </div>
-        `;
-    },
-
-    displayConnections: function(connections) {
-        const container = document.querySelector('.connection-list');
-        if (!container) return;
-
-        container.innerHTML = connections.map(conn => `
-            <div class="connection-item ${conn.type}">
-                <span class="source">${conn.source}</span>
-                <span class="arrow">→</span>
-                <span class="destination">${conn.destination}</span>
-                <span class="state">${conn.state}</span>
-            </div>
-        `).join('');
-    }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = 5;
-    networkMonitor.init();
-});
 {% endblock %}

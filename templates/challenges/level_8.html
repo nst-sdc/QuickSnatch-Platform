@@ -1,56 +1,24 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
 
-{% block content %}
-<div class="challenge-card">
-    <h2>Level 8: Process Deep Dive</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">8/10</div>
-    </div>
+{% block level_title %}System Monitor Challenge{% endblock %}
+
+{% block challenge_description %}
+<div class="challenge-description">
+    <h4>System Resource Investigation</h4>
+    <p>In this challenge, you'll need to monitor and analyze system resources to find the hidden flag. Focus on system statistics and performance metrics.</p>
     
-    <div class="mb-4">
-        <p>Advanced process investigation requires understanding the /proc filesystem.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>Monitor system processes with <code>top</code></li>
-            <li>Find the suspicious process using high CPU</li>
-            <li>Investigate process details in /proc</li>
-            <li>Extract the flag from process information</li>
-        </ol>
-    </div>
-
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
+    <div class="task-list">
+        <h5>Your Tasks:</h5>
         <ul>
-            <li><code>top</code> - Monitor processes in real-time</li>
-            <li><code>ps aux | grep pattern</code> - Search processes</li>
-            <li><code>cat /proc/PID/status</code> - View process status</li>
-            <li><code>strings /proc/PID/environ</code> - View process environment</li>
-            <li><code>cat /proc/PID/cmdline</code> - View process command line</li>
+            <li>Use system monitoring tools (<code>top</code>, <code>htop</code>)</li>
+            <li>Check system resource usage</li>
+            <li>Monitor process activities</li>
+            <li>Analyze system performance metrics</li>
         </ul>
-        <div class="mt-2">
-            <strong>Tips:</strong>
-            <ul>
-                <li>Look for processes with unusual CPU usage</li>
-                <li>Check process environment variables</li>
-                <li>Examine command line arguments</li>
-            </ul>
-        </div>
     </div>
 
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
-    </form>
+    <div class="hint-box">
+        <p><strong>Hint:</strong> The flag might be hidden in process resource usage patterns or system statistics. Pay attention to unusual resource consumption.</p>
+    </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = 8;
-});
-</script>
 {% endblock %}

@@ -1,55 +1,24 @@
-{% extends "base.html" %}
+{% extends "challenges/level_base.html" %}
 
-{% block content %}
-<div class="challenge-card">
-    <h2>Level 9: System Services</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">9/10</div>
-    </div>
+{% block level_title %}Cron Detective Challenge{% endblock %}
+
+{% block challenge_description %}
+<div class="challenge-description">
+    <h4>Scheduled Tasks Investigation</h4>
+    <p>Your mission is to investigate scheduled tasks and cron jobs to find a hidden flag. You'll need to understand how cron works and where to find relevant information.</p>
     
-    <div class="mb-4">
-        <p>System services and scheduled tasks are critical components of Linux systems.</p>
-        <p>Your mission:</p>
-        <ol>
-            <li>Check status of flag-service using <code>systemctl</code></li>
-            <li>View scheduled tasks with <code>crontab -l</code></li>
-            <li>Monitor service logs with <code>journalctl</code></li>
-            <li>Extract the flag from service logs</li>
-        </ol>
-    </div>
-
-    {% include 'terminal.html' %}
-
-    <div class="hint-box mt-4">
-        <h5>Available Commands:</h5>
+    <div class="task-list">
+        <h5>Your Tasks:</h5>
         <ul>
-            <li><code>systemctl status service</code> - Check service status</li>
-            <li><code>crontab -l</code> - List scheduled tasks</li>
-            <li><code>journalctl -u service</code> - View service logs</li>
-            <li><code>tail -f /var/log/syslog</code> - Monitor system logs</li>
+            <li>Examine crontab entries</li>
+            <li>Check system logs for cron job execution</li>
+            <li>Investigate scheduled task outputs</li>
+            <li>Monitor temporary files created by cron jobs</li>
         </ul>
-        <div class="mt-2">
-            <strong>Tips:</strong>
-            <ul>
-                <li>Services often write to system logs</li>
-                <li>Check cron jobs for scheduled tasks</li>
-                <li>Use journalctl to view service history</li>
-            </ul>
-        </div>
     </div>
 
-    <form method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="answer" class="form-label">Enter the flag:</label>
-            <input type="text" class="form-control bg-dark text-light" id="answer" name="answer" required>
-        </div>
-        <button type="submit" class="btn btn-success">Submit Flag</button>
-    </form>
+    <div class="hint-box">
+        <p><strong>Hint:</strong> Cron jobs often write their output to log files or temporary locations. Check both the cron configuration and its execution traces.</p>
+    </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = 9;
-});
-</script>
 {% endblock %}

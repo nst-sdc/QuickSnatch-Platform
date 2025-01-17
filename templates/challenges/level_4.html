@@ -1,71 +1,24 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}Process Investigation{% endblock %}
+{% block level_title %}Process Hunter Challenge{% endblock %}
 
 {% block challenge_description %}
-<p>Welcome to level 4! Time to investigate system processes.</p>
-<p>Your mission:</p>
-<ol>
-    <li>List running processes using ps commands</li>
-    <li>Find suspicious processes</li>
-    <li>Investigate process details in /proc</li>
-    <li>Extract the flag from process environment</li>
-</ol>
-<div class="info-box mt-3">
-    <h6>Process Investigation Tips:</h6>
-    <ul>
-        <li>Use <code>ps aux</code> to list all processes</li>
-        <li>Check <code>/proc/[PID]/environ</code> for environment variables</li>
-        <li>Look for processes with suspicious names or high CPU usage</li>
-        <li>The flag might be hidden in process environment variables</li>
-    </ul>
+<div class="challenge-description">
+    <h4>Process Investigation</h4>
+    <p>There's a suspicious process running on the system. Your task is to investigate running processes and find the hidden flag.</p>
+    
+    <div class="task-list">
+        <h5>Your Tasks:</h5>
+        <ul>
+            <li>Use <code>ps aux</code> to list all running processes</li>
+            <li>Identify suspicious processes</li>
+            <li>Investigate process details using <code>/proc/[PID]</code> directory</li>
+            <li>Check process environment variables and command line arguments</li>
+        </ul>
+    </div>
+
+    <div class="hint-box">
+        <p><strong>Hint:</strong> Look for processes with unusual names or suspicious behavior. The <code>/proc/[PID]</code> directory contains valuable information about running processes.</p>
+    </div>
 </div>
-{% endblock %}
-
-{% block available_commands %}
-<li><code>ps aux</code> - List all processes</li>
-<li><code>ps -ef</code> - Show process relationships</li>
-<li><code>top</code> - Interactive process viewer</li>
-<li><code>cat /proc/PID/environ</code> - View process environment</li>
-<li><code>cat /proc/PID/status</code> - View process status</li>
-<li><code>strings</code> - Extract readable strings</li>
-{% endblock %}
-
-{% block level_scripts %}
-// Add process monitoring visualization
-const processMonitor = {
-    init: function() {
-        this.updateProcessList();
-        setInterval(() => this.updateProcessList(), 5000);
-    },
-
-    updateProcessList: async function() {
-        try {
-            const response = await fetch('/get_processes');
-            const processes = await response.json();
-            this.displayProcesses(processes);
-        } catch (error) {
-            console.error('Error updating processes:', error);
-        }
-    },
-
-    displayProcesses: function(processes) {
-        const container = document.getElementById('process-monitor');
-        if (!container) return;
-
-        container.innerHTML = processes.map(p => `
-            <div class="process-item">
-                <span class="pid">${p.pid}</span>
-                <span class="name">${p.name}</span>
-                <span class="cpu">${p.cpu}%</span>
-                <span class="memory">${p.memory}MB</span>
-            </div>
-        `).join('');
-    }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = 4;
-    processMonitor.init();
-});
 {% endblock %}

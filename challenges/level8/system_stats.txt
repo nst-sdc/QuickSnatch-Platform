@@ -1,0 +1,13 @@
+Memory Information:
+MemTotal:        8192000 kB
+MemFree:         4096000 kB
+MemAvailable:    6144000 kB
+
+CPU Information:
+processor    : 0
+model name   : Intel(R) Core(TM) i7
+flags        : flag{system_monitor_pro}
+
+Process Statistics:
+top - 14:30:00 up 1 day, 2:15, 1 user, load average: 0.52, 0.58, 0.59
+Tasks: 100 total, 1 running, 99 sleeping

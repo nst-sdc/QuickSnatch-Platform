@@ -1,0 +1,9 @@
+user1:pass1:flag
+user2:pass2:no_flag
+user3:pass3:flag{bash_wizard}
+user4:pass4:fake_flag
+
+# Environment variables
+FLAG=flag{bash_wizard}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+USER=ctf_player

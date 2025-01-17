@@ -65,6 +65,47 @@ python app.py
 
 *More levels coming soon!*
 
+## 📚 Learning Resources
+
+### Terminal Fundamentals
+- Understanding file systems and paths
+- Basic terminal navigation
+- File and directory operations
+- Permissions and access control
+- Process management
+- Text manipulation and search
+
+### Study Materials
+1. **Command Line Basics**
+   - `man` pages for detailed command documentation
+   - Online terminal tutorials and interactive guides
+   - Command cheatsheets and reference guides
+
+2. **File System Navigation**
+   - Directory structure and hierarchy
+   - Path types (absolute vs relative)
+   - File operations and management
+   - Hidden files and special directories
+
+3. **Security Concepts**
+   - Permission models and access control
+   - User and group management
+   - File encryption and security
+   - System monitoring and logging
+
+4. **Advanced Topics**
+   - Shell scripting fundamentals
+   - Process management
+   - Network utilities
+   - System administration
+
+### Practice Tips
+1. Start with basic commands and understand them thoroughly
+2. Use the built-in help system (`man`, `--help`)
+3. Practice in a safe environment
+4. Take notes and document your learning
+5. Join the community and share knowledge
+
 ## 🤝 Contributing
 
 We welcome contributions! Here's how you can help:

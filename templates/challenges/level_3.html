@@ -1,41 +1,24 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}Log Analysis{% endblock %}
+{% block level_title %}Log Explorer Challenge{% endblock %}
 
 {% block challenge_description %}
-<p>Welcome to level 3! Time to master log analysis using grep.</p>
-<p>Your mission:</p>
-<ol>
-    <li>Navigate to the logs directory</li>
-    <li>Analyze various log files (error.log, access.log, system.log)</li>
-    <li>Use grep to search for the flag pattern</li>
-    <li>Find and decode the hidden flag</li>
-</ol>
-<div class="info-box mt-3">
-    <h6>Grep Tips:</h6>
-    <ul>
-        <li>Use <code>grep pattern file</code> to search in a single file</li>
-        <li>Use <code>grep -r pattern directory</code> to search recursively</li>
-        <li>Use <code>grep -i pattern</code> for case-insensitive search</li>
-        <li>Use <code>grep -A 2 pattern</code> to show 2 lines after match</li>
-        <li>Use <code>grep -B 2 pattern</code> to show 2 lines before match</li>
-    </ul>
+<div class="challenge-description">
+    <h4>Finding Patterns in Logs</h4>
+    <p>Your task is to search through various log files to find a hidden flag. You'll need to use the grep command effectively.</p>
+    
+    <div class="task-list">
+        <h5>Your Tasks:</h5>
+        <ul>
+            <li>Navigate through the logs directory</li>
+            <li>Examine different types of log files (error.log, access.log, debug.log)</li>
+            <li>Use <code>grep</code> to search for the flag pattern</li>
+            <li>Try recursive search with <code>grep -r</code></li>
+        </ul>
+    </div>
+
+    <div class="hint-box">
+        <p><strong>Hint:</strong> The flag might appear in multiple log files. Use <code>grep -r</code> to search recursively through all files in a directory.</p>
+    </div>
 </div>
-{% endblock %}
-
-{% block available_commands %}
-<li><code>cd directory</code> - Change directory</li>
-<li><code>ls</code> - List files</li>
-<li><code>grep pattern file</code> - Search for pattern in file</li>
-<li><code>grep -r pattern .</code> - Search recursively in current directory</li>
-<li><code>grep -i pattern file</code> - Case-insensitive search</li>
-<li><code>cat file</code> - View entire file</li>
-<li><code>pwd</code> - Show current directory</li>
-{% endblock %}
-
-{% block level_scripts %}
-// Level-specific JavaScript can be added here
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = 3;
-});
 {% endblock %}

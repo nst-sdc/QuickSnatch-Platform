@@ -1,0 +1,9 @@
+# System Logs
+Jan 16 14:30:00 server CRON[1234]: (root) CMD (/usr/local/bin/flag_expose.sh)
+Jan 16 14:30:00 server flag_expose[1234]: Writing flag to /tmp/exposed_flag
+
+# Crontab Configuration
+*/5 * * * * root /usr/local/bin/flag_expose.sh
+
+# Temporary Flag File
+flag{cr0n_master_detective}

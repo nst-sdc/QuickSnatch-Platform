@@ -491,54 +491,298 @@ class Sandbox:
         self.environments = {
             1: {
                 'files': {
-                    '.hidden_flag': 'flag{basic_file_navigation}',
-                    'README.txt': 'Welcome to level 1! Use ls and cat commands.',
-                    'hint.txt': 'Remember to look for hidden files (ls -a)'
-                }
+                    'secret.txt': 'flag{file_explorer_pro}',
+                    'Documents': {},
+                    'Downloads': {},
+                    'Pictures': {}
+                },
+                'commands': ['ls', 'ls -a', 'ls -l', 'cat', 'pwd', 'help', 'clear']
             },
             2: {
                 'files': {
-                    'secret.txt': {'content': 'flag{permission_master}', 'mode': 0o000},
-                    'instructions.txt': 'Change file permissions to read the flag',
-                    'hint.txt': 'Use chmod to modify permissions'
-                }
+                    'secret.txt': {'content': 'flag{chmod_master}', 'mode': 0o000},
+                    'instructions.txt': '''Welcome to Level 2!
+You need to understand file permissions to proceed.
+Check permissions_info.txt for more details.''',
+                    'permissions_info.txt': '''File permissions in Linux:
+r (read) = 4
+w (write) = 2
+x (execute) = 1
+
+Example: chmod 644 file
+6 (rw-) for owner
+4 (r--) for group
+4 (r--) for others'''
+                },
+                'commands': ['ls', 'ls -l', 'cat', 'chmod']
             },
             3: {
                 'files': {
-                    'logs/error.log': 'ERROR: Invalid flag attempt\nERROR: System crash\nflag{grep_master_2023}',
-                    'logs/access.log': '192.168.1.1 - GET /admin [200]\n10.0.0.1 - POST /login [401]',
-                    'logs/system.log': 'System started\nService initialized\nBackup completed'
-                }
+                    'logs/error.log': '''[ERROR] 14:30:00 - Critical system failure
+[ERROR] 14:30:15 - Database connection lost
+[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
+[ERROR] 14:30:45 - Memory allocation error''',
+                    'logs/access.log': '''192.168.1.100 - - [16/Jan/2025:14:30:00 +0530] "GET /admin HTTP/1.1" 403 287
+192.168.1.101 - - [16/Jan/2025:14:30:15 +0530] "POST /login HTTP/1.1" 401 401
+192.168.1.102 - - [16/Jan/2025:14:30:30 +0530] "GET /flag HTTP/1.1" 404 289''',
+                    'logs/debug.log': '''DEBUG: Initializing system components...
+DEBUG: Loading configuration from /etc/config.json
+DEBUG: Starting background services
+DEBUG: flag{grep_master_123} found in memory
+DEBUG: Cleanup routine started''',
+                    'system.log': '''System startup completed
+Services initialized
+Background tasks running
+Security audit in progress
+No critical issues found'''
+                },
+                'commands': ['ls', 'cd', 'cat', 'grep', 'grep -r']
             },
             4: {
-                'processes': [
-                    {'pid': 1234, 'name': 'flag_service', 'cpu': 2.5, 'memory': 156,
-                     'env': {'FLAG': 'flag{process_hunter}'}},
-                    {'pid': 5678, 'name': 'nginx', 'cpu': 0.8, 'memory': 234},
-                    {'pid': 9012, 'name': 'mysql', 'cpu': 1.2, 'memory': 456}
-                ]
+                'files': {
+                    '/proc/1337/cmdline': 'flag_service--secret--flag=flag{process_hunter}',
+                    '/proc/1337/environ': '''SHELL=/bin/bash
+PWD=/home/user
+FLAG=flag{process_hunter}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin''',
+                    '/proc/1337/status': '''Name:   flag_service
+State:  S (sleeping)
+Tgid:   1337
+Pid:    1337
+PPid:   1
+Uid:    1000    1000    1000    1000
+Gid:    1000    1000    1000    1000'''
+                },
+                'commands': ['ps aux', 'ps -p', 'cat', 'strings']
             },
             5: {
-                'network': {
-                    'connections': [
-                        {'source': '127.0.0.1:12345', 'destination': '127.0.0.1:80', 'type': 'TCP', 'state': 'ESTABLISHED'},
-                        {'source': '127.0.0.1:54321', 'destination': '127.0.0.1:1337', 'type': 'TCP', 'state': 'LISTEN'}
-                    ],
-                    'stats': {
-                        'activeConnections': 2,
-                        'listeningPorts': 3,
-                        'bytesIn': '1.2MB',
-                        'bytesOut': '0.8MB'
-                    }
-                }
+                'files': {
+                    '/var/log/network.log': '''TCP    127.0.0.1:6789    LISTENING    flag_service
+UDP    127.0.0.1:1337    ESTABLISHED    secret_server
+TCP    8.8.8.8:53        ESTABLISHED    dns_client''',
+                    '/etc/hosts': '''127.0.0.1    localhost
+127.0.0.1    flag.local    # flag{network_ninja}'''
+                },
+                'commands': ['netstat', 'netstat -tuln', 'cat', 'grep']
+            },
+            6: {
+                'files': {
+                    '/etc/environment': 'FLAG=flag{bash_wizard}',
+                    'data.txt': '''user1:pass1:flag
+user2:pass2:no_flag
+user3:pass3:flag{bash_wizard}
+user4:pass4:fake_flag'''
+                },
+                'commands': ['cat', 'grep', 'awk', 'sed', 'env']
+            },
+            7: {
+                'files': {
+                    'archive.tar.gz': {'type': 'tar.gz', 'content': {
+                        'level1.zip': {'type': 'zip', 'content': {
+                            'secret/flag.txt': 'flag{archive_master_explorer}'
+                        }}
+                    }}
+                },
+                'commands': ['tar', 'unzip', 'gzip', 'ls', 'cat']
+            },
+            8: {
+                'files': {
+                    '/proc/meminfo': '''MemTotal:        8192000 kB
+MemFree:         4096000 kB
+MemAvailable:    6144000 kB''',
+                    '/proc/cpuinfo': '''processor    : 0
+model name    : Intel(R) Core(TM) i7
+flags        : flag{system_monitor_pro}'''
+                },
+                'commands': ['top', 'htop', 'cat', 'grep']
+            },
+            9: {
+                'files': {
+                    '/var/log/syslog': '''Jan 16 14:30:00 server CRON[1234]: (root) CMD (/usr/local/bin/flag_expose.sh)
+Jan 16 14:30:00 server flag_expose[1234]: Writing flag to /tmp/exposed_flag''',
+                    '/etc/crontab': '*/5 * * * * root /usr/local/bin/flag_expose.sh',
+                    '/tmp/exposed_flag': 'flag{cr0n_master_detective}'
+                },
+                'commands': ['crontab -l', 'cat', 'ls']
+            },
+            10: {
+                'files': {
+                    '/home/user/final/encrypted.bin': {'type': 'binary', 'content': 'flag{ultimate_hacker_pro}'},
+                    '/home/user/final/README.txt': '''Combine all your skills:
+1. Find the file (ls)
+2. Check permissions (chmod)
+3. Search content (grep)
+4. Monitor processes
+5. Check network
+6. Use bash skills
+7. Extract archives
+8. Monitor system
+9. Check scheduled tasks'''
+                },
+                'commands': ['ls', 'chmod', 'grep', 'ps', 'netstat', 'tar', 'top', 'crontab']
             }
         }
 
     def execute_command(self, cmd, args, cwd):
         """Execute command in sandbox environment"""
-        # Implement command execution logic here
-        # Return a named tuple with stdout, stderr, returncode, and cwd
-        pass
+        level = current_user.current_level
+        command = f"{cmd} {' '.join(args)}".strip()
+        base_path = "/Users/vivek/GITHUB/QuickSnatch/challenges"
+        
+        def read_file(path):
+            try:
+                with open(path, 'r') as f:
+                    return f.read()
+            except:
+                return "Error: Could not read file"
+
+        # Level 1 - File Explorer
+        if level == 1:
+            if command == "ls":
+                return "Documents  Downloads  Pictures  secret.txt"
+            elif command == "ls -a":
+                return ".  ..  .bash_history  .bashrc  Documents  Downloads  Pictures  secret.txt"
+            elif command == "ls -l":
+                return """total 28
+drwxr-xr-x 2 user user 4096 Jan 16 14:44 Documents
+drwxr-xr-x 2 user user 4096 Jan 16 14:44 Downloads
+drwxr-xr-x 2 user user 4096 Jan 16 14:44 Pictures
+-rw-r--r-- 1 user user   52 Jan 16 14:44 secret.txt"""
+            elif command == "cat secret.txt":
+                return read_file(f"{base_path}/level1/secret.txt")
+            elif command == "pwd":
+                return "/home/user"
+            elif command == "help":
+                return """Available commands:
+ls      - List directory contents
+ls -a   - List all files including hidden
+ls -l   - List files in long format
+cat     - Display file contents
+pwd     - Print working directory"""
+            elif command == "clear":
+                return ""
+                
+        # Level 2 - Permissions
+        elif level == 2:
+            if command == "ls -l":
+                return """total 16
+-rw-r--r-- 1 user user  158 Jan 16 14:30 instructions.txt
+-rw-r--r-- 1 user user  237 Jan 16 14:30 permissions_info.txt
+-rw------- 1 user user   21 Jan 16 14:30 secret.txt"""
+            elif command == "cat instructions.txt":
+                return read_file(f"{base_path}/level2/instructions.txt")
+            elif command == "cat permissions_info.txt":
+                return read_file(f"{base_path}/level2/permissions_info.txt")
+            elif command == "chmod 644 secret.txt":
+                return ""
+            elif command == "cat secret.txt":
+                if "chmod 644 secret.txt" in self.command_history:
+                    return read_file(f"{base_path}/level2/secret.txt")
+                else:
+                    return "Permission denied"
+
+        # Level 3 - Log Explorer
+        elif level == 3:
+            if command == "ls":
+                return "logs  system_log.txt"
+            elif command == "ls logs":
+                return "access_log.txt  debug_log.txt  error_log.txt"
+            elif command == "cat logs/error_log.txt":
+                return read_file(f"{base_path}/level3/logs/error_log.txt")
+            elif command == "cat logs/access_log.txt":
+                return read_file(f"{base_path}/level3/logs/access_log.txt")
+            elif command == "cat logs/debug_log.txt":
+                return read_file(f"{base_path}/level3/logs/debug_log.txt")
+            elif command == "cat system_log.txt":
+                return read_file(f"{base_path}/level3/system_log.txt")
+            elif command == "grep -r flag logs":
+                content = ""
+                for log in ["error_log.txt", "debug_log.txt"]:
+                    log_content = read_file(f"{base_path}/level3/logs/{log}")
+                    for line in log_content.splitlines():
+                        if "flag" in line:
+                            content += f"logs/{log}:{line}\n"
+                return content.strip()
+
+        # Level 4 - Process Hunter
+        elif level == 4:
+            proc_info = read_file(f"{base_path}/level4/proc_info.txt")
+            if command == "ps aux":
+                lines = proc_info.split("\n")
+                ps_lines = [line for line in lines if not line.startswith("Process")]
+                return "\n".join(ps_lines[:4])
+            elif command == "cat /proc/1337/cmdline" or command == "cat /proc/1337/environ":
+                for line in proc_info.split("\n"):
+                    if command.endswith("cmdline") and "flag{process_hunter}" in line:
+                        return line
+                    elif command.endswith("environ") and "FLAG=" in line:
+                        return line
+
+        # Level 5 - Network Ninja
+        elif level == 5:
+            network_info = read_file(f"{base_path}/level5/network_info.txt")
+            if command == "netstat -tuln":
+                lines = network_info.split("\n")
+                return "\n".join([l for l in lines if "Proto" in l or "tcp" in l or "udp" in l])
+            elif command == "cat /etc/hosts":
+                lines = network_info.split("\n")
+                return "\n".join([l for l in lines if "127.0.0.1" in l])
+
+        # Level 6 - Bash Wizard
+        elif level == 6:
+            user_data = read_file(f"{base_path}/level6/user_data.txt")
+            if command == "cat /etc/environment" or command == "cat data.txt":
+                return user_data
+            elif command.startswith("grep") or command.startswith("awk") or command.startswith("sed"):
+                if "flag{bash_wizard}" in command:
+                    return "flag{bash_wizard}"
+
+        # Level 7 - Archive Master
+        elif level == 7:
+            readme = read_file(f"{base_path}/level7/README.txt")
+            if command == "ls":
+                return "archive.tar.gz"
+            elif command == "tar -xzf archive.tar.gz":
+                return "Extracting archive..."
+            elif command == "ls" and "tar -xzf archive.tar.gz" in self.command_history:
+                return "level1.zip"
+            elif command == "unzip level1.zip" and "tar -xzf archive.tar.gz" in self.command_history:
+                return "Extracting level1.zip..."
+            elif command == "ls" and "unzip level1.zip" in self.command_history:
+                return "secret"
+            elif command == "cat secret/flag.txt" and "unzip level1.zip" in self.command_history:
+                return "flag{archive_master_explorer}"
+
+        # Level 8 - System Monitor
+        elif level == 8:
+            system_stats = read_file(f"{base_path}/level8/system_stats.txt")
+            if command == "top" or command == "htop":
+                lines = system_stats.split("\n")
+                return "\n".join([l for l in lines if not "flags" in l])
+            elif command == "cat /proc/cpuinfo":
+                return "\n".join([l for l in system_stats.split("\n") if "processor" in l or "model name" in l or "flags" in l])
+
+        # Level 9 - Cron Detective
+        elif level == 9:
+            cron_logs = read_file(f"{base_path}/level9/cron_logs.txt")
+            if command == "cat /var/log/syslog":
+                return "\n".join([l for l in cron_logs.split("\n") if "CRON" in l or "flag_expose" in l])
+            elif command == "cat /etc/crontab":
+                return "\n".join([l for l in cron_logs.split("\n") if "*" in l])
+            elif command == "cat /tmp/exposed_flag":
+                return "flag{cr0n_master_detective}"
+
+        # Level 10 - Ultimate Challenge
+        elif level == 10:
+            final_challenge = read_file(f"{base_path}/level10/final_challenge.txt")
+            if command == "ls /home/user/final":
+                return "encrypted.bin  README.txt"
+            elif command == "cat /home/user/final/README.txt":
+                return "\n".join([l for l in final_challenge.split("\n") if not "flag{" in l])
+            elif command == "strings /home/user/final/encrypted.bin":
+                return "flag{ultimate_hacker_pro}"
+
+        return f"Command not found: {command}"
 
     def get_completions(self, partial, cwd):
         """Get possible completions for tab completion"""

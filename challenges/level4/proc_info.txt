@@ -1,0 +1,20 @@
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0   2384   668 ?        Ss   14:30   0:00 /sbin/init
+root       423  0.0  0.0   2880   712 ?        S    14:30   0:00 sshd
+user      1234  0.0  0.1   5984  1024 pts/0    S+   14:30   0:00 suspicious_process
+user      1337  0.0  0.1  10240  1024 pts/0    S+   14:30   0:00 flag_service
+
+Process 1337 Environment:
+SHELL=/bin/bash
+PWD=/home/user
+FLAG=flag{process_hunter}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+
+Process 1337 Status:
+Name:   flag_service
+State:  S (sleeping)
+Tgid:   1337
+Pid:    1337
+PPid:   1
+Uid:    1000    1000    1000    1000
+Gid:    1000    1000    1000    1000
