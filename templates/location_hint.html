@@ -1,80 +1,344 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="location-hint-container">
-    <h2>Level {{ level }} Location Hint</h2>
-    
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title"><i class="fas fa-map-marker-alt me-2"></i>Location Clue</h5>
-            <p class="card-text">{{ location_hint }}</p>
+<div class="container py-4">
+    <div class="alert-terminal mb-4">
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="terminal-title">Important Notice</div>
+        </div>
+        <div class="alert-content">
+            <i class="fas fa-info-circle alert-icon"></i>
+            <div class="alert-message">
+                You must verify your location by scanning the QR code or entering the correct code to proceed to the next level. You cannot skip this step.
+            </div>
         </div>
     </div>
 
-    <div class="qr-submission mt-4">
-        <h5><i class="fas fa-qrcode me-2"></i>Submit QR Code</h5>
-        <div class="input-group mb-3">
-            <input type="text" id="qr-input" class="form-control" placeholder="Enter QR code text or scan QR code...">
-            <button class="btn btn-primary" id="scan-qr" onclick="startQRScanner()">
-                <i class="fas fa-camera me-2"></i>Scan QR
-            </button>
-        </div>
-        <button class="btn btn-success w-100" onclick="submitQRCode()">Submit</button>
-    </div>
-
-    <!-- QR Scanner Modal -->
-    <div class="modal fade" id="qrScannerModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Scan QR Code</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="terminal-card shadow">
+                <div class="terminal-header">
+                    <div class="terminal-buttons">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="terminal-title">Location Challenge - Level {{ level }}</div>
                 </div>
-                <div class="modal-body">
-                    <div id="qr-reader"></div>
+                <div class="terminal-content">
+                    <!-- Location Hint -->
+                    <div class="location-hint mb-4">
+                        <div class="hint-header">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            <h5>{{ hint_title }}</h5>
+                        </div>
+                        <div class="hint-text">
+                            {{ location_hint|safe }}
+                        </div>
+                    </div>
+
+                    <!-- QR Code Scanner -->
+                    <div class="scanner-section mb-4">
+                        <div class="section-header">
+                            <i class="fas fa-qrcode me-2"></i>
+                            <h5>Scan QR Code</h5>
+                        </div>
+                        <div class="scanner-container">
+                            <div id="reader"></div>
+                            <button id="startButton" class="action-button">
+                                <i class="fas fa-camera me-2"></i>Start Scanner
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Manual Code Input -->
+                    <div class="manual-input">
+                        <div class="section-header">
+                            <i class="fas fa-keyboard me-2"></i>
+                            <h5>Or Enter Code Manually</h5>
+                        </div>
+                        <div class="command-line">
+                            <span class="prompt">code></span>
+                            <input type="text" id="locationCode" class="command-input" placeholder="Enter the location code...">
+                            <button class="submit-btn" onclick="submitLocationCode()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+.alert-terminal {
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.alert-content {
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    color: #fff;
+    background: linear-gradient(45deg, #2193b0, #6dd5ed);
+}
+
+.alert-icon {
+    font-size: 24px;
+    color: #fff;
+}
+
+.alert-message {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.terminal-card {
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.terminal-header {
+    background: #2d2d2d;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 15px;
+}
+
+.terminal-buttons span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.terminal-buttons span:nth-child(1) { background: #ff5f56; }
+.terminal-buttons span:nth-child(2) { background: #ffbd2e; }
+.terminal-buttons span:nth-child(3) { background: #27c93f; }
+
+.terminal-title {
+    color: #fff;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.terminal-content {
+    padding: 25px;
+    color: #fff;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #00ff00;
+}
+
+.section-header h5 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.section-header i {
+    font-size: 20px;
+}
+
+.hint-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #ff5f56;
+}
+
+.hint-header h5 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.hint-text {
+    background: #2d2d2d;
+    border-radius: 6px;
+    padding: 20px;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    border: 1px solid #3a3a3a;
+}
+
+.scanner-container {
+    background: #2d2d2d;
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #3a3a3a;
+}
+
+#reader {
+    background: #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.action-button {
+    background: #27c93f;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-button:hover {
+    background: #2ee347;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(39, 201, 63, 0.3);
+}
+
+.command-line {
+    display: flex;
+    align-items: center;
+    background: #2d2d2d;
+    border-radius: 6px;
+    padding: 10px 15px;
+    border: 1px solid #3a3a3a;
+}
+
+.prompt {
+    color: #ff5f56;
+    font-family: 'Courier New', monospace;
+    margin-right: 10px;
+    font-weight: bold;
+    user-select: none;
+}
+
+.command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    outline: none;
+    padding: 0;
+    margin-right: 10px;
+}
+
+.command-input::placeholder {
+    color: #00ff00;
+    opacity: 0.5;
+}
+
+.submit-btn {
+    background: #27c93f;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    padding: 5px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background: #2ee347;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(39, 201, 63, 0.3);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+</style>
+
+<!-- Include HTML5-QRCode library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
+
 <script>
 let html5QrcodeScanner = null;
 
-function startQRScanner() {
-    const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
-    modal.show();
-    
-    if (!html5QrcodeScanner) {
+document.addEventListener('DOMContentLoaded', function() {
+    // Prevent going back
+    history.pushState(null, null, location.href);
+    window.onpopstate = function(event) {
+        history.go(1);
+    };
+});
+
+document.getElementById('startButton').addEventListener('click', function() {
+    if (html5QrcodeScanner === null) {
         html5QrcodeScanner = new Html5QrcodeScanner(
-            "qr-reader", { fps: 10, qrbox: 250 }
+            "reader", 
+            { 
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            }
         );
         
-        html5QrcodeScanner.render((decodedText) => {
-            document.getElementById('qr-input').value = decodedText;
-            modal.hide();
-            html5QrcodeScanner.clear();
-        });
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+        this.innerHTML = '<i class="fas fa-stop me-2"></i>Stop Scanner';
+        this.style.background = '#ff5f56';
+    } else {
+        html5QrcodeScanner.clear();
+        html5QrcodeScanner = null;
+        this.innerHTML = '<i class="fas fa-camera me-2"></i>Start Scanner';
+        this.style.background = '#27c93f';
     }
+});
+
+function onScanSuccess(decodedText, decodedResult) {
+    // Stop scanning
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.clear();
+        html5QrcodeScanner = null;
+        document.getElementById('startButton').innerHTML = '<i class="fas fa-camera me-2"></i>Start Scanner';
+        document.getElementById('startButton').style.background = '#27c93f';
+    }
+    
+    // Submit the scanned code
+    document.getElementById('locationCode').value = decodedText;
+    submitLocationCode();
 }
 
-async function submitQRCode() {
-    const qrInput = document.getElementById('qr-input');
-    const qrCode = qrInput.value.trim();
-    
-    if (!qrCode) {
-        alert('Please enter or scan a QR code');
+function onScanError(errorMessage) {
+    // Handle scan error if needed
+    console.error(errorMessage);
+}
+
+async function submitLocationCode() {
+    const code = document.getElementById('locationCode').value.trim();
+    if (!code) {
+        showAlert('Please enter a location code', 'error');
         return;
     }
 
     try {
-        const response = await fetch(`/verify_location/${currentLevel}`, {
+        const response = await fetch(`/verify_location/{{ level }}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ qr_code: qrCode })
+            body: JSON.stringify({ code: code })
         });
 
         const data = await response.json();
@@ -82,18 +346,20 @@ async function submitQRCode() {
         if (data.success) {
             window.location.href = data.redirect;
         } else {
-            alert(data.message || 'Incorrect QR code. Try again!');
-            qrInput.value = '';
-            qrInput.focus();
+            showAlert(data.message || 'Incorrect location code. Try again!', 'error');
+            document.getElementById('locationCode').value = '';
+            document.getElementById('locationCode').focus();
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error submitting QR code. Please try again.');
+        showAlert('Error submitting location code. Please try again.', 'error');
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    window.currentLevel = {{ level }};
-});
+function showAlert(message, type) {
+    const alertContent = document.querySelector('.alert-content');
+    alertContent.style.background = type === 'error' ? 'linear-gradient(45deg, #ff5f56, #ff8a80)' : 'linear-gradient(45deg, #2193b0, #6dd5ed)';
+    document.querySelector('.alert-message').textContent = message;
+}
 </script>
 {% endblock %}

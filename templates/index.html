@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Welcome to QuickSnatch</h1>
+                <p class="lead mb-4">
+                    Embark on an exciting journey through command-line challenges and real-world locations. 
+                    Master the art of CLI navigation, network analysis, and more!
+                </p>
+                <div class="cta-buttons">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('levels') }}" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-play me-2"></i>Start Challenge
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Start
+                        </a>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="terminal-buttons">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="terminal-title">QuickSnatch Terminal</div>
+                    </div>
+                    <div class="terminal-content">
+                        <div class="line">$ Welcome to QuickSnatch CLI Challenge</div>
+                        <div class="line">$ Loading challenges...</div>
+                        <div class="line">$ 5 levels detected</div>
+                        <div class="line">$ Each level contains:</div>
+                        <div class="line">  - Command-line challenge</div>
+                        <div class="line">  - Hidden flag</div>
+                        <div class="line">  - Location verification</div>
+                        <div class="line">$ Ready to begin? Type 'start'</div>
+                        <div class="line blink">$ _</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">What's Inside</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h3>CLI Challenges</h3>
+                    <p>Master command-line tools through engaging challenges that test your skills.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Location Hunt</h3>
+                    <p>Solve puzzles that lead you to real-world locations around the campus.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Track Progress</h3>
+                    <p>Monitor your advancement and earn achievements as you complete challenges.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.terminal-window {
+    background: #1a1a1a;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.terminal-header {
+    background: #2d2d2d;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.terminal-buttons span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.terminal-buttons span:nth-child(1) { background: #ff5f56; }
+.terminal-buttons span:nth-child(2) { background: #ffbd2e; }
+.terminal-buttons span:nth-child(3) { background: #27c93f; }
+
+.terminal-title {
+    color: #fff;
+    margin-left: 20px;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.terminal-content {
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    font-size: 14px;
+}
+
+.terminal-content .line {
+    margin-bottom: 8px;
+}
+
+.blink {
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+.feature-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.icon-wrapper i {
+    font-size: 24px;
+    color: #007bff;
+}
+
+.cta-buttons {
+    margin-top: 2rem;
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+</style>
+{% endblock %}

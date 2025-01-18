@@ -10,6 +10,7 @@ from riddles import riddle_manager
 import io
 import math
 import json
+from config.flags import LEVEL_FLAGS
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -82,46 +83,252 @@ ANSWERS = {
     5: "flag{network_ninja}"
 }
 
-# Location-based challenge data
-LOCATION_HINTS = {
-    1: """Where laughter's crafted and teeth align,  
-A silent guardian bides her time.  
-Cloaked in white, serene, and still,  
-Behind the halls where smiles are filled.  
-
+# Level sections and their corresponding hints
+LEVEL_SECTIONS = {
+    1: {
+        'title': 'File System Navigation',
+        'description': 'Learn to navigate through files and directories to find hidden flags.',
+        'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level1.sh | bash',
+        'flag': 'QS{B3g1nn3r_Expl0r3r_2024}',
+        'location_hint': {
+            'title': 'The Silent Guardian',
+            'description': """A silent guardian bides her time.   
 Seek the lady, her story profound,  
 A mother, a founder, forever renowned.  
 Who is she, and what wisdom does she share?  
 Her presence whispers a legacy rare.""",
+            'code': 'HTML5GoldRush'
+        }
+    },
+    2: {
+        'title': 'Network Analysis',
+        'description': 'Analyze network traffic and connections to discover hidden information.',
+        'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level2.sh | bash',
+        'flag': 'QS{N3tw0rk_N1nj4_2024}',
+        'location_hint': {
+            'title': 'The Rising Temple',
+            'description': """At the edge where paths converge and bend,  
+A temple is rising, on which peace depends.  
+Cradled by green, with a view so vast,  
+A quiet refuge, where moments last.  
 
-    2: """In gardens green where peace resides,
-A temple stands where truth abides.
-Between the paths of learning's light,
-What structure brings both calm and might?""",
-
-    3: """Guardian of gates, in uniform proud,
-Where dental wisdom speaks aloud.
-At crossroads where knowledge starts to flow,
-Which shelter watches those who come and go?""",
-
-    4: """Where heroes once graced silver screens,
-Now nature's carpet spreads serene.
-By Sholay's shadow, stories told,
-What patch of green does memory hold?""",
-
-    5: """Where books and knowledge find their space,
-A corner marks a special place.
-Near learning's heart, where grass meets ground,
-What spot makes wisdom more profound?"""
+What place is blooming, serene and bright,  
+A haven of calm, bathed in light?""",
+            'code': 'CSSMysticTrail'
+        }
+    },
+    3: {
+        'title': 'Cryptography Challenge',
+        'description': 'Decrypt encoded messages to reveal hidden flags.',
+        'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level3.sh | bash',
+        'flag': 'QS{Crypt0_M4st3r_2024}',
+        'location_hint': {
+            'title': 'The Humble Shade',
+            'description': """A humble shade stands, quiet and blessed.  
+In front of the place where smiles are made,  
+A simple retreat, in the shade.  
+What is this spot, serene and small,  
+A peaceful corner, welcoming all?""",
+            'code': 'DecodeTheDOM'
+        }
+    },
+    4: {
+        'title': 'Binary Analysis',
+        'description': 'Analyze binary files to extract hidden flags.',
+        'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level4.sh | bash',
+        'flag': 'QS{B1n4ry_Wh1sp3r3r_2024}',
+        'location_hint': {
+            'title': 'The Sholay Scene',
+            'description': """Right by the halls, where footsteps fade,  
+A patch of green, like a scene in *Sholay*'s shade.  
+Amidst the hustle, a quiet space,  
+Like a tale, full of grace.  
+What spot is this, where calm is found,  
+A green escape, where peace resounds?""",
+            'code': 'JSPathfinder'
+        }
+    },
+    5: {
+        'title': 'Final Challenge',
+        'description': 'Combine all your skills to solve the ultimate challenge.',
+        'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level5.sh | bash',
+        'flag': 'QS{Qu1ckSn4tch_Ch4mp10n_2024}',
+        'location_hint': {
+            'title': 'The Field Haven',
+            'description': """Beside the field where the ball does fly,  
+A quiet refuge, where footsteps lie.  
+A hidden haven where knowledge aligns.  
+What place is this, where echoes cease,  
+A secret shelter, a moment of peace?""",
+            'code': 'APIExplorer22'
+        }
+    }
 }
 
-QR_CODES = {
-    1: "DENTAL_CLINIC_STATUE",
-    2: "TEMPLE_GARDEN_PEACE",
-    3: "SECURITY_HUT_DENTAL",
-    4: "GREEN_PATCH_SHOLAY",
-    5: "LIBRARY_FIELD_CORNER"
+# Location hints and their QR codes
+LOCATION_HINTS = {
+    1: {
+        'title': 'The Silent Guardian',
+        'description': """A silent guardian bides her time.   
+Seek the lady, her story profound,  
+A mother, a founder, forever renowned.  
+Who is she, and what wisdom does she share?  
+Her presence whispers a legacy rare.""",
+        'code': 'HTML5GoldRush'
+    },
+    2: {
+        'title': 'The Rising Temple',
+        'description': """At the edge where paths converge and bend,  
+A temple is rising, on which peace depends.  
+Cradled by green, with a view so vast,  
+A quiet refuge, where moments last.  
+
+What place is blooming, serene and bright,  
+A haven of calm, bathed in light?""",
+        'code': 'CSSMysticTrail'
+    },
+    3: {
+        'title': 'The Humble Shade',
+        'description': """A humble shade stands, quiet and blessed.  
+In front of the place where smiles are made,  
+A simple retreat, in the shade.  
+What is this spot, serene and small,  
+A peaceful corner, welcoming all?""",
+        'code': 'DecodeTheDOM'
+    },
+    4: {
+        'title': 'The Sholay Scene',
+        'description': """Right by the halls, where footsteps fade,  
+A patch of green, like a scene in *Sholay*'s shade.  
+Amidst the hustle, a quiet space,  
+Like a tale, full of grace.  
+What spot is this, where calm is found,  
+A green escape, where peace resounds?""",
+        'code': 'JSPathfinder'
+    },
+    5: {
+        'title': 'The Field Haven',
+        'description': """Beside the field where the ball does fly,  
+A quiet refuge, where footsteps lie.  
+A hidden haven where knowledge aligns.  
+What place is this, where echoes cease,  
+A secret shelter, a moment of peace?""",
+        'code': 'APIExplorer22'
+    },
+    6: {
+        'title': 'The Proud Monument',
+        'description': """In front of the building where the name stands tall,  
+A statue of pride, a symbol for all.  
+Beside the waters, where ripples play,  
+A quiet corner to end your day.  
+What place is this, where stillness flows,  
+A monument of pride where calmness grows?""",
+        'code': 'APIExplorer22'
+    },
+    7: {
+        'title': 'The Gateway',
+        'description': """At the gate where daily steps converge,  
+A threshold where journeys and minds emerge.    
+Yet here, a stillness, softly embraced.  
+What is this space, where time slows down,  
+A fleeting moment, just beyond the town?""",
+        'code': 'CodeQuest2025'
+    },
+    8: {
+        'title': 'The Cozy Corner',
+        'description': """Where the cobblestones meet the sea breeze, and the quiet hum of the city fades, 
+a warm corner invites with the scent of roasted beans and a touch of something fresh from the oven, 
+waiting to be discovered.""",
+        'code': 'XtremeDebugger'
+    },
+    9: {
+        'title': 'The Peaceful Path',
+        'description': """Where worth rest and shadows blend,  
+Beside the lot where pathways end.  
+Facing knowledge, calm and wide,  
+What is this place where peace resides?""",
+        'code': 'BugBountyHunt'
+    },
+    10: {
+        'title': 'The Student Hub',
+        'description': """Where hunger meets a daily need,  
+A bustling spot where students feed.  
+Coupons in hand, the rule is clear,  
+What is this place we hold so dear?""",
+        'code': 'NirmaanKnights'
+    },
+    11: {
+        'title': 'The Silent Space',
+        'description': """Once alive with chatter and cheer,  
+Now silent, its purpose unclear.  
+A lone printer hums where meals once lay,  
+What is this place of a bygone day?""",
+        'code': 'NirmaanKnights'
+    },
+    12: {
+        'title': 'The Serene Jewel',
+        'description': """A heaven of calm, both deep and wide,
+Where whispers and silence collide.
+A place for the bold, a retreat for the still,
+A shimmering jewel that tests your will.
+What is this space, so serene and grand?""",
+        'code': 'DOMVoyagers'
+    },
+    13: {
+        'title': 'The Colorful Steps',
+        'description': """Steps of color, bright and rare,
+A lively path beyond compare.
+A place of cheer, where stories unfold,
+What is this spot so vibrant and bold?""",
+        'code': 'TreasureInCode'
+    },
+    14: {
+        'title': 'The Elegant Haven',
+        'description': """Where whispers of luxury fill the air,
+And every corner breathes beauty rare.
+A place where elegance and taste collide,
+With each sip, a world unfolds,
+A treasure trove that quietly holds.
+What is this space, where time stands still,
+A haven of grace, both rich and tranquil?""",
+        'code': 'BackendBandits'
+    },
+    15: {
+        'title': 'The Arena Lot',
+        'description': """Where the arena roars, but wheels stand still,
+A parking lot where calmness fills.
+In front of the game, where energy flows,
+What is this spot where quietness grows?""",
+        'code': 'FullStackFury'
+    },
+    16: {
+        'title': 'The Guarded Gate',
+        'description': """Entry and exits with proof in hand,
+A threshold where all must make their stand.
+Guarded and quiet, yet paths unfold,
+Where is the spot, both strict and bold?""",
+        'code': 'CipherCrafters'
+    },
+    17: {
+        'title': 'The Patient Path',
+        'description': """Patience Is All The Strength That Man Need's""",
+        'code': 'FrontendFrenzy'
+    }
 }
+
+# User progress tracking
+user_progress = {}
+
+class UserProgress:
+    def __init__(self):
+        self.current_level = 1
+        self.at_hint = False
+        self.completed_levels = set()
+
+def get_user_progress(user_id='default'):
+    if user_id not in user_progress:
+        user_progress[user_id] = UserProgress()
+    return user_progress[user_id]
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -130,7 +337,8 @@ def load_user(user_id):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('level', level_number=current_user.current_level))
+        progress = get_user_progress(current_user.id)
+        return redirect(url_for('level', level_number=progress.current_level))
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -146,7 +354,8 @@ def login():
                 user.start_time = datetime.now(pytz.UTC)
                 db.session.commit()
             flash('Successfully logged in!', 'success')
-            return redirect(url_for('level', level_number=user.current_level))
+            progress = get_user_progress(user.id)
+            return redirect(url_for('level', level_number=progress.current_level))
         
         flash('Invalid username or password', 'danger')
         print("Thios")
@@ -184,19 +393,27 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/level/<int:level_number>')
-@login_required
 def level(level_number):
-    # Ensure user can't access levels beyond their current level
-    if level_number > current_user.current_level:
-        flash('You have not unlocked this level yet!', 'danger')
-        return redirect(url_for('level', level_number=current_user.current_level))
+    progress = get_user_progress(current_user.id)
+    
+    # If user is at hint page, redirect back to hint
+    if progress.at_hint:
+        return redirect(url_for('location_hint', level=progress.current_level))
     
     # Ensure level number is valid
-    if level_number < 1 or level_number > 5:
+    if level_number < 1 or level_number > 17:
         flash('Invalid level number!', 'danger')
-        return redirect(url_for('level', level_number=current_user.current_level))
+        return redirect(url_for('level', level_number=progress.current_level))
     
-    return render_template(f'challenges/level_{level_number}.html', level=level_number)
+    # Only allow access to current level
+    if level_number != progress.current_level:
+        flash('You can only access your current level!', 'danger')
+        return redirect(url_for('level', level_number=progress.current_level))
+    
+    level_data = LEVEL_SECTIONS.get(level_number, {})
+    return render_template(f'challenges/level_{level_number}.html', 
+                         level=level_number,
+                         level_data=level_data)
 
 @app.route('/leaderboard')
 @login_required
@@ -205,53 +422,45 @@ def leaderboard():
     return render_template('leaderboard.html', users=users)
 
 @app.route('/check_flag/<int:level>', methods=['POST'])
-def verify_flag(level):
-    if not current_user.is_authenticated:
-        return jsonify({'success': False, 'message': 'Please log in first'})
-    
+def check_flag(level):
+    progress = get_user_progress(current_user.id)
     data = request.get_json()
-    flag = data.get('flag', '').strip()
+    submitted_flag = data.get('flag', '').strip()
     
-    if current_user.current_level != level:
-        return jsonify({'success': False, 'message': 'Invalid level access'})
+    if not submitted_flag:
+        return jsonify({'success': False, 'message': 'No flag submitted'})
     
-    if flag == ANSWERS.get(level):
-        # Instead of directly advancing to next level, redirect to location hint
+    if level not in LEVEL_FLAGS:
+        return jsonify({'success': False, 'message': 'Invalid level'})
+    
+    if submitted_flag == LEVEL_FLAGS[level]:
+        progress.at_hint = True  # Mark that user should be at hint page
         return jsonify({
             'success': True,
             'message': 'Flag correct! Proceed to find the location.',
-            'redirect': url_for('location_hint', level=level)
+            'redirect': f'/location_hint/{level}'
         })
-    
-    # Record incorrect submission
-    submission = Submission(
-        user_id=current_user.id,
-        level=level,
-        submitted_at=datetime.now(pytz.UTC),
-        is_correct=False
-    )
-    db.session.add(submission)
-    db.session.commit()
     
     return jsonify({
         'success': False,
-        'message': 'Incorrect flag. Please try again!'
+        'message': 'Incorrect flag. Try again!'
     })
 
 @app.route('/level/<int:level>/complete', methods=['GET', 'POST'])
 @login_required
 def level_complete(level):
     # Ensure user has actually completed the level
-    if level != current_user.current_level:
+    if level != get_user_progress(current_user.id).current_level:
         flash('Please complete the current level first!', 'error')
-        return redirect(url_for('level', level_number=current_user.current_level))
+        return redirect(url_for('level', level_number=get_user_progress(current_user.id).current_level))
     
     if request.method == 'POST':
         answer = request.form.get('answer', '').strip()
         if riddle_manager.check_answer(current_user.id, answer):
             # Clear the riddle and progress to next level
             riddle_manager.clear_riddle(current_user.id)
-            current_user.current_level = level + 1
+            progress = get_user_progress(current_user.id)
+            progress.current_level = level + 1
             db.session.commit()
             flash('Congratulations! You\'ve completed this level!', 'success')
             return redirect(url_for('level', level_number=level + 1))
@@ -696,8 +905,8 @@ def analyze_entropy():
 @app.route('/terminal/<int:level>')
 @login_required
 def terminal(level):
-    if level < 1 or level > 5 or level > current_user.current_level:
-        return redirect(url_for('level', level_number=current_user.current_level))
+    if level < 1 or level > 5 or level > get_user_progress(current_user.id).current_level:
+        return redirect(url_for('level', level_number=get_user_progress(current_user.id).current_level))
     
     # Start timing for this level if not already started
     level_time = LevelTime.query.filter_by(
@@ -743,41 +952,78 @@ def level_info(level):
 @app.route('/location_hint/<int:level>')
 @login_required
 def location_hint(level):
-    if current_user.current_level != level:
-        flash('Access denied: You must complete the previous level first!', 'danger')
-        return redirect(url_for('level', level_number=current_user.current_level))
+    progress = get_user_progress(current_user.id)
+    
+    # Only allow access to current level's hint
+    if level != progress.current_level:
+        return redirect(url_for('level', level_number=progress.current_level))
+    
+    # If not marked as at_hint, redirect to level
+    if not progress.at_hint:
+        return redirect(url_for('level', level_number=progress.current_level))
+    
+    hint_data = LOCATION_HINTS.get(level, {})
     
     return render_template('location_hint.html', 
                          level=level,
-                         location_hint=LOCATION_HINTS.get(level, "Location hint not available"))
+                         hint_title=hint_data.get('title', ''),
+                         location_hint=hint_data.get('description', ''))
 
 @app.route('/verify_location/<int:level>', methods=['POST'])
 @login_required
 def verify_location(level):
-    if current_user.current_level != level:
-        return jsonify({'success': False, 'message': 'Invalid level access'})
-    
+    progress = get_user_progress(current_user.id)
     data = request.get_json()
-    qr_code = data.get('qr_code', '').strip()
+    submitted_code = data.get('code', '').strip()
     
-    if qr_code == QR_CODES.get(level):
-        # Update user progress
-        current_user.current_level = level + 1
-        db.session.commit()
+    if not submitted_code:
+        return jsonify({
+            'success': False,
+            'message': 'No location code provided'
+        })
+    
+    hint_data = LOCATION_HINTS.get(level)
+    if not hint_data:
+        return jsonify({
+            'success': False,
+            'message': 'Invalid level'
+        })
+    
+    expected_code = hint_data['code']
+    if submitted_code == expected_code:
+        # Mark current level as completed
+        progress.completed_levels.add(level)
+        progress.at_hint = False  # Reset hint status
         
-        # Record completion time
-        level_complete(level)
-        
+        # Move to next level
+        next_level = level + 1
+        if next_level > 17:
+            return jsonify({
+                'success': True,
+                'message': 'Congratulations! You have completed all levels!',
+                'redirect': '/congratulations'
+            })
+            
+        progress.current_level = next_level
         return jsonify({
             'success': True,
-            'message': 'Location verified successfully!',
-            'redirect': url_for('level', level_number=level + 1)
+            'message': f'Location verified! Moving to level {next_level}',
+            'redirect': f'/level/{next_level}'
         })
     
     return jsonify({
         'success': False,
-        'message': 'Incorrect QR code. Please try again!'
+        'message': 'Incorrect location code. Try again!'
     })
+
+@app.route('/congratulations')
+def congratulations():
+    return render_template('congratulations.html')
+
+@app.route('/levels')
+def levels():
+    progress = get_user_progress()
+    return render_template('levels.html', progress=progress)
 
 if __name__ == '__main__':
     with app.app_context():
