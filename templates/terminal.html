@@ -297,10 +297,10 @@ Connection closed`;
     getLevelWelcomeMessage() {
         switch (this.level) {
             case 1:
-                return `Welcome to Level 1: File Explorer Challenge
+                return `Welcome to Level 1: Advanced File Explorer Challenge
 Type 'help' for available commands.`;
             case 2:
-                return `Welcome to Level 2: Permission Challenge
+                return `Welcome to Level 2: Advanced Permissions Challenge
 Type 'help' for available commands.`;
             case 3:
                 return `Welcome to Level 3: Pattern Search Challenge
@@ -536,27 +536,237 @@ Level 5 Commands:
         
         switch(this.level) {
             case 1:
-                // Level 1: Hidden Files Challenge
-                playerHome.contents['.secret'] = {
-                    type: 'file',
-                    permissions: '-rw-r--r--',
+                // Level 1: Advanced File Explorer Challenge
+                playerHome.contents['Documents'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-xr-x',
                     owner: 'player',
                     group: 'player',
-                    content: 'Congratulations! You found the hidden file.\nflag{hidden_file_master}'
+                    contents: {
+                        'notes.txt': {
+                            type: 'file',
+                            permissions: '-rw-r--r--',
+                            owner: 'player',
+                            group: 'player',
+                            content: 'Check the backup folders for important files.'
+                        },
+                        '.hidden_note': {
+                            type: 'file',
+                            permissions: '-rw-r--r--',
+                            owner: 'player',
+                            group: 'player',
+                            content: 'The secrets are in the archives.'
+                        }
+                    }
+                };
+
+                playerHome.contents['backup'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-xr-x',
+                    owner: 'player',
+                    group: 'player',
+                    contents: {
+                        'old': {
+                            type: 'dir',
+                            permissions: 'drwxr-xr-x',
+                            owner: 'player',
+                            group: 'player',
+                            contents: {
+                                'archive2024': {
+                                    type: 'dir',
+                                    permissions: 'drwxr-xr-x',
+                                    owner: 'player',
+                                    group: 'player',
+                                    contents: {
+                                        '.secret_archive': {
+                                            type: 'dir',
+                                            permissions: 'drwxr-xr-x',
+                                            owner: 'player',
+                                            group: 'player',
+                                            contents: {
+                                                'README.txt': {
+                                                    type: 'file',
+                                                    permissions: '-rw-r--r--',
+                                                    owner: 'player',
+                                                    group: 'player',
+                                                    content: 'Almost there! Check the config directory.'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                playerHome.contents['.config'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-xr-x',
+                    owner: 'player',
+                    group: 'player',
+                    contents: {
+                        'system': {
+                            type: 'dir',
+                            permissions: 'drwxr-xr-x',
+                            owner: 'player',
+                            group: 'player',
+                            contents: {
+                                '.settings': {
+                                    type: 'dir',
+                                    permissions: 'drwxr-xr-x',
+                                    owner: 'player',
+                                    group: 'player',
+                                    contents: {
+                                        'user.conf': {
+                                            type: 'file',
+                                            permissions: '-rw-r--r--',
+                                            owner: 'player',
+                                            group: 'player',
+                                            content: 'username=player\ntheme=dark\nflag_location=~/Desktop/.hidden'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                playerHome.contents['Desktop'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-xr-x',
+                    owner: 'player',
+                    group: 'player',
+                    contents: {
+                        '.hidden': {
+                            type: 'dir',
+                            permissions: 'drwxr-xr-x',
+                            owner: 'player',
+                            group: 'player',
+                            contents: {
+                                '.secret': {
+                                    type: 'file',
+                                    permissions: '-rw-r--r--',
+                                    owner: 'player',
+                                    group: 'player',
+                                    content: 'Congratulations! You\'ve mastered file exploration.\nflag{hidden_file_master}'
+                                }
+                            }
+                        },
+                        'todo.txt': {
+                            type: 'file',
+                            permissions: '-rw-r--r--',
+                            owner: 'player',
+                            group: 'player',
+                            content: '1. Clean up old backups\n2. Update system settings\n3. Check hidden configurations'
+                        }
+                    }
                 };
                 break;
-
             case 2:
-                // Level 2: Permissions Challenge
-                playerHome.contents['restricted.txt'] = {
-                    type: 'file',
-                    permissions: '-r--------',
+                // Level 2: Advanced Permissions Challenge
+                playerHome.contents['projects'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-x---',
                     owner: 'root',
-                    group: 'root',
-                    content: 'Well done! You\'ve mastered file permissions.\nflag{chmod_master}'
+                    group: 'player',
+                    contents: {
+                        'README.md': {
+                            type: 'file',
+                            permissions: '-rw-r-----',
+                            owner: 'root',
+                            group: 'player',
+                            content: 'Project files are stored in the secure directory.\nMake sure to check permissions before accessing.'
+                        },
+                        'secure': {
+                            type: 'dir',
+                            permissions: 'dr-x------',
+                            owner: 'root',
+                            group: 'root',
+                            contents: {
+                                'data': {
+                                    type: 'dir',
+                                    permissions: 'dr-x------',
+                                    owner: 'root',
+                                    group: 'root',
+                                    contents: {
+                                        'encrypted.bin': {
+                                            type: 'file',
+                                            permissions: '-r--------',
+                                            owner: 'root',
+                                            group: 'root',
+                                            content: 'This file contains encrypted data.\nYou need to find the decryption key.'
+                                        },
+                                        '.key': {
+                                            type: 'file',
+                                            permissions: '-r--------',
+                                            owner: 'root',
+                                            group: 'root',
+                                            content: 'Check the permissions on /home/player/scripts/decrypt.sh'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                playerHome.contents['scripts'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-x---',
+                    owner: 'root',
+                    group: 'player',
+                    contents: {
+                        'decrypt.sh': {
+                            type: 'file',
+                            permissions: '-r--------',
+                            owner: 'root',
+                            group: 'root',
+                            content: 'The secret vault is in /var/vault/classified'
+                        }
+                    }
+                };
+
+                fs['/'].contents['var'].contents['vault'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-x---',
+                    owner: 'root',
+                    group: 'player',
+                    contents: {
+                        'classified': {
+                            type: 'dir',
+                            permissions: 'dr-x------',
+                            owner: 'root',
+                            group: 'root',
+                            contents: {
+                                'secret.txt': {
+                                    type: 'file',
+                                    permissions: '-r--------',
+                                    owner: 'root',
+                                    group: 'root',
+                                    content: 'flag{chmod_master_extreme}'
+                                }
+                            }
+                        }
+                    }
+                };
+
+                // Add a hint file with incorrect permissions
+                playerHome.contents['.permissions_help'] = {
+                    type: 'file',
+                    permissions: '-r--r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: `Common Permission Patterns:
+- 777 (rwxrwxrwx): Full permissions for everyone (dangerous!)
+- 755 (rwxr-xr-x): Standard directory permissions
+- 644 (rw-r--r--): Standard file permissions
+- 600 (rw-------): Private file permissions
+- 400 (r--------): Read-only file permissions
+
+Remember to use chmod with caution!`
                 };
                 break;
-
             case 3:
                 // Level 3: Log Analysis Challenge
                 playerHome.contents['system.log'] = {
@@ -576,7 +786,6 @@ Level 5 Commands:
                     `.trim()
                 };
                 break;
-
             case 4:
                 // Level 4: Process Investigation Challenge
                 playerHome.contents['.bash_history'] = {
@@ -637,7 +846,6 @@ VmRSS:      1232 kB
                     }
                 };
                 break;
-
             case 5:
                 // Level 5: Network Investigation Challenge
                 playerHome.contents['.bash_history'] = {
@@ -1052,192 +1260,31 @@ Output formats:
 For more details see ps(1).`;
     }
 
-    chmod(mode, target) {
-        if (!mode || !target) {
-            return 'chmod: missing operand\nTry \'chmod --help\' for more information.';
-        }
-
-        if (mode === '--help') {
-            return this.chmodHelp();
-        }
-
-        const currentDir = this.getCurrentDir();
-        if (!currentDir) {
-            return 'chmod: cannot access current directory';
-        }
-
-        // Handle path with directories
-        const parts = target.split('/').filter(p => p);
-        let targetDir = currentDir;
-        let targetName = target;
-
-        // Handle absolute paths and navigation
-        if (target.startsWith('/')) {
-            targetDir = this.fileSystem['/'];
-            targetName = parts[parts.length - 1];
-            parts.pop(); // Remove filename from parts
-
-            // Navigate to target directory
-            for (const part of parts) {
-                if (!targetDir.contents[part] || targetDir.contents[part].type !== 'dir') {
-                    return `chmod: cannot access '${target}': No such file or directory`;
-                }
-                targetDir = targetDir.contents[part];
-            }
-        } else if (parts.length > 1) {
-            targetName = parts[parts.length - 1];
-            parts.pop(); // Remove filename from parts
-
-            // Navigate to target directory
-            for (let i = 0; i < parts.length; i++) {
-                const part = parts[i];
-                if (part === '..') {
-                    // Go up one directory
-                    const parentDir = this.getParentDir(targetDir);
-                    if (!parentDir) {
-                        return `chmod: cannot access '${target}': No such file or directory`;
-                    }
-                    targetDir = parentDir;
-                } else if (part === '.') {
-                    continue;
-                } else {
-                    if (!targetDir.contents[part] || targetDir.contents[part].type !== 'dir') {
-                        return `chmod: cannot access '${target}': No such file or directory`;
-                    }
-                    targetDir = targetDir.contents[part];
-                }
-            }
-        }
-
-        const file = targetDir.contents[targetName];
-        
-        if (!file) {
-            return `chmod: cannot access '${target}': No such file or directory`;
-        }
-
-
-        try {
-            let newMode = '';
-            if (/^[0-7]{3}$/.test(mode)) {
-                // Octal mode (e.g., 644)
-                const type = file.type === 'dir' ? 'd' : '-';
-                newMode = type + this.octalToSymbolic(mode);
-            } else if (/^[ugoa]*[-+=][rwx]+$/.test(mode)) {
-                // Symbolic mode (e.g., u+rw)
-                newMode = this.updateSymbolicMode(file.permissions, mode);
-            } else {
-                return `chmod: invalid mode: '${mode}'`;
-            }
-
-            file.permissions = newMode;
-            return '';
-        } catch (error) {
-            return `chmod: invalid mode: '${mode}'`;
-        }
-    }
-
-    octalToSymbolic(octal) {
-        const mapping = {
-            0: '---',
-            1: '--x',
-            2: '-w-',
-            3: '-wx',
-            4: 'r--',
-            5: 'r-x',
-            6: 'rw-',
-            7: 'rwx'
-        };
-        
-        return mapping[octal[0]] + mapping[octal[1]] + mapping[octal[2]];
-    }
-
-    updateSymbolicMode(currentMode, change) {
-        // Keep the file type character
-        const type = currentMode[0];
-        const perms = currentMode.slice(1);
-        
-        // Parse the symbolic mode
-        const match = change.match(/^([ugoa]*)([+-=])([rwx]+)$/);
-        if (!match) {
-            throw new Error('Invalid mode format');
-        }
-
-        const [, who, op, permissions] = match;
-        const targets = who || 'a';
-
-        // Define permission positions
-        const positions = {
-            u: [0, 1, 2],    // user
-            g: [3, 4, 5],    // group
-            o: [6, 7, 8],    // others
-            a: [0, 1, 2, 3, 4, 5, 6, 7, 8]  // all
-        };
-
-        // Get affected positions
-        const affectedPos = targets.split('').reduce((acc, t) => {
-            return acc.concat(positions[t]);
-        }, []);
-
-        // Create new permission string
-        let newPerms = perms.split('');
-        
-        for (const pos of new Set(affectedPos)) {
-            const permType = pos % 3; // 0=r, 1=w, 2=x
-            const perm = ['r', 'w', 'x'][permType];
-            
-            if (op === '=') {
-                newPerms[pos] = permissions.includes(perm) ? perm : '-';
-            } else if (op === '+' && permissions.includes(perm)) {
-                newPerms[pos] = perm;
-            } else if (op === '-' && permissions.includes(perm)) {
-                newPerms[pos] = '-';
-            }
-        }
-
-        return type + newPerms.join('');
-    }
-
-    chmodHelp() {
-        return `Usage: chmod [OPTION]... MODE[,MODE]... FILE...
-  or:  chmod [OPTION]... OCTAL-MODE FILE...
-  or:  chmod [OPTION]... --reference=RFILE FILE...
-Change the mode of each FILE to MODE.
-
-Modes can be specified as:
-  Octal:      chmod 644 file
-  Symbolic:   chmod u+x file
-
-Each MODE is of the form '[ugoa]*[-+=][rwx]':
-  [ugoa]  - affects user/group/other/all
-  [-+=]   - remove/add/set permissions
-  [rwx]   - read/write/execute
-
-Examples:
-  chmod 644 file        - Set permissions to rw-r--r--
-  chmod u+x file       - Add execute permission for owner
-  chmod g-w file       - Remove write permission from group
-  chmod a=rx file      - Set rx permissions for all
-  chmod u+w,g+w file   - Add write permission for owner and group
-
-Report bugs to: support@quicksnatch.com`;
-    }
-
     getHint() {
         switch (this.level) {
             case 1:
                 return `Your Task:
-Navigate the file system and find hidden files.
-- Use 'ls' to list directory contents
-- Use 'cd' to change directories
-- Use 'cat' to read file contents
-- Remember that some files might be hidden!`;
+Navigate through the complex directory structure to find the hidden flag.
+- Use 'ls -a' to show hidden files and directories
+- Look for clues in text files
+- Follow the trail through multiple directories
+- Check configuration files for hints
+- The flag could be anywhere in your home directory!`;
             case 2:
                 return `Your Task:
-Find and access a file with restricted permissions.
-- Use 'ls -l' to check file permissions
-- Use 'chmod' to modify file permissions
-- Look for files owned by root
-- Try changing permissions to read the file`;
+Navigate the permission-restricted directory structure to find the flag.
+- Use 'ls -l' to check file and directory permissions
+- Use 'chmod' to modify permissions when needed
+- Pay attention to file ownership and group permissions
+- Follow the trail of clues through restricted files
+- Some directories need execute (x) permission to access
+- Remember that root-owned files need special handling
+
+Tips:
+- Directory execute permission (x) is needed to access its contents
+- Read permission (r) is needed to list directory contents
+- You might need to modify permissions on parent directories first
+- Check both user and group permissions`;
             case 3:
                 return `Your Task:
 Search through system logs to find hidden patterns.
