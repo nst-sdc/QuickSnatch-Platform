@@ -58,27 +58,49 @@
         .main-container {
             flex: 1;
             display: flex;
-            padding: 2rem;
-            gap: 2rem;
+            padding: 1rem;
+            gap: 1rem;
             max-width: 1800px;
             margin: 0 auto;
             width: 100%;
+            flex-direction: column;
+        }
+
+        @media (min-width: 992px) {
+            .main-container {
+                flex-direction: row;
+                padding: 2rem;
+                gap: 2rem;
+            }
         }
 
         .sidebar {
-            width: 300px;
+            width: 100%;
             background-color: var(--secondary-dark);
             border-radius: 10px;
             padding: 1.5rem;
             height: fit-content;
         }
 
+        @media (min-width: 992px) {
+            .sidebar {
+                width: 300px;
+            }
+        }
+
         .main-content {
             flex: 1;
             background-color: var(--secondary-dark);
             border-radius: 10px;
-            padding: 2rem;
-            max-width: calc(100% - 300px);
+            padding: 1.5rem;
+            max-width: 100%;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                padding: 2rem;
+                max-width: calc(100% - 300px);
+            }
         }
 
         .footer {
@@ -263,6 +285,43 @@
 
         .full-width {
             max-width: 100% !important;
+        }
+
+        /* Mobile navigation improvements */
+        .navbar-toggler {
+            border-color: var(--accent-color);
+            padding: 0.5rem;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(46, 204, 113, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* Responsive text adjustments */
+        @media (max-width: 576px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.3rem; }
+        }
+
+        /* Improve touch targets on mobile */
+        @media (max-width: 992px) {
+            .nav-link {
+                padding: 0.75rem 1rem;
+            }
+
+            .btn {
+                padding: 0.75rem 1rem;
+                margin: 0.25rem 0;
+            }
         }
     </style>
 </head>
