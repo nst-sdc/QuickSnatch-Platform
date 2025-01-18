@@ -81,7 +81,10 @@ class Terminal {
         switch(e.key) {
             case 'Enter':
                 e.preventDefault();
-                this.executeCommand();
+                const commandText = this.input.value.trim();
+                if (commandText) {
+                    this.executeCommand();
+                }
                 break;
             case 'ArrowUp':
                 e.preventDefault();
@@ -151,52 +154,27 @@ class Terminal {
     }
 
     executeCommand() {
-        const command = this.input.value.trim();
-        if (!command) return;
+        const commandText = this.input.value.trim();
+        if (!commandText) return;
 
-        // Add command to history and display it
-        this.addToHistory(command);
-        this.writeOutput(`${this.prompt.textContent}${command}`);
+        // Echo the command
+        this.writeOutput(`${this.getPrompt()}${commandText}`);
+        this.input.value = '';
 
-        // Process command and display output
-        const output = this.processCommand(command);
-        if (output !== undefined && output !== null && output !== '') {
+        // Process the command
+        const output = this.processCommand(commandText);
+        if (output) {
             this.writeOutput(output);
         }
 
-        // Clear input and update prompt
-        this.input.value = '';
-        this.suggestionsDiv.style.display = 'none';
-        this.updatePrompt();
-        
-        // Scroll to bottom
-        this.terminal.querySelector('.terminal-content').scrollTop = this.terminal.querySelector('.terminal-content').scrollHeight;
+        // Add to history
+        this.addToHistory(commandText);
     }
 
     processCommand(command) {
-        // Handle aliases
-        if (this.aliases[command]) {
-            command = this.aliases[command];
-        }
-
-        const [cmd, ...args] = command.split(' ');
-
-        // Add level-specific command handling
-        switch(this.level) {
-            case 4:
-                if (cmd === 'ps') {
-                    return this.listProcesses(true); // Show suspicious process
-                }
-                break;
-            case 5:
-                if (cmd === 'netstat') {
-                    return this.listNetworkConnections(true); // Show hidden service
-                }
-                break;
-        }
-
-        // Default command handling
-        switch(cmd) {
+        const [cmd, ...args] = command.trim().split(/\s+/);
+        
+        switch(cmd.toLowerCase()) {
             case 'clear':
                 this.clear();
                 return '';
@@ -218,51 +196,37 @@ class Terminal {
                     return 'grep: missing pattern';
                 }
                 return this.grep(args);
-            case 'echo':
-                // Handle environment variable expansion
-                const text = args.map(arg => {
-                    if (arg.startsWith('$')) {
-                        const varName = arg.slice(1);
-                        return this.environment[varName] || '';
-                    }
-                    return arg;
-                }).join(' ');
-                return text;
-            case 'whoami':
-                return this.username;
-            case 'date':
-                return new Date().toString();
-            case 'history':
-                return this.history.join('\n');
             case 'ps':
                 if (this.level !== 4) {
                     return 'Command ps is only available in level 4';
                 }
-                return this.CommandResult(stdout=`USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+                return `USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root           1  0.0  0.0   2460   736 ?        Ss   21:13   0:00 init [1]
 root         365  0.0  0.0   2780   864 ?        S    21:13   0:00 logger -t init
 root         366  0.0  0.0   2780   864 ?        S    21:13   0:00 logger -t system
 root       31337  0.2  0.1  14876  1232 ?        Ss   21:13   0:02 /usr/bin/suspicious_service --secret=flag{process_hunter} --stealth
-user        9999  0.0  0.0   2924   896 pts/0    R+   21:14   0:00 ps aux`);
+user        9999  0.0  0.0   2924   896 pts/0    R+   21:14   0:00 ps aux`;
             case 'netstat':
                 if (this.level !== 5) {
                     return 'Command netstat is only available in level 5';
                 }
-                return this.CommandResult(stdout=`Active Internet connections (servers and established)
+                return `Active Internet connections (servers and established)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
 tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
 tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      -
 tcp        0      0 127.0.0.1:31337         0.0.0.0:*               LISTEN      1337/hidden_service
 tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      -
-udp        0      0 0.0.0.0:68              0.0.0.0:*                           -`);
+udp        0      0 0.0.0.0:68              0.0.0.0:*                           -`;
             case 'nc':
                 if (this.level !== 5) {
                     return 'Command nc is only available in level 5';
                 }
                 if (command === 'nc localhost 31337' || command === 'nc 127.0.0.1 31337') {
-                    return this.CommandResult(stdout='Welcome to the hidden service!\nHere is your flag: flag{network_ninja}');
+                    return 'Welcome to the hidden service!\nHere is your flag: flag{network_ninja}';
                 }
-                return this.CommandResult(stderr='Connection refused', returncode=1);
+                return 'Connection refused';
+            case 'hint':
+                return this.getHint();
             default:
                 return `Command not found: ${cmd}. Type 'help' for available commands.`;
         }
@@ -339,9 +303,10 @@ Your task is to search through log files to find hidden patterns.
 Use the 'grep' command to search for text patterns.
 Type 'help' for available commands or 'hint' if you need help.`;
             case 4:
-                return `Welcome to Level 4: Process Hunter Challenge
-Your task is to identify and investigate suspicious processes.
-Use the 'ps' command to list and analyze running processes.
+                return `Welcome to Level 4: Process Investigation Challenge
+Your task is to identify and investigate suspicious processes running on the system.
+Use the 'ps' command to list processes and examine /proc filesystem for details.
+Look for any unusual or suspicious processes that might contain sensitive information.
 Type 'help' for available commands or 'hint' if you need help.`;
             case 5:
                 return `Welcome to Level 5: Network Ninja Challenge
@@ -615,10 +580,64 @@ Level 5 Commands:
                 break;
 
             case 4:
-                // Level 4: Process Challenge
-                this.processes.push(
-                    { pid: 31337, user: 'root', command: '/usr/bin/suspicious_service --secret=flag{process_hunter} --stealth' }
-                );
+                // Level 4: Process Investigation Challenge
+                playerHome.contents['.bash_history'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: `
+ls
+cd /home/player
+ps aux
+netstat -tulpn
+ls -la /proc
+cat /proc/1234/cmdline
+ps -ef | grep suspicious
+                    `.trim()
+                };
+                
+                // Add suspicious process information in /proc
+                const procDir = fs['/'].contents['proc'].contents;
+                procDir['31337'] = {
+                    type: 'dir',
+                    permissions: 'dr-xr-xr-x',
+                    owner: 'root',
+                    group: 'root',
+                    contents: {
+                        'cmdline': {
+                            type: 'file',
+                            permissions: '-r--r--r--',
+                            owner: 'root',
+                            group: 'root',
+                            content: '/usr/bin/suspicious_service --secret=flag{process_hunter} --stealth'
+                        },
+                        'status': {
+                            type: 'file',
+                            permissions: '-r--r--r--',
+                            owner: 'root',
+                            group: 'root',
+                            content: `
+Name:   suspicious_service
+State:  S (sleeping)
+Tgid:   31337
+Pid:    31337
+PPid:   1
+TracerPid:  0
+Uid:    0   0   0   0
+Gid:    0   0   0   0
+FDSize: 256
+Groups: 0
+VmPeak:    14876 kB
+VmSize:    14876 kB
+VmLck:         0 kB
+VmPin:         0 kB
+VmHWM:      1232 kB
+VmRSS:      1232 kB
+                            `.trim()
+                        }
+                    }
+                };
                 break;
 
             case 5:
@@ -632,40 +651,6 @@ Level 5 Commands:
                 });
                 break;
         }
-
-        // Add level-specific welcome message and hints
-        this.welcomeMessages = {
-            1: [
-                'Welcome to Level 1: Hidden Files Challenge',
-                'Your task is to find a hidden flag in your home directory.',
-                'Hint: Not all files are visible by default. Try using ls with special flags.',
-                'Commands you might need: ls -a, ls -la, cat'
-            ],
-            2: [
-                'Welcome to Level 2: Permission Master Challenge',
-                'There\'s a file with restricted permissions that contains the flag.',
-                'Hint: Check file permissions and try to modify them to read the file.',
-                'Commands you might need: ls -l, chmod, cat'
-            ],
-            3: [
-                'Welcome to Level 3: Log Analysis Challenge',
-                'The flag is hidden within system logs. Search through them carefully.',
-                'Hint: Use text processing commands to find the flag pattern.',
-                'Commands you might need: cat, grep -i "flag", less'
-            ],
-            4: [
-                'Welcome to Level 4: Process Hunter Challenge',
-                'A suspicious process is running with the flag in its command.',
-                'Hint: Look for unusual processes and examine their full command lines.',
-                'Commands you might need: ps aux, ps -ef | grep suspicious'
-            ],
-            5: [
-                'Welcome to Level 5: Network Detective Challenge',
-                'A hidden service is running with the flag. Find its network connection.',
-                'Hint: Check all network connections, including listening ports.',
-                'Commands you might need: netstat -tuln, netstat -anp'
-            ]
-        };
     }
 
     initializeHomeDirectory() {
