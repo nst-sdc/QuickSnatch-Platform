@@ -175,6 +175,41 @@ class Terminal {
 
         const [cmd, ...args] = command.split(' ');
 
+        // Add level-specific command handling
+        switch(this.level) {
+            case 4:
+                if (cmd === 'ps') {
+                    return this.listProcesses(true); // Show suspicious process
+                }
+                break;
+            case 5:
+                if (cmd === 'netstat') {
+                    return this.listNetworkConnections(true); // Show hidden service
+                }
+                break;
+            case 6:
+                if (cmd === 'env' || cmd === 'printenv') {
+                    return this.listEnvironment(true); // Show secret variable
+                }
+                break;
+            case 8:
+                if (cmd === 'mysql') {
+                    return this.handleMySQLCommand(args);
+                }
+                break;
+            case 9:
+                if (cmd === 'base64' && args[0] === '-d') {
+                    return this.handleBase64Decode(args.slice(1));
+                }
+                break;
+            case 10:
+                if (cmd === 'git') {
+                    return this.handleGitCommand(args);
+                }
+                break;
+        }
+
+        // Default command handling
         switch(cmd) {
             case 'clear':
                 this.clear();
@@ -187,6 +222,12 @@ class Terminal {
                 return this.currentDirectory;
             case 'cd':
                 return this.changeDirectory(args[0]);
+            case 'cat':
+                return this.catFile(args[0]);
+            case 'chmod':
+                return this.chmod(args[0], args[1]);
+            case 'grep':
+                return this.grep(args);
             case 'echo':
                 return args.join(' ');
             case 'whoami':
@@ -196,10 +237,11 @@ class Terminal {
             case 'history':
                 return this.history.join('\n');
             case 'ps':
-                return this.listProcesses();
+                return this.ps(args);
             case 'netstat':
-                return this.listNetworkConnections();
+                return this.netstat(args);
             case 'env':
+            case 'printenv':
                 return this.listEnvironment();
             default:
                 return `Command not found: ${cmd}. Type 'help' for available commands.`;
@@ -278,6 +320,9 @@ Available commands:
   ps      - List running processes
   netstat - List network connections
   env     - List environment variables
+  chmod   - Change file permissions
+  cat     - Display file contents
+  grep    - Search for patterns in files
 
 Shortcuts:
   Ctrl+C  - Cancel current command
@@ -312,19 +357,19 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
         switch(this.level) {
             case 6:
                 return {
-                    'SECRET_TOKEN': 'FLAG{env_master_found_me}',
+                    'SECRET_TOKEN': 'flag{env_master_found_me}',
                     'DB_PASSWORD': 'supersecret123',
                     'API_KEY': 'abcdef123456'
                 };
             case 7:
                 return {
                     'SERVICE_PORT': '31337',
-                    'SERVICE_TOKEN': 'FLAG{service_auth_master}'
+                    'SERVICE_TOKEN': 'flag{service_auth_master}'
                 };
             case 8:
                 return {
                     'MYSQL_USER': 'player',
-                    'MYSQL_PASSWORD': 'FLAG{sql_master_found_me}'
+                    'MYSQL_PASSWORD': 'flag{sql_master_found_me}'
                 };
             default:
                 return {};
@@ -342,7 +387,7 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
 
         if (this.level >= 4) {
             baseProcesses.push(
-                { pid: 1234, user: 'player', command: '/usr/bin/suspicious_process --flag=FLAG{process_hunter_success}' }
+                { pid: 1234, user: 'player', command: '/usr/bin/suspicious_process --flag=flag{process_hunter_success}' }
             );
         }
 
@@ -496,7 +541,7 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     permissions: '-r--------',
                     owner: 'root',
                     group: 'root',
-                    content: 'FLAG{permission_master}'
+                    content: 'flag{chmod_master}'
                 };
                 break;
 
@@ -510,7 +555,7 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     content: `
 2024-01-18 10:00:01 System startup
 2024-01-18 10:00:02 User login: admin
-2024-01-18 10:00:03 FLAG{log_analysis_master}
+2024-01-18 10:00:03 flag{grep_master_123}
 2024-01-18 10:00:04 Service started: nginx
 2024-01-18 10:00:05 Database connection established
                     `.trim()
@@ -522,7 +567,7 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                 this.processes.push({
                     pid: 31337,
                     user: 'root',
-                    command: './suspicious_process FLAG{process_hunter_master}'
+                    command: './suspicious_process flag{process_hunter}'
                 });
                 break;
 
@@ -533,13 +578,13 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     local: '127.0.0.1:31337',
                     foreign: '*:*',
                     state: 'LISTEN',
-                    info: 'FLAG{network_ninja_master}'
+                    info: 'flag{network_ninja}'
                 });
                 break;
 
             case 6:
                 // Level 6: Environment Variables Challenge
-                this.environment['SECRET_FLAG'] = 'FLAG{env_master}';
+                this.environment['SECRET_FLAG'] = 'flag{bash_wizard}';
                 break;
 
             case 7:
@@ -551,14 +596,14 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     group: 'player',
                     content: `
 service_port=31337
-service_token=FLAG{service_master}
+service_token=flag{archive_master_explorer}
                     `.trim()
                 };
                 break;
 
             case 8:
-                // Level 8: Database Challenge
-                this.environment['MYSQL_PASSWORD'] = 'FLAG{database_master}';
+                // Level 8: Process Monitor Challenge
+                this.environment['MYSQL_PASSWORD'] = 'flag{system_monitor_pro}';
                 playerHome.contents['db_backup.sql'] = {
                     type: 'file',
                     permissions: '-rw-r--r--',
@@ -571,24 +616,24 @@ CREATE TABLE users (
     username VARCHAR(50),
     password VARCHAR(50)
 );
-INSERT INTO users VALUES (1, 'admin', 'FLAG{sql_master}');
+INSERT INTO users VALUES (1, 'admin', 'flag{system_monitor_pro}');
                     `.trim()
                 };
                 break;
 
             case 9:
-                // Level 9: Encryption Challenge
-                playerHome.contents['secret.enc'] = {
+                // Level 9: Cron Challenge
+                playerHome.contents['crontab'] = {
                     type: 'file',
                     permissions: '-rw-r--r--',
                     owner: 'player',
                     group: 'player',
-                    content: Buffer.from('FLAG{crypto_master}').toString('base64')
+                    content: Buffer.from('flag{cr0n_master_detective}').toString('base64')
                 };
                 break;
 
             case 10:
-                // Level 10: Git Challenge
+                // Level 10: Ultimate Challenge
                 playerHome.contents['.git'] = {
                     type: 'dir',
                     permissions: 'drwxr-xr-x',
@@ -937,14 +982,14 @@ INSERT INTO users VALUES (1, 'admin', 'FLAG{sql_master}');
         const header = '  PID TTY          TIME CMD';
         const processes = this.processes
             .filter(p => p.user === this.username)
-            .map(p => `${p.pid.toString().padEnd(5)} pts/0    00:00:00 ${p.command.split('/').pop()}`);
+            .map(p => `${p.pid.toString().padStart(5)} pts/0    00:00:00 ${p.command}`);
         return [header, ...processes].join('\n');
     }
 
     listNetworkConnections() {
         const header = 'Proto Recv-Q Send-Q Local Address           Foreign Address         State';
         const connections = this.networkConnections.map(c =>
-            `${c.proto.padEnd(6)} 0      0 ${c.local.padEnd(22)} ${c.foreign.padEnd(22)} ${c.state}`
+            `${c.proto}        0      0 ${c.local.padEnd(22)} ${c.foreign.padEnd(22)} ${c.state}`
         );
         return [header, ...connections].join('\n');
     }
@@ -956,81 +1001,99 @@ INSERT INTO users VALUES (1, 'admin', 'FLAG{sql_master}');
         return output;
     }
 
-    processCommand(command) {
-        // Handle aliases
-        if (this.aliases[command]) {
-            command = this.aliases[command];
+    ps(args) {
+        // Parse options
+        const options = new Set(args.join('').split(''));
+        const showAll = options.has('a') || options.has('e');
+        const showUser = options.has('u');
+        const showAxu = args.includes('aux') || args.includes('aux');
+        
+        if (args.includes('--help')) {
+            return this.psHelp();
         }
 
-        const [cmd, ...args] = command.split(' ');
-
-        // Add level-specific command handling
-        switch(this.level) {
-            case 4:
-                if (cmd === 'ps') {
-                    return this.listProcesses(true); // Show suspicious process
-                }
-                break;
-            case 5:
-                if (cmd === 'netstat') {
-                    return this.listNetworkConnections(true); // Show hidden service
-                }
-                break;
-            case 6:
-                if (cmd === 'env' || cmd === 'printenv') {
-                    return this.listEnvironment(true); // Show secret variable
-                }
-                break;
-            case 8:
-                if (cmd === 'mysql') {
-                    return this.handleMySQLCommand(args);
-                }
-                break;
-            case 9:
-                if (cmd === 'base64' && args[0] === '-d') {
-                    return this.handleBase64Decode(args.slice(1));
-                }
-                break;
-            case 10:
-                if (cmd === 'git') {
-                    return this.handleGitCommand(args);
-                }
-                break;
+        // Format processes based on options
+        let processes = [...this.processes];
+        
+        // Filter processes based on options
+        if (!showAll && !showAxu) {
+            processes = processes.filter(p => p.user === this.username);
         }
 
-        // Default command handling
-        switch(cmd) {
-            case 'clear':
-                this.clear();
-                return '';
-            case 'help':
-                return this.getHelpText();
-            case 'ls':
-                return this.listDirectory(args);
-            case 'pwd':
-                return this.currentDirectory;
-            case 'cd':
-                return this.changeDirectory(args[0]);
-            case 'cat':
-                return this.catFile(args[0]);
-            case 'echo':
-                return args.join(' ');
-            case 'whoami':
-                return this.username;
-            case 'date':
-                return new Date().toString();
-            case 'history':
-                return this.history.join('\n');
-            case 'ps':
-                return this.listProcesses();
-            case 'netstat':
-                return this.listNetworkConnections();
-            case 'env':
-            case 'printenv':
-                return this.listEnvironment();
-            default:
-                return `Command not found: ${cmd}. Type 'help' for available commands.`;
+        // Different output formats based on options
+        if (showAxu || showUser) {
+            // Full format (ps aux)
+            const now = new Date();
+            const header = 'USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND';
+            const formatted = processes.map(p => {
+                const user = p.user.padEnd(8);
+                const pid = p.pid.toString().padStart(5);
+                const cpu = '0.0';
+                const mem = '0.1';
+                const vsz = '5000';
+                const rss = '1000';
+                const tty = 'pts/0';
+                const stat = 'S+';
+                const start = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                const time = '0:00';
+                const command = p.command;
+                
+                return `${user} ${pid} ${cpu} ${mem} ${vsz} ${rss} ${tty} ${stat} ${start} ${time} ${command}`;
+            });
+            
+            return [header, ...formatted].join('\n');
+        } else {
+            // Simple format (ps)
+            const header = '  PID TTY          TIME CMD';
+            const formatted = processes.map(p => {
+                const pid = p.pid.toString().padStart(5);
+                const tty = 'pts/0    ';
+                const time = '00:00:00';
+                const command = p.command;
+                
+                return `${pid} ${tty} ${time} ${command}`;
+            });
+            
+            return [header, ...formatted].join('\n');
         }
+    }
+
+    psHelp() {
+        return `Usage:
+ ps [options]
+
+Basic options:
+ -e, -A              all processes
+ a                   all w/ tty, including other users
+ -a                  all w/ tty, except session leaders
+ -d                  all except session leaders
+ -N, --deselect     negate selection
+ r                   only running processes
+ T                   all processes on this terminal
+ x                   processes without controlling ttys
+
+Selection by list:
+ -C <command>        command name
+ -G, --Group <GID>   real group id or name
+ -g, --group <group> session or effective group name
+ p, p, --pid <PID>   process id
+ -s, --sid <session> session id
+ -t, t, --tty <tty>  terminal
+ -u, U, --user <UID> effective user id or name
+ -U, --User <UID>    real user id or name
+
+Output formats:
+ -F                  extra full
+ -f                  full-format, including command lines
+ u                   user-oriented
+ v                   virtual memory format
+ X                   register format
+ -y                  do not show flags, show rss vs. addr (used with -l)
+ --context          display security context (for SELinux)
+ -Z, --context      same as --context
+ -H                  show process hierarchy (forest)
+
+For more details see ps(1).`;
     }
 
     handleMySQLCommand(args) {
@@ -1069,12 +1132,184 @@ Date: ${new Date().toISOString()}
     Initial commit`;
             case 'show':
                 if (subargs[0] === 'abc123def456') {
-                    return 'FLAG{git_master}';
+                    return 'flag{git_master}';
                 }
                 return 'commit not found';
             default:
                 return `git: '${subcmd}' is not a git command. See 'git --help'`;
         }
+    }
+
+    chmod(mode, target) {
+        if (!mode || !target) {
+            return 'chmod: missing operand\nTry \'chmod --help\' for more information.';
+        }
+
+        if (mode === '--help') {
+            return this.chmodHelp();
+        }
+
+        const currentDir = this.getCurrentDir();
+        if (!currentDir) {
+            return 'chmod: cannot access current directory';
+        }
+
+        // Handle path with directories
+        const parts = target.split('/').filter(p => p);
+        let targetDir = currentDir;
+        let targetName = target;
+
+        // Handle absolute paths and navigation
+        if (target.startsWith('/')) {
+            targetDir = this.fileSystem['/'];
+            targetName = parts[parts.length - 1];
+            parts.pop(); // Remove filename from parts
+
+            // Navigate to target directory
+            for (const part of parts) {
+                if (!targetDir.contents[part] || targetDir.contents[part].type !== 'dir') {
+                    return `chmod: cannot access '${target}': No such file or directory`;
+                }
+                targetDir = targetDir.contents[part];
+            }
+        } else if (parts.length > 1) {
+            targetName = parts[parts.length - 1];
+            parts.pop(); // Remove filename from parts
+
+            // Navigate to target directory
+            for (const part of parts) {
+                if (part === '..') {
+                    // Go up one directory
+                    const parentDir = this.getParentDir(targetDir);
+                    if (!parentDir) {
+                        return `chmod: cannot access '${target}': No such file or directory`;
+                    }
+                    targetDir = parentDir;
+                } else if (part === '.') {
+                    continue;
+                } else {
+                    if (!targetDir.contents[part] || targetDir.contents[part].type !== 'dir') {
+                        return `chmod: cannot access '${target}': No such file or directory`;
+                    }
+                    targetDir = targetDir.contents[part];
+                }
+            }
+        }
+
+        const file = targetDir.contents[targetName];
+        if (!file) {
+            return `chmod: cannot access '${target}': No such file or directory`;
+        }
+
+        // Check if user has permission to change mode
+        if (file.owner !== this.username && this.username !== 'root') {
+            return `chmod: changing permissions of '${target}': Operation not permitted`;
+        }
+
+        try {
+            let newMode = '';
+            if (/^[0-7]{3}$/.test(mode)) {
+                // Octal mode (e.g., 644)
+                const type = file.type === 'dir' ? 'd' : '-';
+                newMode = type + this.octalToSymbolic(mode);
+            } else if (/^[ugoa]*[-+=][rwx]+$/.test(mode)) {
+                // Symbolic mode (e.g., u+rw)
+                newMode = this.updateSymbolicMode(file.permissions, mode);
+            } else {
+                return `chmod: invalid mode: '${mode}'`;
+            }
+
+            file.permissions = newMode;
+            return '';
+        } catch (error) {
+            return `chmod: invalid mode: '${mode}'`;
+        }
+    }
+
+    octalToSymbolic(octal) {
+        const mapping = {
+            0: '---',
+            1: '--x',
+            2: '-w-',
+            3: '-wx',
+            4: 'r--',
+            5: 'r-x',
+            6: 'rw-',
+            7: 'rwx'
+        };
+        
+        return mapping[octal[0]] + mapping[octal[1]] + mapping[octal[2]];
+    }
+
+    updateSymbolicMode(currentMode, change) {
+        // Keep the file type character
+        const type = currentMode[0];
+        const perms = currentMode.slice(1);
+        
+        // Parse the symbolic mode
+        const match = change.match(/^([ugoa]*)([+-=])([rwx]+)$/);
+        if (!match) {
+            throw new Error('Invalid mode format');
+        }
+
+        const [, who, op, permissions] = match;
+        const targets = who || 'a';
+
+        // Define permission positions
+        const positions = {
+            u: [0, 1, 2],    // user
+            g: [3, 4, 5],    // group
+            o: [6, 7, 8],    // others
+            a: [0, 1, 2, 3, 4, 5, 6, 7, 8]  // all
+        };
+
+        // Get affected positions
+        const affectedPos = targets.split('').reduce((acc, t) => {
+            return acc.concat(positions[t]);
+        }, []);
+
+        // Create new permission string
+        let newPerms = perms.split('');
+        
+        for (const pos of new Set(affectedPos)) {
+            const permType = pos % 3; // 0=r, 1=w, 2=x
+            const perm = ['r', 'w', 'x'][permType];
+            
+            if (op === '=') {
+                newPerms[pos] = permissions.includes(perm) ? perm : '-';
+            } else if (op === '+' && permissions.includes(perm)) {
+                newPerms[pos] = perm;
+            } else if (op === '-' && permissions.includes(perm)) {
+                newPerms[pos] = '-';
+            }
+        }
+
+        return type + newPerms.join('');
+    }
+
+    chmodHelp() {
+        return `Usage: chmod [OPTION]... MODE[,MODE]... FILE...
+  or:  chmod [OPTION]... OCTAL-MODE FILE...
+  or:  chmod [OPTION]... --reference=RFILE FILE...
+Change the mode of each FILE to MODE.
+
+Modes can be specified as:
+  Octal:      chmod 644 file
+  Symbolic:   chmod u+x file
+
+Each MODE is of the form '[ugoa][-+=][rwx]':
+  [ugoa]  - affects user/group/other/all
+  [-+=]   - remove/add/set permissions
+  [rwx]   - read/write/execute
+
+Examples:
+  chmod 644 file        - Set permissions to rw-r--r--
+  chmod u+x file       - Add execute permission for owner
+  chmod g-w file       - Remove write permission from group
+  chmod a=rx file      - Set rx permissions for all
+  chmod u+w,g+w file   - Add write permission for owner and group
+
+Report bugs to: support@quicksnatch.com`;
     }
 }
 
