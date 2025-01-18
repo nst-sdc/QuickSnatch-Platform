@@ -191,7 +191,7 @@ class Terminal {
                 return this.currentDirectory.replace(/^~/, '/home/player');
             case 'cd':
                 const cdResult = this.changeDirectory(args[0]);
-                return cdResult || ''; // Return empty string if successful
+                return cdResult || '';
             case 'cat':
                 return this.catFile(args[0]);
             case 'chmod':
@@ -217,19 +217,21 @@ user        9999  0.0  0.0   2924   896 pts/0    R+   21:14   0:00 ps aux`;
                 }
                 return `Active Internet connections (servers and established)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
-tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      -
-tcp        0      0 127.0.0.1:31337         0.0.0.0:*               LISTEN      1337/hidden_service
-tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      -
-udp        0      0 0.0.0.0:68              0.0.0.0:*                           -`;
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      854/sshd
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      967/nginx
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      1024/mysqld
+tcp        0      0 127.0.0.1:31337         0.0.0.0:*               LISTEN      1337/hidden_service`;
             case 'nc':
                 if (this.level !== 5) {
                     return 'Command nc is only available in level 5';
                 }
                 if (command === 'nc localhost 31337' || command === 'nc 127.0.0.1 31337') {
-                    return 'Welcome to the hidden service!\nHere is your flag: flag{network_ninja}';
+                    return `Connected to hidden service
+Welcome to the secret service!
+Here's your flag: flag{network_ninja}
+Connection closed`;
                 }
-                return 'Connection refused';
+                return 'nc: connect to localhost port 31337 failed: Connection refused';
             case 'hint':
                 return this.getHint();
             default:
@@ -316,9 +318,10 @@ Use the 'ps' command to list processes and examine /proc filesystem for details.
 Look for any unusual or suspicious processes that might contain sensitive information.
 Type 'help' for available commands or 'hint' if you need help.`;
             case 5:
-                return `Welcome to Level 5: Network Ninja Challenge
-Your task is to analyze network connections and find hidden services.
-Use 'netstat' to view connections and 'nc' to interact with services.
+                return `Welcome to Level 5: Network Investigation Challenge
+Your task is to discover and investigate hidden network services running on the system.
+Use 'netstat' to list network connections and 'nc' to interact with services.
+Look for any unusual ports or services that might be running locally.
 Type 'help' for available commands or 'hint' if you need help.`;
             default:
                 return `Welcome to QuickSnatch Terminal
@@ -648,14 +651,45 @@ VmRSS:      1232 kB
                 break;
 
             case 5:
-                // Level 5: Network Challenge
-                this.networkConnections.push({
-                    proto: 'tcp',
-                    local: '127.0.0.1:31337',
-                    foreign: '*:*',
-                    state: 'LISTEN',
-                    info: 'Hidden service running with flag{network_ninja}'
-                });
+                // Level 5: Network Investigation Challenge
+                playerHome.contents['.bash_history'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: `
+ls
+cd /home/player
+netstat -tulpn
+netstat -anp
+nc -zv localhost 31337
+nc localhost 31337
+                    `.trim()
+                };
+                
+                // Add network service information
+                fs['/'].contents['etc'].contents['services'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'root',
+                    group: 'root',
+                    content: `
+# Network services, Internet style
+ssh     22/tcp
+http    80/tcp
+https   443/tcp
+mysql   3306/tcp
+hidden  31337/tcp
+                    `.trim()
+                };
+
+                // Add netstat and network info
+                this.networkConnections = [
+                    { proto: 'tcp', local: '0.0.0.0:22', foreign: '0.0.0.0:*', state: 'LISTEN', pid: '854/sshd' },
+                    { proto: 'tcp', local: '0.0.0.0:80', foreign: '0.0.0.0:*', state: 'LISTEN', pid: '967/nginx' },
+                    { proto: 'tcp', local: '127.0.0.1:3306', foreign: '0.0.0.0:*', state: 'LISTEN', pid: '1024/mysqld' },
+                    { proto: 'tcp', local: '127.0.0.1:31337', foreign: '0.0.0.0:*', state: 'LISTEN', pid: '1337/hidden_service' }
+                ];
                 break;
         }
     }
