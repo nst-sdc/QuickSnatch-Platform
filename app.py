@@ -473,6 +473,11 @@ def level_complete(level):
             progress.current_level = level + 1
             db.session.commit()
             flash('Congratulations! You\'ve completed this level!', 'success')
+            
+            # If user completed level 5, redirect to congratulations page
+            if level == 5:
+                return redirect(url_for('congratulations'))
+                
             return redirect(url_for('level', level_number=level + 1))
         else:
             riddle = riddle_manager.user_riddles[current_user.id]['current_riddle']['riddle']

@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="congratulations-container text-center py-5">
+    <div class="confetti-container">
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+    </div>
+    
+    <div class="card shadow-lg">
+        <div class="card-body p-5">
+            <div class="trophy-icon mb-4">
+                <i class="fas fa-trophy" style="font-size: 5rem;"></i>
+            </div>
+            
+            <h1 class="display-4 mb-4 text-gradient">Congratulations!</h1>
+            <h3 class="text-muted mb-4">You've Completed QuickSnatch!</h3>
+            
+            <div class="achievement-text mb-4">
+                <p class="lead">
+                    You've successfully completed all 5 levels and proven your skills in:
+                </p>
+                <ul class="list-unstyled">
+                    <li class="achievement-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="skill-text">File System Navigation</span>
+                    </li>
+                    <li class="achievement-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="skill-text">Network Analysis</span>
+                    </li>
+                    <li class="achievement-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="skill-text">Cryptography</span>
+                    </li>
+                    <li class="achievement-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="skill-text">Binary Analysis</span>
+                    </li>
+                    <li class="achievement-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span class="skill-text">Advanced System Techniques</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="share-section mt-4">
+                <p class="mb-3">Share your achievement:</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-glow btn-twitter" onclick="shareOnTwitter()">
+                        <i class="fab fa-twitter me-2"></i>Share on Twitter
+                    </button>
+                    <button class="btn btn-glow btn-linkedin" onclick="shareOnLinkedIn()">
+                        <i class="fab fa-linkedin me-2"></i>Share on LinkedIn
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-5">
+                <a href="{{ url_for('level', level_number=1) }}" class="btn btn-glow btn-restart">
+                    <i class="fas fa-redo me-2"></i>Start Again
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-dark: #1a1a1a;
+    --secondary-dark: #2d2d2d;
+    --accent-color: #00ff88;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --glow-color: rgba(0, 255, 136, 0.5);
+}
+
+body {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+    color: var(--text-primary);
+}
+
+.congratulations-container {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    background: rgba(25, 25, 25, 0.95);
+    border-radius: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #00ff88, #00ccff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.trophy-icon i {
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: trophy-bounce 2s ease infinite;
+}
+
+.achievement-item {
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.achievement-item:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.skill-text {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.btn-glow {
+    position: relative;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.btn-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.btn-glow:hover::before {
+    transform: translateX(0);
+}
+
+.btn-twitter {
+    background: #1da1f2;
+    box-shadow: 0 0 15px rgba(29, 161, 242, 0.4);
+}
+
+.btn-linkedin {
+    background: #0077b5;
+    box-shadow: 0 0 15px rgba(0, 119, 181, 0.4);
+}
+
+.btn-restart {
+    background: linear-gradient(45deg, #00ff88, #00ccff);
+    box-shadow: 0 0 15px var(--glow-color);
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    animation: confetti-fall 3s linear infinite;
+}
+
+.confetti:nth-child(2n) {
+    background: linear-gradient(45deg, #00ff88, #00ccff);
+    animation-delay: -0.5s;
+}
+
+.confetti:nth-child(3n) {
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    animation-delay: -1s;
+}
+
+.confetti:nth-child(4n) {
+    background: linear-gradient(45deg, #ffff00, #ff00ff);
+    animation-delay: -1.5s;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100%) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes trophy-bounce {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-10px) scale(1.1);
+    }
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Add glowing effect to achievement icons */
+.fa-check-circle {
+    color: var(--accent-color) !important;
+    text-shadow: 0 0 10px var(--glow-color);
+}
+</style>
+
+<script>
+function shareOnTwitter() {
+    const text = "I just completed all levels of QuickSnatch! 🏆 Test your cybersecurity skills too!";
+    const url = window.location.origin;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+}
+
+function shareOnLinkedIn() {
+    const url = window.location.origin;
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+}
+
+// Randomly position confetti with more dynamic movement
+document.addEventListener('DOMContentLoaded', function() {
+    const confetti = document.querySelectorAll('.confetti');
+    confetti.forEach(c => {
+        c.style.left = Math.random() * 100 + '%';
+        c.style.animationDelay = Math.random() * 3 + 's';
+        c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    });
+});
+</script>
+{% endblock %}
