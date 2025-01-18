@@ -1,0 +1,26 @@
+{
+    "title": "Network Protocol Analysis",
+    "description": "This challenge involves analyzing network protocols and packet data hidden in the binary. The flag is transmitted in pieces using a custom protocol.",
+    "objectives": [
+        "Analyze network protocol implementation",
+        "Extract packet data from binary",
+        "Reconstruct the flag from network packets",
+        "Understand custom protocol structure"
+    ],
+    "initial_files": {
+        "network_script.sh": "#!/bin/bash\n# Custom Protocol Implementation\n\nPACKET_DATA=(\n    '51 55 49 43 4B 7B'\n    '6E 33 74 77 30 72'\n    '6B 5F 70 72 30 74'\n    '30 63 30 6C 7D'\n)\n\nfunction send_packet() {\n    local packet=$1\n    echo \"Sending packet: $packet\"\n}\n\nfor packet in \"${PACKET_DATA[@]}\"; do\n    send_packet \"$packet\"\ndone",
+        "protocol_spec.txt": "Custom Protocol Specification:\n1. Each packet contains hex-encoded data\n2. Packets must be reassembled in order\n3. Protocol header: 0x4B43 (KC)\n4. Checksum: XOR of all bytes"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{n3tw0rk_pr0t0c0l}",
+        "commands": ["tcpdump", "wireshark", "hexdump", "strings"],
+        "protocol_header": "0x4B43"
+    },
+    "hints": [
+        "Look for packet data in hex format",
+        "Each packet contains part of the flag",
+        "The protocol header might help identify valid packets",
+        "Try converting hex to ASCII"
+    ]
+}

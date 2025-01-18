@@ -1,0 +1,7 @@
+Important syscalls to monitor:
+- read()
+- write()
+- open()
+- close()
+
+The flag is revealed through these syscall patterns.

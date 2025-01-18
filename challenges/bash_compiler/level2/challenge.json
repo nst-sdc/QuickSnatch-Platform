@@ -1,0 +1,26 @@
+{
+    "title": "Advanced Bash Compilation - Encrypted Flag",
+    "description": "Level 2 introduces encryption and obfuscation. The flag is encrypted within the binary and requires specific arguments to decrypt.",
+    "objectives": [
+        "Analyze the encrypted bash script",
+        "Understand the encryption mechanism",
+        "Find the correct arguments to decrypt the flag",
+        "Submit the decrypted flag to proceed"
+    ],
+    "initial_files": {
+        "process.sh": "#!/bin/bash\n# QuickSnatch Bash Challenge Level 2\n# Encrypted flag challenge\n\nKEY=''\nIV=''\n\nfunction decode_base64() {\n    echo \"$1\" | base64 -d\n}\n\nfunction decrypt_flag() {\n    local input=\"$1\"\n    local key=\"$2\"\n    if [[ \"$key\" =~ ^[0-9a-f]{32}$ ]]; then\n        echo \"Attempting decryption...\"\n        # Encrypted flag: needs correct key and IV\n        echo \"U2FsdGVkX18K9s3TFkj2M8z+PXYd1xXq7vKzRgH1N2Y=\" | openssl enc -aes-256-cbc -d -a -k \"$key\" 2>/dev/null\n    else\n        echo \"Invalid key format\"\n    fi\n}\n\nif [ $# -eq 2 ]; then\n    KEY=\"$1\"\n    IV=\"$2\"\n    decrypt_flag \"$KEY\" \"$IV\"\nelse\n    echo \"Usage: $0 <key> <iv>\"\n    echo \"Hint: Key should be 32 characters (hex)\"\nfi",
+        "hint.txt": "The key is hidden in the binary's metadata\nTry using 'readelf' and 'objdump' commands"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{3ncrypt3d_b4sh_m4st3r}",
+        "commands": ["readelf", "objdump", "strings"],
+        "key": "8f4e8d9c6b3a2f1e7d5c8b9a6f3d2e1c"
+    },
+    "hints": [
+        "The key is a 32-character hexadecimal string",
+        "Look for hidden sections in the compiled binary",
+        "Try analyzing the binary with readelf and objdump",
+        "The decryption uses AES-256-CBC"
+    ]
+}

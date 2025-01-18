@@ -1,0 +1,8 @@
+Kernel module information:
+Name: quicksnatch_flag
+Location: 0xFFFF1337
+Exported symbols:
+- store_flag
+- retrieve_flag
+
+Check memory at offset 0x1337

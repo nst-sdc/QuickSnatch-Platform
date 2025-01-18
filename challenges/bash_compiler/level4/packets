@@ -1,0 +1,5 @@
+Protocol Documentation:
+1. Each packet starts with header "KC"
+2. Payload is hex-encoded
+3. Packets must be assembled in order
+4. Check network_script.sh for implementation

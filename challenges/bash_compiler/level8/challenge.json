@@ -1,0 +1,26 @@
+{
+    "title": "Binary Patching Challenge",
+    "description": "This level requires modifying the compiled binary to bypass security checks. The flag is revealed only after successful patching.",
+    "objectives": [
+        "Analyze binary structure",
+        "Identify security checks",
+        "Patch binary to bypass checks",
+        "Extract flag from patched binary"
+    ],
+    "initial_files": {
+        "binary_check.sh": "#!/bin/bash\n# Binary Patching Challenge\n\n# Security checks\nfunction verify_binary() {\n    # Check binary integrity\n    local checksum=$(md5sum \"$0\" | cut -d' ' -f1)\n    if [ \"$checksum\" != \"${ORIGINAL_CHECKSUM}\" ]; then\n        echo \"Binary tampering detected!\"\n        exit 1\n    fi\n}\n\nfunction check_flag() {\n    # Flag is revealed only if binary is properly patched\n    if [ \"${BYPASS_CHECK}\" == \"1337\" ]; then\n        echo \"QUICK{b1n4ry_p4tch1ng_pr0}\"\n    else\n        echo \"Security check failed!\"\n    fi\n}\n\nverify_binary\ncheck_flag",
+        "patch_guide.txt": "Binary Patching Guide:\n1. Locate security check function\n2. Identify checksum verification\n3. Find flag condition check\n4. Patch binary to bypass checks"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{b1n4ry_p4tch1ng_pr0}",
+        "commands": ["hexedit", "dd", "patch", "xxd"],
+        "checksum": "original_md5_here"
+    },
+    "hints": [
+        "Look for the checksum verification routine",
+        "The BYPASS_CHECK variable needs to be modified",
+        "Try patching the binary comparison",
+        "Use hexeditor to modify binary values"
+    ]
+}

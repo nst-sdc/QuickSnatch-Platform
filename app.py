@@ -87,229 +87,6 @@ ANSWERS = {
     10: "flag{ultimate_hacker_pro}"
 }
 
-# Command outputs for each level
-COMMAND_OUTPUTS = {
-    1: {
-        "ls": "Documents  Downloads  Pictures  secret.txt",
-        "ls -a": ".  ..  .bash_history  .bashrc  Documents  Downloads  Pictures  secret.txt",
-        "ls -l": """total 28
-drwxr-xr-x 2 user user 4096 Jan 16 14:44 Documents
-drwxr-xr-x 2 user user 4096 Jan 16 14:44 Downloads
-drwxr-xr-x 2 user user 4096 Jan 16 14:44 Pictures
--rw-r--r-- 1 user user   52 Jan 16 14:44 secret.txt""",
-        "cat secret.txt": "flag{file_explorer_pro}",
-        "pwd": "/home/user",
-        "help": """Available commands:
-ls      - List directory contents
-ls -a   - List all files including hidden
-ls -l   - List files in long format
-cat     - Display file contents
-pwd     - Print working directory""",
-        "clear": ""
-    },
-    2: {
-        "ls -l": """total 16
--rw-r--r-- 1 user user  158 Jan 16 14:30 instructions.txt
--rw-r--r-- 1 user user  237 Jan 16 14:30 permissions_info.txt
--rw------- 1 user user   21 Jan 16 14:30 secret.txt""",
-        "cat instructions.txt": """Welcome to Level 2!
-You need to understand file permissions to proceed.
-Check permissions_info.txt for more details.""",
-        "cat permissions_info.txt": """File permissions in Linux:
-r (read) = 4
-w (write) = 2
-x (execute) = 1
-
-Example: chmod 644 file
-6 (rw-) for owner
-4 (r--) for group
-4 (r--) for others""",
-        "chmod 644 secret.txt": "",
-        "cat secret.txt": "flag{chmod_master}"
-    },
-    3: {
-        "ls": "logs  system.log",
-        "ls -l": """total 8
-drwxr-xr-x 2 user user 4096 Jan 16 14:49 logs
--rw-r--r-- 1 user user 2048 Jan 16 14:49 system.log""",
-        "cd logs": "",
-        "ls logs": "error.log  access.log  debug.log",
-        "cat logs/error.log": """[ERROR] 14:30:00 - Critical system failure
-[ERROR] 14:30:15 - Database connection lost
-[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
-[ERROR] 14:30:45 - Memory allocation error""",
-        "cat logs/access.log": """192.168.1.100 - - [16/Jan/2025:14:30:00 +0530] "GET /admin HTTP/1.1" 403 287
-192.168.1.101 - - [16/Jan/2025:14:30:15 +0530] "POST /login HTTP/1.1" 401 401
-192.168.1.102 - - [16/Jan/2025:14:30:30 +0530] "GET /flag HTTP/1.1" 404 289""",
-        "cat logs/debug.log": """DEBUG: Initializing system components...
-DEBUG: Loading configuration from /etc/config.json
-DEBUG: Starting background services
-DEBUG: flag{grep_master_123} found in memory
-DEBUG: Cleanup routine started""",
-        "cat system.log": """System startup completed
-Services initialized
-Background tasks running
-Security audit in progress
-No critical issues found""",
-        "grep flag logs/error.log": "[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed",
-        "grep -r flag logs": """logs/error.log:[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
-logs/debug.log:DEBUG: flag{grep_master_123} found in memory""",
-        "grep flag": "ERROR: flag{grep_master_123} - Critical system error at 14:30:00",
-        "help": """Available commands:
-ls          - List directory contents
-cd          - Change directory
-cat         - Display file contents
-grep        - Search for patterns
-grep -r     - Search recursively""",
-        "pwd": "/home/user"
-    },
-    4: {
-        "ps aux": """USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root         1  0.0  0.0   2384   668 ?        Ss   14:30   0:00 /sbin/init
-root       423  0.0  0.0   2880   712 ?        S    14:30   0:00 sshd
-user      1234  0.0  0.1   5984  1024 pts/0    S+   14:30   0:00 suspicious_process
-user      1337  0.0  0.1  10240  1024 pts/0    S+   14:30   0:00 flag_service""",
-        "ps -p 1337": """  PID TTY      STAT   TIME COMMAND
- 1337 pts/0    S+     0:00 flag_service""",
-        "cat /proc/1337/cmdline": "flag_service--secret--flag=flag{process_hunter}",
-        "strings /proc/1337/environ": """SHELL=/bin/bash
-PWD=/home/user
-FLAG=flag{process_hunter}
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin""",
-        "cat /proc/1337/status": """Name:   flag_service
-State:  S (sleeping)
-Tgid:   1337
-Pid:    1337
-PPid:   1
-Uid:    1000    1000    1000    1000
-Gid:    1000    1000    1000    1000
-FDSize: 256
-Groups: 4 24 27 30 46 113 128
-VmPeak:    10240 kB
-VmSize:    10240 kB
-VmLck:         0 kB
-VmRSS:      1024 kB""",
-        "cat /proc/1337/cmdline": "flag_service--secret--flag=flag{process_hunter}"
-    },
-    5: {
-        "ifconfig": """eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 192.168.1.100  netmask 255.255.255.0  broadcast 192.168.1.255
-        ether 00:11:22:33:44:55  txqueuelen 1000  (Ethernet)""",
-        "netstat -tuln": """Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State      
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     
-tcp        0      0 0.0.0.0:1337            0.0.0.0:*               LISTEN""",
-        "nc localhost 1337": "Welcome! The flag is: flag{network_ninja}",
-        "curl localhost:1337": "Welcome! The flag is: flag{network_ninja}"
-    },
-    6: {
-        "ls": "data.txt  process.sh",
-        "cat data.txt": """user1,100
-user2,200
-user3,300
-admin,flag{bash_wizard}
-user4,400""",
-        "cat process.sh": """#!/bin/bash
-# This script processes data.txt
-grep "admin" data.txt | cut -d',' -f2""",
-        "chmod +x process.sh": "",
-        "./process.sh": "flag{bash_wizard}"
-    },
-    7: {
-        "ls -l mystery.tar.gz": "-rw-r--r-- 1 user user 2048 Jan 16 14:30 mystery.tar.gz",
-        "file mystery.tar.gz": "mystery.tar.gz: gzip compressed data, from Unix, original size 10240",
-        "tar xzf mystery.tar.gz": "",
-        "ls -l": """total 8
--rw-r--r-- 1 user user 2048 Jan 16 14:30 mystery.tar.gz
--rw-r--r-- 1 user user 4096 Jan 16 14:30 secret.zip""",
-        "file secret.zip": "secret.zip: Zip archive data, at least v2.0 to extract",
-        "unzip secret.zip": """Archive:  secret.zip
-  inflating: hidden.bz2""",
-        "file hidden.bz2": "hidden.bz2: bzip2 compressed data, block size = 900k",
-        "bzip2 -d hidden.bz2": "",
-        "ls -l hidden": "-rw-r--r-- 1 user user 32 Jan 16 14:30 hidden",
-        "cat hidden": "flag{archive_master_explorer}"
-    },
-    8: {
-        "top": """top - 14:30:00 up 0 min,  1 user,  load average: 0.15, 0.05, 0.01
-Tasks: 105 total,   1 running, 103 sleeping,   0 stopped,   1 zombie
-%Cpu(s):  5.9 us,  2.0 sy,  0.0 ni, 91.2 id,  0.0 wa,  0.0 hi,  0.9 si,  0.0 st
-MiB Mem :   7950.8 total,   7450.8 free,    300.0 used,    200.0 buff/cache
-MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   7450.8 avail Mem 
-
-  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
- 1337 user      20   0   10240   1024    512 R  13.37  0.1   0:01.23 suspicious_svc
-  423 root      20   0    2880    712    644 S   0.0   0.0   0:00.00 sshd
-    1 root      20   0    2384    668    612 S   0.0   0.0   0:00.00 init""",
-        "ps aux | grep suspicious": """user     1337  13.37  0.1  10240  1024 pts/0    R    14:30   0:01 suspicious_svc --secret
-user     1338   0.0  0.0   5504   832 pts/0    S+   14:30   0:00 grep suspicious""",
-        "cat /proc/1337/status": """Name:   suspicious_svc
-State:  R (running)
-Tgid:   1337
-Pid:    1337
-PPid:   1
-Uid:    1000    1000    1000    1000
-Gid:    1000    1000    1000    1000
-FDSize: 256
-Groups: 4 24 27 30 46 113 128
-VmPeak:    10240 kB
-VmSize:    10240 kB
-VmLck:         0 kB
-VmRSS:      1024 kB""",
-        "strings /proc/1337/environ": """SHELL=/bin/bash
-PWD=/home/user
-LOGNAME=user
-HOME=/home/user
-LANG=en_US.UTF-8
-SECRET_FLAG=flag{system_monitor_pro}
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin""",
-        "cat /proc/1337/cmdline": "suspicious_svc--secret--flag=flag{system_monitor_pro}"
-    },
-    9: {
-        "systemctl status flag-service": """● flag-service.service - Flag Exposure Service
-     Loaded: loaded (/etc/systemd/system/flag-service.service; enabled; vendor preset: enabled)
-     Active: active (running) since Thu 2025-01-16 14:30:00 IST; 1min ago
-   Main PID: 1234 (flag_exposer)
-      Tasks: 1 (limit: 4915)
-     Memory: 1.2M
-     CGroup: /system.slice/flag-service.service
-             └─1234 /usr/local/bin/flag_exposer --interval=60
-
-Jan 16 14:30:00 quicksnatch systemd[1]: Started Flag Exposure Service.
-Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Service started, exposing flag every minute""",
-        "crontab -l": """# Flag exposure cron job
-* * * * * /usr/local/bin/expose_flag.sh
-# Clean up exposed flags
-*/2 * * * * /usr/local/bin/cleanup_flags.sh""",
-        "cat /usr/local/bin/expose_flag.sh": """#!/bin/bash
-# This script exposes the flag temporarily
-echo "flag{cr0n_master_detective}" > /tmp/exposed_flag
-logger "Flag has been exposed in /tmp/exposed_flag\"""",
-        "tail -f /var/log/syslog": """Jan 16 14:30:00 quicksnatch systemd[1]: Started Flag Exposure Service.
-Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Service started
-Jan 16 14:30:00 quicksnatch CRON[1235]: (user) CMD (/usr/local/bin/expose_flag.sh)
-Jan 16 14:30:00 quicksnatch user: Flag has been exposed in /tmp/exposed_flag
-Jan 16 14:30:00 quicksnatch CRON[1236]: (user) CMD (/usr/local/bin/cleanup_flags.sh)""",
-        "cat /tmp/exposed_flag": "flag{cr0n_master_detective}",
-        "journalctl -u flag-service": """-- Logs begin at Thu 2025-01-16 14:30:00 IST, end at Thu 2025-01-16 14:30:00 IST. --
-Jan 16 14:30:00 quicksnatch systemd[1]: Started Flag Exposure Service.
-Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Service started, exposing flag every minute
-Jan 16 14:30:00 quicksnatch flag_exposer[1234]: Flag value: flag{cr0n_master_detective}"""
-    },
-    10: {
-        "netstat -tuln": """Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State      
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     
-tcp        0      0 0.0.0.0:31337           0.0.0.0:*               LISTEN     
-tcp6       0      0 :::22                   :::*                    LISTEN     
-tcp6       0      0 :::31337                :::*                    LISTEN""",
-        "nc localhost 31337": """Welcome to the Flag Service!
-Here's your encrypted flag:
-SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=""",
-        'echo "SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=" | base64 -d': "Here's your flag: flag{ultimate_hacker_pro}"
-    }
-}
-
 # Location-based challenge data
 LOCATION_HINTS = {
     1: """Where laughter's crafted and teeth align,  
@@ -671,29 +448,134 @@ def get_network_stats():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-class Sandbox:
-    def __init__(self):
-        self.setup_sandbox()
+class CommandResult:
+    def __init__(self, stdout="", stderr="", returncode=0):
+        self.stdout = stdout
+        self.stderr = stderr
+        self.returncode = returncode
 
-    def setup_sandbox(self):
-        """Set up sandbox environment for each level"""
-        self.environments = {
-            1: {
-                'files': {
-                    'secret.txt': 'flag{file_explorer_pro}',
-                    'Documents': {},
-                    'Downloads': {},
-                    'Pictures': {}
-                },
-                'commands': ['ls', 'ls -a', 'ls -l', 'cat', 'pwd', 'help', 'clear']
-            },
-            2: {
-                'files': {
-                    'secret.txt': {'content': 'flag{chmod_master}', 'mode': 0o000},
-                    'instructions.txt': '''Welcome to Level 2!
+class BashCompiler:
+    def __init__(self):
+        self.command_history = []
+
+    def execute_command(self, command, level):
+        base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "challenges/bash_compiler")
+
+        # Level 1 - File Explorer
+        if level == 1:
+            # Basic file listing
+            if command == "ls":
+                return self.CommandResult(stdout="Documents/  Downloads/  Pictures/  README.txt  hello.sh")
+            elif command == "ls -a":
+                return self.CommandResult(stdout=".  ..  .bash_history  .bashrc  .hidden_flag.txt  Documents/  Downloads/  Pictures/  README.txt  hello.sh")
+            elif command == "ls -l":
+                return self.CommandResult(stdout="""total 28
+drwxr-xr-x 2 user user 4096 Jan 18 05:55 Documents
+drwxr-xr-x 2 user user 4096 Jan 18 05:55 Downloads
+drwxr-xr-x 2 user user 4096 Jan 18 05:55 Pictures
+-rw-r--r-- 1 user user  158 Jan 18 05:55 README.txt
+-rwxr-xr-x 1 user user  237 Jan 18 05:55 hello.sh""")
+            elif command == "ls -la":
+                return self.CommandResult(stdout="""total 48
+drwxr-xr-x 6 user user 4096 Jan 18 05:55 .
+drwxr-xr-x 3 user user 4096 Jan 18 05:55 ..
+-rw------- 1 user user    0 Jan 18 05:55 .bash_history
+-rw-r--r-- 1 user user  220 Jan 18 05:55 .bashrc
+-rw-r--r-- 1 user user   52 Jan 18 05:55 .hidden_flag.txt
+drwxr-xr-x 2 user user 4096 Jan 18 05:55 Documents
+drwxr-xr-x 2 user user 4096 Jan 18 05:55 Downloads
+drwxr-xr-x 2 user user 4096 Jan 18 05:55 Pictures
+-rw-r--r-- 1 user user  158 Jan 18 05:55 README.txt
+-rwxr-xr-x 1 user user  237 Jan 18 05:55 hello.sh""")
+            
+            # Directory listings
+            elif command == "ls Documents":
+                return self.CommandResult(stdout="notes.txt  project.md")
+            elif command == "ls Downloads":
+                return self.CommandResult(stdout="archive.zip  data.csv")
+            elif command == "ls Pictures":
+                return self.CommandResult(stdout="profile.jpg  screenshot.png")
+            
+            # File contents
+            elif command == "cat README.txt":
+                return self.CommandResult(stdout="Welcome to Level 1!\nTry using different ls commands to find hidden files.\nHint: Some files might be hidden with a dot (.)")
+            elif command == "cat hello.sh":
+                return self.CommandResult(stdout="""#!/bin/bash
+# QuickSnatch Bash Challenge Level 1
+# Find the hidden flag!
+
+echo "Welcome to Level 1"
+echo "Can you find the hidden flag?"
+
+# Hidden flag: QUICK{b4sh_c0mp1l3r_b3g1nn3r}
+
+function check_flag() {
+    echo "Checking for flag..."
+}
+
+check_flag""")
+            elif command == "cat .hidden_flag.txt":
+                return self.CommandResult(stdout="Good job finding this hidden file!\nThe flag is: QUICK{b4sh_c0mp1l3r_b3g1nn3r}")
+            elif command == "cat .bashrc":
+                return self.CommandResult(stdout=r"""# ~/.bashrc
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+PS1='[\u@\h \W]\$ '""")
+            
+            # Navigation and info commands
+            elif command == "pwd":
+                return self.CommandResult(stdout="/home/user")
+            elif command == "whoami":
+                return self.CommandResult(stdout="user")
+            elif command == "id":
+                return self.CommandResult(stdout="uid=1000(user) gid=1000(user) groups=1000(user)")
+            elif command == "date":
+                return self.CommandResult(stdout="Sat Jan 18 05:55:53 IST 2025")
+            elif command == "help":
+                return self.CommandResult(stdout="""Available commands:
+ls          - List directory contents
+ls -a       - List all files including hidden
+ls -l       - List files in long format
+ls -la      - List all files in long format
+cat         - Display file contents
+pwd         - Print working directory
+whoami      - Print current user
+id          - Print user ID info
+date        - Show current date/time""")
+            elif command == "clear":
+                return self.CommandResult(stdout="")
+            
+            # Error cases
+            elif command.startswith("cd "):
+                return self.CommandResult(stderr="cd: Permission denied", returncode=1)
+            elif command.startswith("rm "):
+                return self.CommandResult(stderr="rm: Permission denied", returncode=1)
+            elif command.startswith("mv "):
+                return self.CommandResult(stderr="mv: Permission denied", returncode=1)
+            elif command.startswith("cp "):
+                return self.CommandResult(stderr="cp: Permission denied", returncode=1)
+            elif command.startswith("mkdir "):
+                return self.CommandResult(stderr="mkdir: Permission denied", returncode=1)
+            elif command.startswith("touch "):
+                return self.CommandResult(stderr="touch: Permission denied", returncode=1)
+            else:
+                return self.CommandResult(stderr=f"Command not found: {command}", returncode=1)
+
+        # Level 2 - Permissions
+        elif level == 2:
+            if command == "ls":
+                return self.CommandResult(stdout="instructions.txt  permissions_info.txt  secret.txt")
+            elif command == "ls -l":
+                return self.CommandResult(stdout="""total 16
+-rw-r--r-- 1 user user  158 Jan 18 05:55 instructions.txt
+-rw-r--r-- 1 user user  237 Jan 18 05:55 permissions_info.txt
+-rw------- 1 user user   21 Jan 18 05:55 secret.txt""")
+            elif command == "cat instructions.txt":
+                return self.CommandResult(stdout="""Welcome to Level 2!
 You need to understand file permissions to proceed.
-Check permissions_info.txt for more details.''',
-                    'permissions_info.txt': '''File permissions in Linux:
+Check permissions_info.txt for more details.""")
+            elif command == "cat permissions_info.txt":
+                return self.CommandResult(stdout="""File permissions in Linux:
 r (read) = 4
 w (write) = 2
 x (execute) = 1
@@ -701,277 +583,161 @@ x (execute) = 1
 Example: chmod 644 file
 6 (rw-) for owner
 4 (r--) for group
-4 (r--) for others'''
-                },
-                'commands': ['ls', 'ls -l', 'cat', 'chmod']
-            },
-            3: {
-                'files': {
-                    'logs/error.log': '''[ERROR] 14:30:00 - Critical system failure
-[ERROR] 14:30:15 - Database connection lost
-[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
-[ERROR] 14:30:45 - Memory allocation error''',
-                    'logs/access.log': '''192.168.1.100 - - [16/Jan/2025:14:30:00 +0530] "GET /admin HTTP/1.1" 403 287
-192.168.1.101 - - [16/Jan/2025:14:30:15 +0530] "POST /login HTTP/1.1" 401 401
-192.168.1.102 - - [16/Jan/2025:14:30:30 +0530] "GET /flag HTTP/1.1" 404 289''',
-                    'logs/debug.log': '''DEBUG: Initializing system components...
-DEBUG: Loading configuration from /etc/config.json
-DEBUG: Starting background services
-DEBUG: flag{grep_master_123} found in memory
-DEBUG: Cleanup routine started''',
-                    'system.log': '''System startup completed
-Services initialized
-Background tasks running
-Security audit in progress
-No critical issues found'''
-                },
-                'commands': ['ls', 'cd', 'cat', 'grep', 'grep -r']
-            },
-            4: {
-                'files': {
-                    '/proc/1337/cmdline': 'flag_service--secret--flag=flag{process_hunter}',
-                    '/proc/1337/environ': '''SHELL=/bin/bash
-PWD=/home/user
-FLAG=flag{process_hunter}
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin''',
-                    '/proc/1337/status': '''Name:   flag_service
-State:  S (sleeping)
-Tgid:   1337
-Pid:    1337
-PPid:   1
-Uid:    1000    1000    1000    1000
-Gid:    1000    1000    1000    1000'''
-                },
-                'commands': ['ps aux', 'ps -p', 'cat', 'strings']
-            },
-            5: {
-                'files': {
-                    '/var/log/network.log': '''TCP    127.0.0.1:6789    LISTENING    flag_service
-UDP    127.0.0.1:1337    ESTABLISHED    secret_server
-TCP    8.8.8.8:53        ESTABLISHED    dns_client''',
-                    '/etc/hosts': '''127.0.0.1    localhost
-127.0.0.1    flag.local    # flag{network_ninja}'''
-                },
-                'commands': ['netstat', 'netstat -tuln', 'cat', 'grep']
-            },
-            6: {
-                'files': {
-                    '/etc/environment': 'FLAG=flag{bash_wizard}',
-                    'data.txt': '''user1:pass1:flag
-user2:pass2:no_flag
-user3:pass3:flag{bash_wizard}
-user4:pass4:fake_flag'''
-                },
-                'commands': ['cat', 'grep', 'awk', 'sed', 'env']
-            },
-            7: {
-                'files': {
-                    'archive.tar.gz': {'type': 'tar.gz', 'content': {
-                        'level1.zip': {'type': 'zip', 'content': {
-                            'secret/flag.txt': 'flag{archive_master_explorer}'
-                        }}
-                    }}
-                },
-                'commands': ['tar', 'unzip', 'gzip', 'ls', 'cat']
-            },
-            8: {
-                'files': {
-                    '/proc/meminfo': '''MemTotal:        8192000 kB
-MemFree:         4096000 kB
-MemAvailable:    6144000 kB''',
-                    '/proc/cpuinfo': '''processor    : 0
-model name    : Intel(R) Core(TM) i7
-flags        : flag{system_monitor_pro}'''
-                },
-                'commands': ['top', 'htop', 'cat', 'grep']
-            },
-            9: {
-                'files': {
-                    '/var/log/syslog': '''Jan 16 14:30:00 server CRON[1234]: (root) CMD (/usr/local/bin/flag_expose.sh)
-Jan 16 14:30:00 server flag_expose[1234]: Writing flag to /tmp/exposed_flag''',
-                    '/etc/crontab': '*/5 * * * * root /usr/local/bin/flag_expose.sh',
-                    '/tmp/exposed_flag': 'flag{cr0n_master_detective}'
-                },
-                'commands': ['crontab -l', 'cat', 'ls']
-            },
-            10: {
-                'files': {
-                    '/home/user/final/encrypted.bin': {'type': 'binary', 'content': 'flag{ultimate_hacker_pro}'},
-                    '/home/user/final/README.txt': '''Combine all your skills:
-1. Find the file (ls)
-2. Check permissions (chmod)
-3. Search content (grep)
-4. Monitor processes
-5. Check network
-6. Use bash skills
-7. Extract archives
-8. Monitor system
-9. Check scheduled tasks'''
-                },
-                'commands': ['ls', 'chmod', 'grep', 'ps', 'netstat', 'tar', 'top', 'crontab']
-            }
-        }
-
-    def execute_command(self, cmd, args, cwd):
-        """Execute command in sandbox environment"""
-        level = current_user.current_level
-        command = f"{cmd} {' '.join(args)}".strip()
-        base_path = "/Users/vivek/GITHUB/QuickSnatch/challenges"
-        
-        def read_file(path):
-            try:
-                with open(path, 'r') as f:
-                    return f.read()
-            except:
-                return "Error: Could not read file"
-
-        # Level 1 - File Explorer
-        if level == 1:
-            if command == "ls":
-                return "Documents  Downloads  Pictures  secret.txt"
-            elif command == "ls -a":
-                return ".  ..  .bash_history  .bashrc  Documents  Downloads  Pictures  secret.txt"
-            elif command == "ls -l":
-                return """total 28
-drwxr-xr-x 2 user user 4096 Jan 16 14:44 Documents
-drwxr-xr-x 2 user user 4096 Jan 16 14:44 Downloads
-drwxr-xr-x 2 user user 4096 Jan 16 14:44 Pictures
--rw-r--r-- 1 user user   52 Jan 16 14:44 secret.txt"""
-            elif command == "cat secret.txt":
-                return read_file(f"{base_path}/level1/secret.txt")
-            elif command == "pwd":
-                return "/home/user"
-            elif command == "help":
-                return """Available commands:
-ls      - List directory contents
-ls -a   - List all files including hidden
-ls -l   - List files in long format
-cat     - Display file contents
-pwd     - Print working directory"""
-            elif command == "clear":
-                return ""
-                
-        # Level 2 - Permissions
-        elif level == 2:
-            if command == "ls -l":
-                return """total 16
--rw-r--r-- 1 user user  158 Jan 16 14:30 instructions.txt
--rw-r--r-- 1 user user  237 Jan 16 14:30 permissions_info.txt
--rw------- 1 user user   21 Jan 16 14:30 secret.txt"""
-            elif command == "cat instructions.txt":
-                return read_file(f"{base_path}/level2/instructions.txt")
-            elif command == "cat permissions_info.txt":
-                return read_file(f"{base_path}/level2/permissions_info.txt")
+4 (r--) for others""")
             elif command == "chmod 644 secret.txt":
-                return ""
+                return self.CommandResult(stdout="")
             elif command == "cat secret.txt":
                 if "chmod 644 secret.txt" in self.command_history:
-                    return read_file(f"{base_path}/level2/secret.txt")
+                    return self.CommandResult(stdout="flag{chmod_master}")
                 else:
-                    return "Permission denied"
+                    return self.CommandResult(stderr="Permission denied", returncode=1)
 
         # Level 3 - Log Explorer
         elif level == 3:
             if command == "ls":
-                return "logs  system_log.txt"
+                return self.CommandResult(stdout="logs  system.log")
             elif command == "ls logs":
-                return "access_log.txt  debug_log.txt  error_log.txt"
-            elif command == "cat logs/error_log.txt":
-                return read_file(f"{base_path}/level3/logs/error_log.txt")
-            elif command == "cat logs/access_log.txt":
-                return read_file(f"{base_path}/level3/logs/access_log.txt")
-            elif command == "cat logs/debug_log.txt":
-                return read_file(f"{base_path}/level3/logs/debug_log.txt")
-            elif command == "cat system_log.txt":
-                return read_file(f"{base_path}/level3/system_log.txt")
+                return self.CommandResult(stdout="error.log  access.log  debug.log")
+            elif command == "cat logs/error.log":
+                return self.CommandResult(stdout="""[ERROR] 14:30:00 - Critical system failure
+[ERROR] 14:30:15 - Database connection lost
+[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
+[ERROR] 14:30:45 - Memory allocation error""")
+            elif command == "cat logs/access.log":
+                return self.CommandResult(stdout="""192.168.1.100 - - [16/Jan/2025:14:30:00 +0530] "GET /admin HTTP/1.1" 403 287
+192.168.1.101 - - [16/Jan/2025:14:30:15 +0530] "POST /login HTTP/1.1" 401 401
+192.168.1.102 - - [16/Jan/2025:14:30:30 +0530] "GET /flag HTTP/1.1" 404 289""")
+            elif command == "cat logs/debug.log":
+                return self.CommandResult(stdout="""DEBUG: Initializing system components...
+DEBUG: Loading configuration from /etc/config.json
+DEBUG: Starting background services
+DEBUG: flag{grep_master_123} found in memory
+DEBUG: Cleanup routine started""")
             elif command == "grep -r flag logs":
-                content = ""
-                for log in ["error_log.txt", "debug_log.txt"]:
-                    log_content = read_file(f"{base_path}/level3/logs/{log}")
-                    for line in log_content.splitlines():
-                        if "flag" in line:
-                            content += f"logs/{log}:{line}\n"
-                return content.strip()
+                return self.CommandResult(stdout="""logs/error.log:[ERROR] 14:30:30 - flag{grep_master_123} - Authentication failed
+logs/debug.log:DEBUG: flag{grep_master_123} found in memory""")
 
         # Level 4 - Process Hunter
         elif level == 4:
-            proc_info = read_file(f"{base_path}/level4/proc_info.txt")
             if command == "ps aux":
-                lines = proc_info.split("\n")
-                ps_lines = [line for line in lines if not line.startswith("Process")]
-                return "\n".join(ps_lines[:4])
-            elif command == "cat /proc/1337/cmdline" or command == "cat /proc/1337/environ":
-                for line in proc_info.split("\n"):
-                    if command.endswith("cmdline") and "flag{process_hunter}" in line:
-                        return line
-                    elif command.endswith("environ") and "FLAG=" in line:
-                        return line
+                return self.CommandResult(stdout="""USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0   2384   668 ?        Ss   14:30   0:00 /sbin/init
+root       423  0.0  0.0   2880   712 ?        S    14:30   0:00 sshd
+user      1234  0.0  0.1   5984  1024 pts/0    S+   14:30   0:00 suspicious_process
+user      1337  0.0  0.1  10240  1024 pts/0    S+   14:30   0:00 flag_service""")
+            elif command == "cat /proc/1337/cmdline":
+                return self.CommandResult(stdout="flag_service--secret--flag=flag{process_hunter}")
+            elif command == "strings /proc/1337/environ":
+                return self.CommandResult(stdout="""SHELL=/bin/bash
+PWD=/home/user
+FLAG=flag{process_hunter}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin""")
 
         # Level 5 - Network Ninja
         elif level == 5:
-            network_info = read_file(f"{base_path}/level5/network_info.txt")
             if command == "netstat -tuln":
-                lines = network_info.split("\n")
-                return "\n".join([l for l in lines if "Proto" in l or "tcp" in l or "udp" in l])
-            elif command == "cat /etc/hosts":
-                lines = network_info.split("\n")
-                return "\n".join([l for l in lines if "127.0.0.1" in l])
+                return self.CommandResult(stdout="""Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:1337            0.0.0.0:*               LISTEN""")
+            elif command == "nc localhost 1337" or command == "curl localhost:1337":
+                return self.CommandResult(stdout="Welcome! The flag is: flag{network_ninja}")
 
         # Level 6 - Bash Wizard
         elif level == 6:
-            user_data = read_file(f"{base_path}/level6/user_data.txt")
-            if command == "cat /etc/environment" or command == "cat data.txt":
-                return user_data
-            elif command.startswith("grep") or command.startswith("awk") or command.startswith("sed"):
-                if "flag{bash_wizard}" in command:
-                    return "flag{bash_wizard}"
+            if command == "ls":
+                return self.CommandResult(stdout="data.txt  process.sh")
+            elif command == "cat data.txt":
+                return self.CommandResult(stdout="""user1,100
+user2,200
+user3,300
+admin,flag{bash_wizard}
+user4,400""")
+            elif command == "cat process.sh":
+                return self.CommandResult(stdout="""#!/bin/bash
+# This script processes data.txt
+grep "admin" data.txt | cut -d',' -f2""")
+            elif command == "chmod +x process.sh":
+                return self.CommandResult(stdout="")
+            elif command == "./process.sh":
+                return self.CommandResult(stdout="flag{bash_wizard}")
 
         # Level 7 - Archive Master
         elif level == 7:
-            readme = read_file(f"{base_path}/level7/README.txt")
-            if command == "ls":
-                return "archive.tar.gz"
-            elif command == "tar -xzf archive.tar.gz":
-                return "Extracting archive..."
-            elif command == "ls" and "tar -xzf archive.tar.gz" in self.command_history:
-                return "level1.zip"
-            elif command == "unzip level1.zip" and "tar -xzf archive.tar.gz" in self.command_history:
-                return "Extracting level1.zip..."
-            elif command == "ls" and "unzip level1.zip" in self.command_history:
-                return "secret"
-            elif command == "cat secret/flag.txt" and "unzip level1.zip" in self.command_history:
-                return "flag{archive_master_explorer}"
+            if command == "ls -l mystery.tar.gz":
+                return self.CommandResult(stdout="-rw-r--r-- 1 user user 2048 Jan 18 05:55 mystery.tar.gz")
+            elif command == "tar xzf mystery.tar.gz":
+                return self.CommandResult(stdout="")
+            elif command == "ls":
+                if "tar xzf mystery.tar.gz" in self.command_history:
+                    return self.CommandResult(stdout="mystery.tar.gz  secret.zip")
+                else:
+                    return self.CommandResult(stdout="mystery.tar.gz")
+            elif command == "unzip secret.zip":
+                if "tar xzf mystery.tar.gz" in self.command_history:
+                    return self.CommandResult(stdout="""Archive:  secret.zip
+  inflating: hidden.bz2""")
+                else:
+                    return self.CommandResult(stderr="secret.zip: No such file or directory", returncode=1)
+            elif command == "bzip2 -d hidden.bz2":
+                if "unzip secret.zip" in self.command_history:
+                    return self.CommandResult(stdout="")
+                else:
+                    return self.CommandResult(stderr="hidden.bz2: No such file or directory", returncode=1)
+            elif command == "cat hidden":
+                if "bzip2 -d hidden.bz2" in self.command_history:
+                    return self.CommandResult(stdout="flag{archive_master_explorer}")
+                else:
+                    return self.CommandResult(stderr="hidden: No such file or directory", returncode=1)
 
         # Level 8 - System Monitor
         elif level == 8:
-            system_stats = read_file(f"{base_path}/level8/system_stats.txt")
-            if command == "top" or command == "htop":
-                lines = system_stats.split("\n")
-                return "\n".join([l for l in lines if not "flags" in l])
-            elif command == "cat /proc/cpuinfo":
-                return "\n".join([l for l in system_stats.split("\n") if "processor" in l or "model name" in l or "flags" in l])
+            if command == "top":
+                return self.CommandResult(stdout="""top - 14:30:00 up 0 min,  1 user,  load average: 0.15, 0.05, 0.01
+Tasks: 105 total,   1 running, 103 sleeping,   0 stopped,   1 zombie
+%Cpu(s):  5.9 us,  2.0 sy,  0.0 ni, 91.2 id,  0.0 wa,  0.0 hi,  0.9 si,  0.0 st
+MiB Mem :   7950.8 total,   7450.8 free,    300.0 used,    200.0 buff/cache
+MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   7450.8 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 1337 user      20   0   10240   1024    512 R  13.37  0.1   0:01.23 suspicious_svc""")
+            elif command == "strings /proc/1337/environ":
+                return self.CommandResult(stdout="""SHELL=/bin/bash
+PWD=/home/user
+SECRET_FLAG=flag{system_monitor_pro}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin""")
 
         # Level 9 - Cron Detective
         elif level == 9:
-            cron_logs = read_file(f"{base_path}/level9/cron_logs.txt")
-            if command == "cat /var/log/syslog":
-                return "\n".join([l for l in cron_logs.split("\n") if "CRON" in l or "flag_expose" in l])
-            elif command == "cat /etc/crontab":
-                return "\n".join([l for l in cron_logs.split("\n") if "*" in l])
+            if command == "crontab -l":
+                return self.CommandResult(stdout="""# Flag exposure cron job
+* * * * * /usr/local/bin/expose_flag.sh
+# Clean up exposed flags
+*/2 * * * * /usr/local/bin/cleanup_flags.sh""")
+            elif command == "cat /usr/local/bin/expose_flag.sh":
+                return self.CommandResult(stdout="""#!/bin/bash
+# This script exposes the flag temporarily
+echo "flag{cr0n_master_detective}" > /tmp/exposed_flag
+logger "Flag has been exposed in /tmp/exposed_flag\"""")
             elif command == "cat /tmp/exposed_flag":
-                return "flag{cr0n_master_detective}"
+                return self.CommandResult(stdout="flag{cr0n_master_detective}")
 
         # Level 10 - Ultimate Challenge
         elif level == 10:
-            final_challenge = read_file(f"{base_path}/level10/final_challenge.txt")
-            if command == "ls /home/user/final":
-                return "encrypted.bin  README.txt"
-            elif command == "cat /home/user/final/README.txt":
-                return "\n".join([l for l in final_challenge.split("\n") if not "flag{" in l])
-            elif command == "strings /home/user/final/encrypted.bin":
-                return "flag{ultimate_hacker_pro}"
+            if command == "netstat -tuln":
+                return self.CommandResult(stdout="""Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:31337           0.0.0.0:*               LISTEN""")
+            elif command == "nc localhost 31337":
+                return self.CommandResult(stdout="""Welcome to the Flag Service!
+Here's your encrypted flag:
+SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=""")
+            elif command == 'echo "SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=" | base64 -d':
+                return self.CommandResult(stdout="Here's your flag: flag{ultimate_hacker_pro}")
 
-        return f"Command not found: {command}"
+        # Default error for unknown commands
+        return self.CommandResult(stderr=f"Command not found: {command}", returncode=1)
 
     def get_completions(self, partial, cwd):
         """Get possible completions for tab completion"""
@@ -981,14 +747,16 @@ pwd     - Print working directory"""
 
     def get_process_list(self):
         """Get list of processes for level 4"""
-        return self.environments[4]['processes']
+        # Implement process listing logic here
+        pass
 
     def get_network_stats(self):
         """Get network statistics for level 5"""
-        return self.environments[5]['network']
+        # Implement network statistics logic here
+        pass
 
 # Initialize sandbox
-sandbox = Sandbox()
+sandbox = BashCompiler()
 
 @app.route('/get_hint', methods=['POST'])
 @login_required

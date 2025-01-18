@@ -1,0 +1,29 @@
+{
+    "title": "Memory Manipulation Challenge",
+    "description": "This challenge involves analyzing and manipulating memory contents. The flag is stored in memory using custom encoding.",
+    "objectives": [
+        "Analyze memory layout",
+        "Identify memory regions containing flag data",
+        "Decode memory contents",
+        "Bypass memory protection mechanisms"
+    ],
+    "initial_files": {
+        "memory_script.sh": "#!/bin/bash\n# Memory Challenge\n\n# Custom memory layout\nMEM_DATA=(\n    '0x7fff1234: 51 55 49 43'\n    '0x7fff1238: 4B 7B 6D 33'\n    '0x7fff123C: 6D 30 72 79'\n    '0x7fff1240: 5F 6D 34 67'\n    '0x7fff1244: 31 63 7D 00'\n)\n\nfunction access_memory() {\n    # Memory protection\n    if [ \"$LD_PRELOAD\" ]; then\n        echo \"Memory access violation!\"\n        exit 1\n    fi\n    \n    for addr in \"${MEM_DATA[@]}\"; do\n        echo \"Reading memory at $addr\"\n    done\n}\n\naccess_memory",
+        "memory_map.txt": "Memory Layout:\n- Stack: 0x7fff0000-0x7fffffff\n- Heap: 0x08048000-0x08049000\n- Flag is stored in stack segments\n- Memory is protected against direct access"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{m3m0ry_m4g1c}",
+        "commands": ["gdb", "hexdump", "xxd", "od"],
+        "memory_regions": {
+            "stack": "0x7fff1234",
+            "length": "20"
+        }
+    },
+    "hints": [
+        "The flag is stored in consecutive memory addresses",
+        "Each memory segment contains part of the flag",
+        "Look for patterns in memory addresses",
+        "Try to bypass memory protection mechanisms"
+    ]
+}

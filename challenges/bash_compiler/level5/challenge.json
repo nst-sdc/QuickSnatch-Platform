@@ -1,0 +1,26 @@
+{
+    "title": "Syscall Interception Challenge",
+    "description": "This level focuses on system call interception and analysis. The flag is revealed through specific system call patterns.",
+    "objectives": [
+        "Intercept and analyze system calls",
+        "Identify key syscall patterns",
+        "Bypass syscall filtering",
+        "Extract the flag from syscall arguments"
+    ],
+    "initial_files": {
+        "syscall_script.sh": "#!/bin/bash\n# Syscall Challenge\n\nfunction make_syscall() {\n    # Hidden syscall pattern\n    read -n 1 -s key\n    if [[ $key == \"q\" ]]; then\n        echo \"Syscall sequence initiated\"\n        # Complex syscall sequence here\n        for i in {1..5}; do\n            echo -n \".\"\n            sleep 1\n        done\n    fi\n}\n\n# Syscall filtering\nif [ -n \"$(which strace)\" ]; then\n    echo \"Syscall tracing detected!\"\n    exit 1\nfi\n\nmake_syscall",
+        "syscall_map.txt": "Required Syscall Sequence:\n1. read()\n2. write()\n3. open()\n4. mmap()\n5. execve()\n\nFlag is constructed from syscall arguments"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{syscall_1nt3rc3pt0r}",
+        "commands": ["strace", "ltrace", "ptrace"],
+        "required_syscalls": ["read", "write", "open", "mmap", "execve"]
+    },
+    "hints": [
+        "Focus on the syscall sequence pattern",
+        "Look for hidden data in syscall arguments",
+        "Try bypassing the strace detection",
+        "The flag is split across different syscalls"
+    ]
+}

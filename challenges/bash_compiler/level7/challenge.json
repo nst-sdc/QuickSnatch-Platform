@@ -1,0 +1,26 @@
+{
+    "title": "Code Obfuscation Challenge",
+    "description": "This level features heavily obfuscated code. The flag is hidden within multiple layers of obfuscation and encoding.",
+    "objectives": [
+        "Deobfuscate multiple code layers",
+        "Decode various encoding schemes",
+        "Understand obfuscation techniques",
+        "Extract the flag from obfuscated code"
+    ],
+    "initial_files": {
+        "obfuscated_script.sh": "#!/bin/bash\n# Obfuscated Code Challenge\n\neval \"$(echo 'CYB2IDE7PWBiYXNlNjQgLWQ8PDxFT0YKUVZWSlEwdDdZMjlrWlY5dmRtVnlYM0IzYm4wPQpFT0YpIgpldmFsICIkKGVjaG8gJENPREUxIHwgYmFzZTY0IC1kKSIKZXZhbCAiJChlY2hvICdabTl5SUdFZ2FXNGdZWEpoZVRzZ1pHOGdaV05vYnlBaVZtRnNkV1VnYVhNZ0pIdGhJSHdnWW1GelpUWTBJQzFrZlNJN0lHUnZibVU9JyB8IGJhc2U2NCAtZCkiCg==' | base64 -d)\n\n# More layers of obfuscation\nfunction decode_layer() {\n    echo \"$1\" | tr 'A-Za-z' 'N-ZA-Mn-za-m' | rev\n}\n\n# Execute obfuscated code\neval \"$(decode_layer \"$CODE1\")\"",
+        "hints.txt": "Obfuscation Techniques Used:\n1. Base64 encoding\n2. ROT13 cipher\n3. String reversal\n4. Multiple eval layers\n5. Hidden environment variables"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{0bfusc4t10n_m4st3r}",
+        "commands": ["base64", "tr", "sed", "awk"],
+        "encoding_layers": ["base64", "rot13", "reverse"]
+    },
+    "hints": [
+        "Start by decoding the base64 strings",
+        "Look for patterns in the obfuscated code",
+        "Try reversing the obfuscation layers one by one",
+        "Environment variables might contain hidden data"
+    ]
+}

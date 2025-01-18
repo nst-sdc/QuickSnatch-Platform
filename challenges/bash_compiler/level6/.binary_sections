@@ -1,0 +1,8 @@
+Binary sections to analyze:
+.text: Code section
+.data: Data section
+.rodata: Read-only data
+
+Look for special markers:
+- DEADBEEF
+- CAFEBABE

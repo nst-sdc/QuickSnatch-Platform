@@ -1,0 +1,10 @@
+Rootkit traces found:
+PID: 1337
+Hidden files:
+- /etc/shadow.bak
+- /tmp/.hidden_flag
+Hidden ports:
+- TCP 31337
+- UDP 31338
+
+Check process memory at 0x3337

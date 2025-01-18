@@ -1,0 +1,27 @@
+{
+    "title": "Advanced Rootkit Detection",
+    "description": "The final challenge! Find a sophisticated rootkit that's hiding the flag. Multiple advanced techniques are required.",
+    "objectives": [
+        "Detect hidden rootkit processes",
+        "Analyze process memory and hooks",
+        "Bypass rootkit anti-detection",
+        "Extract the final flag"
+    ],
+    "initial_files": {
+        "rootkit_detector.sh": "#!/bin/bash\n# Advanced Rootkit Challenge\n\n# Anti-detection measures\nif [ -n \"$(ps aux | grep -i 'detector\\|analyzer\\|debugger')\" ]; then\n    echo \"Analysis tools detected!\"\n    exit 1\nfi\n\n# Process hiding\nfunction hide_process() {\n    # Simulate process hiding\n    local pid=$1\n    echo \"Process $pid hidden from view\"\n}\n\n# Rootkit operations\nfunction check_system() {\n    # System integrity checks\n    if [ -n \"$(ls -la /proc/[0-9]*/maps 2>/dev/null)\" ]; then\n        echo \"System inspection detected!\"\n        exit 1\n    fi\n    \n    # Hidden flag parts in various locations\n    # 1. Process memory\n    # 2. Kernel modules\n    # 3. Hidden filesystem\n    # 4. Network connections\n}\n\ncheck_system\nhide_process $$",
+        "system_map.txt": "Rootkit Locations:\n1. Hidden processes\n2. Kernel hooks\n3. Modified system calls\n4. Hidden network connections\n5. Encrypted filesystem areas"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{r00tk1t_hunt3r_pr0}",
+        "commands": ["ps", "lsof", "netstat", "strace", "ftrace"],
+        "hidden_processes": ["flag_keeper", "syscall_hook", "net_hide"]
+    },
+    "hints": [
+        "Look for hidden processes and files",
+        "Check for modified system calls",
+        "Analyze network connections",
+        "The rootkit uses multiple hiding techniques",
+        "Combine different analysis approaches"
+    ]
+}

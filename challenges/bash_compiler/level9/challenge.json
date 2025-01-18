@@ -1,0 +1,26 @@
+{
+    "title": "Kernel Module Analysis",
+    "description": "This advanced challenge involves analyzing kernel module interactions. The flag is hidden in kernel module parameters.",
+    "objectives": [
+        "Analyze kernel module interactions",
+        "Trace system calls to kernel",
+        "Extract hidden kernel parameters",
+        "Reconstruct flag from kernel data"
+    ],
+    "initial_files": {
+        "kernel_script.sh": "#!/bin/bash\n# Kernel Module Challenge\n\n# Kernel module parameters\nMODULE_PARAMS=(\n    'flag_part1=51554943'\n    'flag_part2=4B7B6B33'\n    'flag_part3=726E336C'\n    'flag_part4=5F68346B'\n    'flag_part5=7D'\n)\n\nfunction load_module() {\n    # Simulate kernel module loading\n    if [ \"$(id -u)\" != \"0\" ]; then\n        echo \"Kernel operations require root privileges\"\n        exit 1\n    fi\n    \n    for param in \"${MODULE_PARAMS[@]}\"; do\n        echo \"Loading module parameter: $param\"\n    done\n}\n\nload_module",
+        "kernel_info.txt": "Kernel Module Info:\n1. Module name: flag_keeper\n2. Parameters stored in kernel space\n3. Requires root privileges\n4. Uses custom parameter encoding"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{k3rn3l_h4k}",
+        "commands": ["insmod", "rmmod", "lsmod", "dmesg"],
+        "kernel_module": "flag_keeper"
+    },
+    "hints": [
+        "Examine kernel module parameters",
+        "Look for encoded data in module output",
+        "Check dmesg for hidden messages",
+        "Parameters are hex-encoded"
+    ]
+}

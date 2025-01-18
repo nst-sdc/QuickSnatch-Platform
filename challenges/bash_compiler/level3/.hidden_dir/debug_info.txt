@@ -1,0 +1,7 @@
+Debug information found!
+Try to bypass the anti-debugging checks.
+The keys for decryption are:
+1. Process ID (pid)
+2. Parent Process ID (ppid)
+3. User ID (uid)
+4. Current time (even seconds)

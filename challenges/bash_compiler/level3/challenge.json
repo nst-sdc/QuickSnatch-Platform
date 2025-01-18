@@ -1,0 +1,28 @@
+{
+    "title": "Expert Bash Compilation - Anti-Debug Challenge",
+    "description": "Level 3 is the ultimate challenge! The script includes anti-debugging measures, time-based execution, and multiple layers of encryption. The flag is split into parts and requires advanced binary analysis to retrieve.",
+    "objectives": [
+        "Bypass anti-debugging protections",
+        "Analyze the multi-layered encryption",
+        "Find all parts of the fragmented flag",
+        "Combine the flag parts in correct order",
+        "Submit the complete flag to finish the challenge"
+    ],
+    "initial_files": {
+        "secure_script.sh": "#!/bin/bash\n# QuickSnatch Bash Challenge Level 3\n# Anti-Debug Challenge\n\n# Anti-debugging check\nif [ -n \"$(ps -p $$ -o cmd= | grep -E 'strace|ltrace|gdb')\" ]; then\n    echo \"Nice try! But debugging isn't allowed!\"\n    exit 1\nfi\n\n# Time-based execution check\nTIMESTAMP=$(date +%s)\nif [ $((TIMESTAMP % 13)) -ne 0 ]; then\n    echo \"Timing is everything...\"\n    exit 1\nfi\n\n# Environment check\nif [ -n \"$LD_PRELOAD\" ] || [ -n \"$LD_AUDIT\" ]; then\n    echo \"Security violation detected!\"\n    exit 1\nfi\n\n# Multi-part flag handling\nfunction get_flag_part() {\n    local part=$1\n    local key=$2\n    case $part in\n        1) echo \"UVVJQ0t7aDRyZF9\" | base64 -d ;;\n        2) echo \"YzBtcDFsM3JfYjR\" | base64 -d ;;\n        3) echo \"zaF9tNHN0M3J9\" | base64 -d ;;\n        *) echo \"Invalid part\" ;;\n    esac\n}\n\nif [ $# -ne 2 ]; then\n    echo \"Usage: $0 <part_number> <key>\"\n    exit 1\nfi\n\n# Verify key format (must be valid SHA256)\nif ! [[ $2 =~ ^[0-9a-f]{64}$ ]]; then\n    echo \"Invalid key format\"\n    exit 1\nfi\n\nget_flag_part $1 $2",
+        "README.md": "Level 3 Challenge Notes:\n\n1. The flag is split into 3 parts\n2. Each part requires specific timing and conditions\n3. Anti-debugging measures are in place\n4. The key must be a valid SHA256 hash\n5. Environment manipulation is detected\n\nGood luck!"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{h4rd_c0mp1l3r_b4sh_m4st3r}",
+        "commands": ["ltrace", "strace", "gdb", "readelf", "objdump"],
+        "key": "8a7b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0"
+    },
+    "hints": [
+        "The flag is split into three base64-encoded parts",
+        "Timing is crucial - try running at specific timestamps",
+        "Look for ways to bypass the anti-debugging checks",
+        "Each part of the flag needs to be decoded separately",
+        "The SHA256 key is hidden in the binary's sections"
+    ]
+}

@@ -1,0 +1,6 @@
+Memory regions of interest:
+0x0000-0x1000: Stack
+0x1000-0x2000: Heap
+0x2000-0x3000: Mapped files
+
+Flag is at offset 0x500 in memory.

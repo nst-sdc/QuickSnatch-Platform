@@ -1,0 +1,24 @@
+{
+    "title": "Basic Bash Compilation - Hidden Flag",
+    "description": "Welcome to Level 1! Your task is to find a hidden flag in the compiled binary. The flag is embedded in the script but not visible in the source code.",
+    "objectives": [
+        "Analyze the given bash script",
+        "Compile the script using shc",
+        "Find the hidden flag using string analysis",
+        "Submit the flag to proceed to next level"
+    ],
+    "initial_files": {
+        "hello.sh": "#!/bin/bash\n# QuickSnatch Bash Challenge Level 1\n# Find the hidden flag!\n\necho 'Welcome to Level 1'\necho 'Can you find the hidden flag?'\n\n# Flag is hidden in this binary\n# Hint: Not everything is as it seems\n\nfunction check_flag() {\n    echo 'Checking...';\n}\n\ncheck_flag",
+        "flag.txt": "QUICK{b4sh_c0mp1l3r_b3g1nn3r}"
+    },
+    "validation": {
+        "type": "flag_check",
+        "flag": "QUICK{b4sh_c0mp1l3r_b3g1nn3r}",
+        "commands": ["strings", "hexdump", "xxd"]
+    },
+    "hints": [
+        "Try using the 'strings' command on the compiled binary",
+        "The flag format is QUICK{...}",
+        "Look for hidden functions in the script"
+    ]
+}

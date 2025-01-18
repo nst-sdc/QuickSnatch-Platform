@@ -2,8 +2,15 @@
 {% block terminal %}
 <div class="terminal-container">
     <div class="terminal-header">
-        <span class="terminal-title">user@quicksnatch:~$</span>
+        <span class="terminal-title">user@quicksnatch:~/challenges$</span>
+        <div class="challenge-info">
+            <span id="current-level">Level: 1</span>
+            <span id="challenge-title">Basic Bash Compilation</span>
+        </div>
         <div class="terminal-controls">
+            <button class="btn btn-sm" id="show-hint" title="Show Hint">
+                <i class="fas fa-lightbulb"></i>
+            </button>
             <button class="btn btn-sm" id="clear-terminal" title="Clear Terminal">
                 <i class="fas fa-eraser"></i>
             </button>
@@ -15,9 +22,13 @@
     <div class="terminal" id="terminal">
         <div class="terminal-output" id="terminal-output"></div>
         <div class="terminal-input-line">
-            <span class="prompt">user@quicksnatch:~$ </span>
+            <span class="prompt">user@quicksnatch:~/challenges$ </span>
             <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
         </div>
+    </div>
+    <div id="hint-panel" class="hint-panel hidden">
+        <h4>Hints</h4>
+        <div id="hint-content"></div>
     </div>
 </div>
 
@@ -28,7 +39,10 @@ const terminal = {
         this.input = document.getElementById('terminal-input');
         this.commandHistory = [];
         this.historyIndex = -1;
+        this.currentLevel = 1;
+        this.challenges = {};
         this.setupEventListeners();
+        this.loadChallenges();
         this.welcomeMessage();
     },
 
@@ -36,8 +50,8 @@ const terminal = {
         this.input.addEventListener('keydown', (e) => this.handleInput(e));
         document.getElementById('clear-terminal').addEventListener('click', () => this.clear());
         document.getElementById('toggle-fullscreen').addEventListener('click', () => this.toggleFullscreen());
+        document.getElementById('show-hint').addEventListener('click', () => this.toggleHints());
         
-        // Tab completion
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
                 e.preventDefault();
@@ -48,11 +62,37 @@ const terminal = {
 
     welcomeMessage: function() {
         const messages = [
-            'QuickSnatch Terminal v2.0',
+            'QuickSnatch Terminal v2.0 - Bash Compiler Challenge',
             'Type "help" for available commands',
-            ''
+            'Current challenge: Level ' + this.currentLevel,
+            '----------------------------------------'
         ];
-        this.appendOutput(messages.join('\n'));
+        messages.forEach(msg => this.appendOutput(msg));
+        this.loadLevel(this.currentLevel);
+    },
+
+    loadChallenges: async function() {
+        try {
+            for (let level = 1; level <= 10; level++) {
+                const response = await fetch(`/challenges/bash_compiler/level${level}/challenge.json`);
+                this.challenges[level] = await response.json();
+            }
+        } catch (error) {
+            console.error('Error loading challenges:', error);
+        }
+    },
+
+    loadLevel: function(level) {
+        const challenge = this.challenges[level];
+        if (challenge) {
+            document.getElementById('current-level').textContent = `Level: ${level}`;
+            document.getElementById('challenge-title').textContent = challenge.title;
+            document.getElementById('hint-content').innerHTML = challenge.hints.map(hint => `<p>• ${hint}</p>`).join('');
+            this.appendOutput(`\nChallenge: ${challenge.title}`);
+            this.appendOutput(challenge.description);
+            this.appendOutput('\nObjectives:');
+            challenge.objectives.forEach(obj => this.appendOutput(`• ${obj}`));
+        }
     },
 
     handleInput: function(e) {
@@ -61,6 +101,7 @@ const terminal = {
             if (command) {
                 this.commandHistory.push(command);
                 this.historyIndex = this.commandHistory.length;
+                this.appendOutput(`user@quicksnatch:~/challenges$ ${command}`);
                 this.executeCommand(command);
                 this.input.value = '';
             }
@@ -82,209 +123,417 @@ const terminal = {
         }
     },
 
-    executeCommand: function(command) {
-        this.appendOutput(`user@quicksnatch:~$ ${command}`);
-        
-        const [cmd, ...args] = command.split(' ');
-        
-        switch (cmd.toLowerCase()) {
+    executeCommand: async function(command) {
+        const args = command.split(' ');
+        const cmd = args[0].toLowerCase();
+
+        switch (cmd) {
             case 'help':
                 this.showHelp();
                 break;
             case 'clear':
                 this.clear();
                 break;
+            case 'level':
+                const newLevel = parseInt(args[1]);
+                if (newLevel >= 1 && newLevel <= 10) {
+                    this.currentLevel = newLevel;
+                    this.loadLevel(newLevel);
+                } else {
+                    this.appendOutput('Invalid level. Available levels: 1-10');
+                }
+                break;
+            case 'submit':
+                if (args.length < 2) {
+                    this.appendOutput('Usage: submit QUICK{...}');
+                    return;
+                }
+                this.checkFlag(args.slice(1).join(' '));
+                break;
+            case 'shc':
+                this.handleCompilation(args);
+                break;
             case 'strings':
-                this.runStrings(args[0]);
+                this.analyzeStrings(args[1]);
                 break;
             case 'hexdump':
-                this.runHexdump(args);
-                break;
-            case 'file':
-                this.runFile(args[0]);
-                break;
-            case 'objdump':
-                this.runObjdump(args);
+                this.analyzeHexdump(args.slice(1));
                 break;
             case 'readelf':
-                this.runReadelf(args);
+                this.analyzeElf(args.slice(1));
                 break;
-            case 'ls':
-                this.runLs(args);
+            case 'objdump':
+                this.analyzeBinary(args.slice(1));
+                break;
+            case 'tcpdump':
+                this.analyzeTcpdump(args.slice(1));
+                break;
+            case 'wireshark':
+                this.analyzePackets(args[1]);
+                break;
+            case 'strace':
+                this.traceSyscalls(args.slice(1));
+                break;
+            case 'ltrace':
+                this.traceLibraryCalls(args.slice(1));
+                break;
+            case 'gdb':
+                this.debugBinary(args.slice(1));
+                break;
+            case 'xxd':
+                this.hexEdit(args.slice(1));
+                break;
+            case 'dmesg':
+                this.analyzeKernelLog();
+                break;
+            case 'lsmod':
+                this.listKernelModules();
+                break;
+            case 'ps':
+                this.listProcesses(args.slice(1));
+                break;
+            case 'lsof':
+                this.listOpenFiles(args.slice(1));
                 break;
             case 'cat':
-                this.runCat(args[0]);
+                if (args[1]) this.runCat(args[1]);
+                else this.appendOutput('Usage: cat <filename>');
+                break;
+            case 'ls':
+                this.runLs(args.slice(1));
                 break;
             default:
-                this.appendOutput(`Command not found: ${cmd}. Type "help" for available commands.`);
+                if (command.startsWith('./')) {
+                    this.runCompiledScript(command);
+                } else {
+                    this.appendOutput(`Command not found: ${command}`);
+                }
         }
     },
 
-    showHelp: function() {
-        const help = [
-            'Available commands:',
-            '  strings <file>     - Extract readable strings',
-            '  hexdump -C <file>  - Display file contents in hex',
-            '  file <file>        - Determine file type',
-            '  objdump -d <file>  - Disassemble binary',
-            '  readelf -a <file>  - Display ELF file information',
-            '  ls [dir]           - List directory contents',
-            '  cat <file>         - Display file contents',
-            '  clear             - Clear terminal',
-            '  help              - Show this help message',
-            ''
-        ];
-        this.appendOutput(help.join('\n'));
+    checkFlag: function(flag) {
+        const challenge = this.challenges[this.currentLevel];
+        if (challenge && challenge.validation.flag === flag) {
+            this.appendOutput('🎉 Congratulations! Flag is correct!');
+            if (this.currentLevel < 10) {
+                this.appendOutput(`\nUnlocked Level ${this.currentLevel + 1}!`);
+                this.currentLevel++;
+                this.loadLevel(this.currentLevel);
+            } else {
+                this.appendOutput('\n🏆 Congratulations! You have completed all levels and become a Bash Compiler Master!');
+            }
+        } else {
+            this.appendOutput('❌ Incorrect flag. Keep trying!');
+        }
     },
 
-    runStrings: function(file) {
+    analyzeStrings: function(file) {
         if (!file) {
             this.appendOutput('Usage: strings <file>');
             return;
         }
         
-        fetch('/analyze_binary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tool: 'find-strings' })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data[0] && data[0].content) {
-                this.appendOutput(data[0].content);
+        const challenge = this.challenges[this.currentLevel];
+        if (challenge.validation.commands.includes('strings')) {
+            if (file.endsWith('.sh.x')) {
+                // Simulate strings output based on level
+                switch (this.currentLevel) {
+                    case 1:
+                        this.appendOutput('Found interesting strings in binary:');
+                        this.appendOutput('QUICK{b4sh_c0mp1l3r_b3g1nn3r}');
+                        break;
+                    case 2:
+                        this.appendOutput('Binary seems to be encrypted...');
+                        this.appendOutput('Found potential key fragments...');
+                        break;
+                    case 3:
+                        this.appendOutput('Anti-debugging measures detected');
+                        this.appendOutput('Multiple encrypted sections found');
+                        break;
+                }
+            } else {
+                this.appendOutput(`File ${file} not found`);
             }
-        });
+        } else {
+            this.appendOutput('Command not available for this challenge');
+        }
     },
 
-    runHexdump: function(args) {
-        if (!args.includes('-C') || !args[1]) {
+    analyzeHexdump: function(args) {
+        if (!args.includes('-C')) {
             this.appendOutput('Usage: hexdump -C <file>');
             return;
         }
         
-        fetch('/get_binary_data')
-        .then(response => response.arrayBuffer())
-        .then(data => {
-            const view = new Uint8Array(data);
-            let output = [];
-            
-            for (let i = 0; i < view.length; i += 16) {
-                const hex = Array.from(view.slice(i, i + 16))
-                    .map(b => b.toString(16).padStart(2, '0'))
-                    .join(' ');
-                    
-                const ascii = Array.from(view.slice(i, i + 16))
-                    .map(b => b >= 32 && b <= 126 ? String.fromCharCode(b) : '.')
-                    .join('');
-                    
-                output.push(`${i.toString(16).padStart(8, '0')}  ${hex.padEnd(48, ' ')}  |${ascii}|`);
-            }
-            
-            this.appendOutput(output.join('\n'));
-        });
-    },
-
-    runFile: function(file) {
+        const file = args[args.indexOf('-C') + 1];
         if (!file) {
-            this.appendOutput('Usage: file <file>');
+            this.appendOutput('No file specified');
             return;
         }
-        
-        fetch('/analyze_binary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tool: 'check-headers' })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data[0] && data[0].content) {
-                this.appendOutput(data[0].content);
+
+        const challenge = this.challenges[this.currentLevel];
+        if (challenge.validation.commands.includes('hexdump')) {
+            if (file.endsWith('.sh.x')) {
+                this.appendOutput('00000000  7f 45 4c 46 02 01 01 00  00 00 00 00 00 00 00 00  |.ELF............|');
+                this.appendOutput('00000010  03 00 3e 00 01 00 00 00  00 10 00 00 00 00 00 00  |..>.............|');
+                // Add level-specific hexdump output
+            } else {
+                this.appendOutput(`File ${file} not found`);
             }
-        });
-    },
-
-    runObjdump: function(args) {
-        if (!args.includes('-d') || !args[1]) {
-            this.appendOutput('Usage: objdump -d <file>');
-            return;
+        } else {
+            this.appendOutput('Command not available for this challenge');
         }
-        
-        // Simulated disassembly output
-        const disasm = [
-            'Disassembly of section .text:',
-            '',
-            '0000000000001000 <_start>:',
-            '    1000:    31 ed           xor    %ebp,%ebp',
-            '    1002:    49 89 d1        mov    %rdx,%r9',
-            '    1005:    5e              pop    %rsi',
-            '    1006:    48 89 e2        mov    %rsp,%rdx',
-            '    1009:    48 83 e4 f0     and    $0xfffffffffffffff0,%rsp',
-            ''
-        ];
-        this.appendOutput(disasm.join('\n'));
     },
 
-    runReadelf: function(args) {
-        if (!args.includes('-a') || !args[1]) {
+    analyzeElf: function(args) {
+        if (!args.includes('-a')) {
             this.appendOutput('Usage: readelf -a <file>');
             return;
         }
-        
-        // Simulated ELF header output
-        const elfInfo = [
-            'ELF Header:',
-            '  Magic:   7f 45 4c 46 02 01 01 00',
-            '  Class:                             ELF64',
-            '  Data:                              2\'s complement, little endian',
-            '  Version:                           1 (current)',
-            '  OS/ABI:                           UNIX - System V',
-            '  ABI Version:                       0',
-            ''
-        ];
-        this.appendOutput(elfInfo.join('\n'));
-    },
 
-    runLs: function(args) {
-        const files = [
-            'binary',
-            'strings.txt',
-            'dump.hex',
-            'analysis.log'
-        ];
-        this.appendOutput(files.join('  '));
-    },
-
-    runCat: function(file) {
+        const file = args[args.indexOf('-a') + 1];
         if (!file) {
-            this.appendOutput('Usage: cat <file>');
+            this.appendOutput('No file specified');
             return;
         }
-        
-        if (file === 'strings.txt') {
-            this.runStrings(file);
+
+        const challenge = this.challenges[this.currentLevel];
+        if (challenge.validation.commands.includes('readelf')) {
+            if (file.endsWith('.sh.x')) {
+                this.appendOutput('ELF Header:');
+                this.appendOutput('  Magic:   7f 45 4c 46 02 01 01 00');
+                this.appendOutput('  Class:                             ELF64');
+                // Add level-specific ELF analysis output
+            } else {
+                this.appendOutput(`File ${file} not found`);
+            }
         } else {
-            this.appendOutput(`cat: ${file}: No such file or directory`);
+            this.appendOutput('Command not available for this challenge');
         }
     },
 
-    handleTabCompletion: function() {
-        const input = this.input.value;
-        const commands = ['strings', 'hexdump', 'file', 'objdump', 'readelf', 'ls', 'cat', 'clear', 'help'];
-        const files = ['binary', 'strings.txt', 'dump.hex', 'analysis.log'];
-        
-        const [cmd, arg] = input.split(' ');
-        
-        if (!arg) {
-            const matches = commands.filter(c => c.startsWith(cmd));
-            if (matches.length === 1) {
-                this.input.value = matches[0] + ' ';
+    analyzeBinary: function(args) {
+        if (!args.includes('-d')) {
+            this.appendOutput('Usage: objdump -d <file>');
+            return;
+        }
+
+        const file = args[args.indexOf('-d') + 1];
+        if (!file) {
+            this.appendOutput('No file specified');
+            return;
+        }
+
+        const challenge = this.challenges[this.currentLevel];
+        if (challenge.validation.commands.includes('objdump')) {
+            if (file.endsWith('.sh.x')) {
+                this.appendOutput('Disassembly of section .text:');
+                // Add level-specific disassembly output
+                switch (this.currentLevel) {
+                    case 2:
+                        this.appendOutput('Hidden key found in .rodata section:');
+                        this.appendOutput(challenge.validation.key);
+                        break;
+                    case 3:
+                        this.appendOutput('Multiple encrypted sections detected');
+                        this.appendOutput('Time-based execution checks found');
+                        break;
+                }
+            } else {
+                this.appendOutput(`File ${file} not found`);
             }
         } else {
-            const matches = files.filter(f => f.startsWith(arg));
-            if (matches.length === 1) {
-                this.input.value = cmd + ' ' + matches[0];
+            this.appendOutput('Command not available for this challenge');
+        }
+    },
+
+    analyzeTcpdump: function(args) {
+        if (this.currentLevel !== 4) {
+            this.appendOutput('This tool is only available in Level 4');
+            return;
+        }
+        this.appendOutput('Capturing network traffic...');
+        this.appendOutput('Protocol: Custom (0x4B43)');
+        this.appendOutput('Found interesting packets:');
+        this.appendOutput('51 55 49 43 4B 7B ... }');
+    },
+
+    analyzePackets: function(file) {
+        if (this.currentLevel !== 4) {
+            this.appendOutput('This tool is only available in Level 4');
+            return;
+        }
+        this.appendOutput('Analyzing packet capture...');
+        this.appendOutput('Found custom protocol packets');
+        this.appendOutput('Packet sequence: 1/4 -> 2/4 -> 3/4 -> 4/4');
+    },
+
+    traceSyscalls: function(args) {
+        if (this.currentLevel !== 5 && this.currentLevel !== 9) {
+            this.appendOutput('This tool is not available at this level');
+            return;
+        }
+        this.appendOutput('Tracing system calls...');
+        this.appendOutput('Found interesting syscall pattern:');
+        this.appendOutput('read() -> write() -> mmap() -> execve()');
+    },
+
+    traceLibraryCalls: function(args) {
+        if (this.currentLevel !== 5) {
+            this.appendOutput('This tool is only available in Level 5');
+            return;
+        }
+        this.appendOutput('Tracing library calls...');
+        this.appendOutput('Detected custom function calls');
+        this.appendOutput('Hidden functions found in binary');
+    },
+
+    debugBinary: function(args) {
+        if (this.currentLevel !== 6) {
+            this.appendOutput('This tool is only available in Level 6');
+            return;
+        }
+        this.appendOutput('Starting GDB session...');
+        this.appendOutput('Analyzing memory regions...');
+        this.appendOutput('Found encrypted data at 0x7fff1234');
+    },
+
+    hexEdit: function(args) {
+        if (this.currentLevel !== 8) {
+            this.appendOutput('This tool is only available in Level 8');
+            return;
+        }
+        this.appendOutput('Binary editing mode...');
+        this.appendOutput('Security check at offset 0x1234');
+        this.appendOutput('Checksum verification at 0x2345');
+    },
+
+    analyzeKernelLog: function() {
+        if (this.currentLevel !== 9) {
+            this.appendOutput('This tool is only available in Level 9');
+            return;
+        }
+        this.appendOutput('Analyzing kernel messages...');
+        this.appendOutput('Found hidden module: flag_keeper');
+        this.appendOutput('Module parameters contain encoded data');
+    },
+
+    listKernelModules: function() {
+        if (this.currentLevel !== 9) {
+            this.appendOutput('This tool is only available in Level 9');
+            return;
+        }
+        this.appendOutput('Listing kernel modules...');
+        this.appendOutput('flag_keeper 16384 0 - Live 0x0000000000000000');
+    },
+
+    listProcesses: function(args) {
+        if (this.currentLevel !== 10) {
+            this.appendOutput('This tool is only available in Level 10');
+            return;
+        }
+        this.appendOutput('Listing processes...');
+        this.appendOutput('Found hidden processes:');
+        this.appendOutput('flag_keeper, syscall_hook, net_hide');
+    },
+
+    listOpenFiles: function(args) {
+        if (this.currentLevel !== 10) {
+            this.appendOutput('This tool is only available in Level 10');
+            return;
+        }
+        this.appendOutput('Listing open files...');
+        this.appendOutput('Hidden files detected in /proc');
+        this.appendOutput('Modified file descriptors found');
+    },
+
+    handleCompilation: function(args) {
+        if (args.length < 3 || args[1] !== '-f') {
+            this.appendOutput('Usage: shc -f <script_file> [options]');
+            return;
+        }
+
+        const scriptFile = args[2];
+        const challenge = this.challenges[this.currentLevel];
+        
+        if (!challenge.initial_files[scriptFile]) {
+            this.appendOutput(`Error: ${scriptFile} not found`);
+            return;
+        }
+
+        this.appendOutput('Compiling script...');
+        this.appendOutput('Generated binary: ' + scriptFile + '.x');
+        this.validateCompilation(scriptFile);
+    },
+
+    validateCompilation: function(scriptFile) {
+        const challenge = this.challenges[this.currentLevel];
+        if (challenge.validation.type === 'output_match') {
+            this.appendOutput('Compilation successful! Run the binary to test it.');
+        } else if (challenge.validation.type === 'multi_check') {
+            this.appendOutput('Compilation successful! Test the binary with different inputs.');
+        }
+    },
+
+    runCompiledScript: function(command) {
+        const challenge = this.challenges[this.currentLevel];
+        const args = command.split(' ');
+        const binary = args[0].substring(2);
+        
+        if (challenge.validation.type === 'output_match') {
+            this.appendOutput(challenge.validation.expected);
+        } else if (challenge.validation.type === 'multi_check') {
+            const check = challenge.validation.checks.find(c => c.command === command);
+            if (check) {
+                this.appendOutput(check.expected);
+            } else {
+                this.appendOutput('Invalid input or command');
             }
         }
+    },
+
+    showHelp: function() {
+        const helpText = [
+            'Available commands:',
+            '  help                 Show this help message',
+            '  clear               Clear the terminal',
+            '  level <1-10>        Switch to specified level',
+            '  submit <flag>       Submit flag for current level',
+            '',
+            'Analysis Tools:',
+            '  strings <file>      Extract readable strings',
+            '  hexdump -C <file>   Display hex dump',
+            '  readelf -a <file>   Analyze ELF file',
+            '  objdump -d <file>   Disassemble binary',
+            '',
+            'Network Analysis:',
+            '  tcpdump            Capture network traffic',
+            '  wireshark          Analyze packet data',
+            '',
+            'System Analysis:',
+            '  strace             Trace system calls',
+            '  ltrace             Trace library calls',
+            '  gdb                Debug binary',
+            '  xxd                Hex editor',
+            '',
+            'Kernel Tools:',
+            '  dmesg              View kernel messages',
+            '  lsmod              List kernel modules',
+            '',
+            'Process Tools:',
+            '  ps                 List processes',
+            '  lsof               List open files',
+            '',
+            'File Operations:',
+            '  ls                 List files',
+            '  cat <file>         View file contents'
+        ];
+        helpText.forEach(line => this.appendOutput(line));
+    },
+
+    toggleHints: function() {
+        const hintPanel = document.getElementById('hint-panel');
+        hintPanel.classList.toggle('hidden');
     },
 
     appendOutput: function(text) {
@@ -346,6 +595,19 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.9rem;
 }
 
+.challenge-info {
+    margin-left: 1rem;
+}
+
+#current-level {
+    color: #2ecc71;
+}
+
+#challenge-title {
+    color: #ecf0f1;
+    margin-left: 0.5rem;
+}
+
 .terminal-controls button {
     background: none;
     border: none;
@@ -402,6 +664,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
 #terminal-input:focus {
     outline: none;
+}
+
+.hint-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.hint-panel.hidden {
+    display: none;
+}
+
+.hint-panel h4 {
+    color: #ecf0f1;
+    margin-top: 0;
+}
+
+.hint-panel p {
+    color: #ecf0f1;
+    margin-bottom: 1rem;
 }
 
 /* Scrollbar Styles */
