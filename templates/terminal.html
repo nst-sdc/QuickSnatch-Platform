@@ -676,7 +676,14 @@ Level 5 Commands:
                             permissions: '-rw-r-----',
                             owner: 'root',
                             group: 'player',
-                            content: 'Project files are stored in the secure directory.\nMake sure to check permissions before accessing.'
+                            content: 'Project files are stored in the secure directory.\nCheck the .access_rules file for permissions policy.'
+                        },
+                        '.access_rules': {
+                            type: 'file',
+                            permissions: '-r--------',
+                            owner: 'root',
+                            group: 'root',
+                            content: 'Access to secure files requires:\n1. Group membership\n2. Execute permissions on parent directories\n3. Special access token from /etc/security/tokens/'
                         },
                         'secure': {
                             type: 'dir',
@@ -695,14 +702,7 @@ Level 5 Commands:
                                             permissions: '-r--------',
                                             owner: 'root',
                                             group: 'root',
-                                            content: 'This file contains encrypted data.\nYou need to find the decryption key.'
-                                        },
-                                        '.key': {
-                                            type: 'file',
-                                            permissions: '-r--------',
-                                            owner: 'root',
-                                            group: 'root',
-                                            content: 'Check the permissions on /home/player/scripts/decrypt.sh'
+                                            content: 'This file contains encrypted data.\nDecryption key is split across multiple locations:\n1. Part 1: /etc/keys/part1\n2. Part 2: ~/.keys/part2\n3. Part 3: Check system logs'
                                         }
                                     }
                                 }
@@ -711,22 +711,83 @@ Level 5 Commands:
                     }
                 };
 
-                playerHome.contents['scripts'] = {
+                // Add system security tokens
+                fs['/'].contents['etc'].contents['security'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-x---',
+                    owner: 'root',
+                    group: 'security',
+                    contents: {
+                        'tokens': {
+                            type: 'dir',
+                            permissions: 'dr-x------',
+                            owner: 'root',
+                            group: 'root',
+                            contents: {
+                                'access_token': {
+                                    type: 'file',
+                                    permissions: '-r--------',
+                                    owner: 'root',
+                                    group: 'root',
+                                    content: 'Token: XJ4K2M9\nUse this token with the key parts.'
+                                }
+                            }
+                        }
+                    }
+                };
+
+                // Add key parts
+                fs['/'].contents['etc'].contents['keys'] = {
                     type: 'dir',
                     permissions: 'drwxr-x---',
                     owner: 'root',
                     group: 'player',
                     contents: {
-                        'decrypt.sh': {
+                        'part1': {
                             type: 'file',
                             permissions: '-r--------',
                             owner: 'root',
                             group: 'root',
-                            content: 'The secret vault is in /var/vault/classified'
+                            content: 'Key Part 1: HJKL\nCombine with other parts and token.'
                         }
                     }
                 };
 
+                // Add hidden key part in home directory
+                playerHome.contents['.keys'] = {
+                    type: 'dir',
+                    permissions: 'drwx------',
+                    owner: 'root',
+                    group: 'root',
+                    contents: {
+                        'part2': {
+                            type: 'file',
+                            permissions: '-r--------',
+                            owner: 'root',
+                            group: 'root',
+                            content: 'Key Part 2: MNOP\nNext part is in the logs.'
+                        }
+                    }
+                };
+
+                // Add system logs with key part
+                fs['/'].contents['var'].contents['log'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-x---',
+                    owner: 'root',
+                    group: 'syslog',
+                    contents: {
+                        'auth.log': {
+                            type: 'file',
+                            permissions: '-rw-r-----',
+                            owner: 'root',
+                            group: 'syslog',
+                            content: '[2024-01-18 10:00:01] Key Part 3: QRST\n[2024-01-18 10:00:02] System startup complete'
+                        }
+                    }
+                };
+
+                // Add vault with multiple layers
                 fs['/'].contents['var'].contents['vault'] = {
                     type: 'dir',
                     permissions: 'drwxr-x---',
@@ -739,32 +800,77 @@ Level 5 Commands:
                             owner: 'root',
                             group: 'root',
                             contents: {
-                                'secret.txt': {
-                                    type: 'file',
-                                    permissions: '-r--------',
+                                'level1': {
+                                    type: 'dir',
+                                    permissions: 'dr-x------',
                                     owner: 'root',
                                     group: 'root',
-                                    content: 'flag{chmod_master_extreme}'
+                                    contents: {
+                                        'level2': {
+                                            type: 'dir',
+                                            permissions: 'dr-x------',
+                                            owner: 'root',
+                                            group: 'root',
+                                            contents: {
+                                                'secret.txt': {
+                                                    type: 'file',
+                                                    permissions: '-r--------',
+                                                    owner: 'root',
+                                                    group: 'root',
+                                                    content: 'Combine token (XJ4K2M9) with key parts (HJKL-MNOP-QRST) to reveal:\nflag{chmod_master_supreme}'
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 };
 
-                // Add a hint file with incorrect permissions
+                // Add helper script with a twist
+                playerHome.contents['scripts'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-x---',
+                    owner: 'root',
+                    group: 'player',
+                    contents: {
+                        'decrypt.sh': {
+                            type: 'file',
+                            permissions: '-r--------',
+                            owner: 'root',
+                            group: 'root',
+                            content: 'To decrypt: Combine token with key parts in order.\nLocation: /var/vault/classified/level1/level2/secret.txt'
+                        }
+                    }
+                };
+
+                // Add permissions guide
                 playerHome.contents['.permissions_help'] = {
                     type: 'file',
                     permissions: '-r--r--r--',
                     owner: 'player',
                     group: 'player',
-                    content: `Common Permission Patterns:
-- 777 (rwxrwxrwx): Full permissions for everyone (dangerous!)
-- 755 (rwxr-xr-x): Standard directory permissions
-- 644 (rw-r--r--): Standard file permissions
-- 600 (rw-------): Private file permissions
-- 400 (r--------): Read-only file permissions
+                    content: `Advanced Permission Guide:
 
-Remember to use chmod with caution!`
+File Permissions:
+- 777 (rwxrwxrwx): Full permissions (dangerous!)
+- 755 (rwxr-xr-x): Standard directory
+- 644 (rw-r--r--): Standard file
+- 600 (rw-------): Private file
+- 400 (r--------): Read-only
+- 000 (---------): No access
+
+Special Permissions:
+- 4000 (suid): Set user ID
+- 2000 (sgid): Set group ID
+- 1000 (sticky): Sticky bit
+
+Remember:
+- Directory needs 'x' to access contents
+- Parent directories need 'x' to reach children
+- Root ownership requires special handling
+- Group permissions may be crucial`
                 };
                 break;
             case 3:
@@ -1272,19 +1378,31 @@ Navigate through the complex directory structure to find the hidden flag.
 - The flag could be anywhere in your home directory!`;
             case 2:
                 return `Your Task:
-Navigate the permission-restricted directory structure to find the flag.
-- Use 'ls -l' to check file and directory permissions
-- Use 'chmod' to modify permissions when needed
-- Pay attention to file ownership and group permissions
-- Follow the trail of clues through restricted files
-- Some directories need execute (x) permission to access
-- Remember that root-owned files need special handling
+Master the complex permission system to find the flag.
 
-Tips:
-- Directory execute permission (x) is needed to access its contents
-- Read permission (r) is needed to list directory contents
-- You might need to modify permissions on parent directories first
-- Check both user and group permissions`;
+Required Steps:
+1. Navigate the restricted directory structure
+2. Find and collect all key parts:
+   - Part 1 in /etc/keys
+   - Part 2 in ~/.keys
+   - Part 3 in system logs
+3. Locate the access token in /etc/security/tokens
+4. Access the final vault in /var/vault/classified
+
+Key Concepts:
+- Use 'ls -la' to check detailed permissions
+- Directory execute (x) permission is crucial
+- Root-owned files require special handling
+- Check group memberships and permissions
+- Parent directory permissions affect access to children
+- Hidden files may contain vital information
+
+Advanced Tips:
+- Some files may require group permissions
+- Multiple permission layers must be navigated
+- System logs contain valuable information
+- Token and key parts must be combined correctly
+- Check .permissions_help for detailed permission guide`;
             case 3:
                 return `Your Task:
 Search through system logs to find hidden patterns.
