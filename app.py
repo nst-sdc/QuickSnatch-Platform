@@ -86,8 +86,10 @@ ANSWERS = {
 # Level sections and their corresponding hints
 LEVEL_SECTIONS = {
     1: {
-        'title': 'File System Navigation',
-        'description': 'Learn to navigate through files and directories to find hidden flags.',
+        'title': 'Hidden in Plain Sight',
+        'description': """A secret is hidden in plain sight, though not immediately obvious. Can you find the hidden file within this directory and reveal its contents?
+
+Hint: Sometimes what you can't see is just as important as what you can see.""",
         'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level1.sh | bash',
         'flag': 'QS{B3g1nn3r_Expl0r3r_2024}',
         'location_hint': {
@@ -101,8 +103,10 @@ Her presence whispers a legacy rare.""",
         }
     },
     2: {
-        'title': 'Network Analysis',
-        'description': 'Analyze network traffic and connections to discover hidden information.',
+        'title': 'The Hidden Path',
+        'description': """A flag is tucked away, hidden from a simple list of files. It's said that a special directory hides the key. Can you navigate your way through and find what lies within and reveal the flag?
+
+Hint: Some directories prefer to stay out of sight, but they can't hide from the right command.""",
         'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level2.sh | bash',
         'flag': 'QS{N3tw0rk_N1nj4_2024}',
         'location_hint': {
@@ -118,8 +122,10 @@ A haven of calm, bathed in light?""",
         }
     },
     3: {
-        'title': 'Cryptography Challenge',
-        'description': 'Decrypt encoded messages to reveal hidden flags.',
+        'title': 'Following the Links',
+        'description': """A complex path leads to the flag. The flag itself is hidden in a file, and its path includes a symbolic link. Your job is to navigate through the file structure, follow the link and then obtain the flag.
+
+Hint: Not all paths are what they seem. Some are just pointers to the real destination.""",
         'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level3.sh | bash',
         'flag': 'QS{Crypt0_M4st3r_2024}',
         'location_hint': {
@@ -133,8 +139,10 @@ A peaceful corner, welcoming all?""",
         }
     },
     4: {
-        'title': 'Binary Analysis',
-        'description': 'Analyze binary files to extract hidden flags.',
+        'title': 'Permission Granted',
+        'description': """A direct path is needed, but you must use special permissions to read the content. You have to read the contents of the script to understand how to access the flag.
+
+Hint: Sometimes you need the right permissions to access what you seek. The script holds the key to gaining access.""",
         'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level4.sh | bash',
         'flag': 'QS{B1n4ry_Wh1sp3r3r_2024}',
         'location_hint': {
@@ -149,8 +157,10 @@ A green escape, where peace resounds?""",
         }
     },
     5: {
-        'title': 'Final Challenge',
-        'description': 'Combine all your skills to solve the ultimate challenge.',
+        'title': 'Decode the Message',
+        'description': """A message has been encoded, and the key is available within the directory. You must use command line tools to decode the message. Explore the directory, find the message and decode it.
+
+Hint: The message may look like gibberish, but with the right decoding tool, its true meaning will be revealed.""",
         'curl_command': 'curl -s https://raw.githubusercontent.com/nst-sdc/cli_ctf/refs/heads/main/level5.sh | bash',
         'flag': 'QS{Qu1ckSn4tch_Ch4mp10n_2024}',
         'location_hint': {
