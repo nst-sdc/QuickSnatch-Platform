@@ -255,7 +255,7 @@ class Terminal {
     }
 
     welcomeMessage() {
-        const messages = [
+        const messages = this.welcomeMessages[this.level] || [
             `Welcome to QuickSnatch Terminal - Level ${this.level}`,
             'Type "help" for available commands',
             ''
@@ -475,7 +475,208 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
     }
 
     addLevelSpecificFiles(fs) {
-        // Add level-specific files here
+        const playerHome = fs['/'].contents['home'].contents['player'];
+        
+        switch(this.level) {
+            case 1:
+                // Level 1: Hidden Files Challenge
+                playerHome.contents['.secret'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: 'flag{file_explorer_pro}'
+                };
+                break;
+
+            case 2:
+                // Level 2: Permissions Challenge
+                playerHome.contents['restricted.txt'] = {
+                    type: 'file',
+                    permissions: '-r--------',
+                    owner: 'root',
+                    group: 'root',
+                    content: 'FLAG{permission_master}'
+                };
+                break;
+
+            case 3:
+                // Level 3: Log Analysis Challenge
+                playerHome.contents['system.log'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: `
+2024-01-18 10:00:01 System startup
+2024-01-18 10:00:02 User login: admin
+2024-01-18 10:00:03 FLAG{log_analysis_master}
+2024-01-18 10:00:04 Service started: nginx
+2024-01-18 10:00:05 Database connection established
+                    `.trim()
+                };
+                break;
+
+            case 4:
+                // Level 4: Process Challenge
+                this.processes.push({
+                    pid: 31337,
+                    user: 'root',
+                    command: './suspicious_process FLAG{process_hunter_master}'
+                });
+                break;
+
+            case 5:
+                // Level 5: Network Challenge
+                this.networkConnections.push({
+                    proto: 'tcp',
+                    local: '127.0.0.1:31337',
+                    foreign: '*:*',
+                    state: 'LISTEN',
+                    info: 'FLAG{network_ninja_master}'
+                });
+                break;
+
+            case 6:
+                // Level 6: Environment Variables Challenge
+                this.environment['SECRET_FLAG'] = 'FLAG{env_master}';
+                break;
+
+            case 7:
+                // Level 7: Service Challenge
+                playerHome.contents['service.conf'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: `
+service_port=31337
+service_token=FLAG{service_master}
+                    `.trim()
+                };
+                break;
+
+            case 8:
+                // Level 8: Database Challenge
+                this.environment['MYSQL_PASSWORD'] = 'FLAG{database_master}';
+                playerHome.contents['db_backup.sql'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: `
+-- MySQL dump
+CREATE TABLE users (
+    id INT,
+    username VARCHAR(50),
+    password VARCHAR(50)
+);
+INSERT INTO users VALUES (1, 'admin', 'FLAG{sql_master}');
+                    `.trim()
+                };
+                break;
+
+            case 9:
+                // Level 9: Encryption Challenge
+                playerHome.contents['secret.enc'] = {
+                    type: 'file',
+                    permissions: '-rw-r--r--',
+                    owner: 'player',
+                    group: 'player',
+                    content: Buffer.from('FLAG{crypto_master}').toString('base64')
+                };
+                break;
+
+            case 10:
+                // Level 10: Git Challenge
+                playerHome.contents['.git'] = {
+                    type: 'dir',
+                    permissions: 'drwxr-xr-x',
+                    owner: 'player',
+                    group: 'player',
+                    contents: {
+                        'HEAD': {
+                            type: 'file',
+                            permissions: '-rw-r--r--',
+                            owner: 'player',
+                            group: 'player',
+                            content: 'ref: refs/heads/master'
+                        },
+                        'config': {
+                            type: 'file',
+                            permissions: '-rw-r--r--',
+                            owner: 'player',
+                            group: 'player',
+                            content: '[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false'
+                        }
+                    }
+                };
+                break;
+        }
+
+        // Add level-specific welcome message and hints
+        this.welcomeMessages = {
+            1: [
+                'Welcome to Level 1: Hidden Files Challenge',
+                'Your task is to find a hidden flag in the file system.',
+                'Hint: Not all files are visible by default. Try using ls with special flags.',
+                'Commands you might need: ls, cd, cat'
+            ],
+            2: [
+                'Welcome to Level 2: Permission Master Challenge',
+                'There\'s a file with restricted permissions.',
+                'Hint: Check file permissions and try to find ways to read it.',
+                'Commands you might need: ls -l, chmod, cat'
+            ],
+            3: [
+                'Welcome to Level 3: Log Analysis Challenge',
+                'There\'s a flag hidden in the system logs.',
+                'Hint: Use text processing commands to find the flag.',
+                'Commands you might need: cat, grep, less'
+            ],
+            4: [
+                'Welcome to Level 4: Process Hunter Challenge',
+                'There\'s a suspicious process running with the flag.',
+                'Hint: Look for unusual processes and their command lines.',
+                'Commands you might need: ps, top, grep'
+            ],
+            5: [
+                'Welcome to Level 5: Network Ninja Challenge',
+                'A service is running with the flag.',
+                'Hint: Check network connections and listening ports.',
+                'Commands you might need: netstat, ss, grep'
+            ],
+            6: [
+                'Welcome to Level 6: Environment Variable Challenge',
+                'The flag is hidden in an environment variable.',
+                'Hint: List and examine all environment variables.',
+                'Commands you might need: env, printenv, echo'
+            ],
+            7: [
+                'Welcome to Level 7: Service Authentication Challenge',
+                'Find the service configuration with the flag.',
+                'Hint: Look for configuration files and their contents.',
+                'Commands you might need: ls, cat, grep'
+            ],
+            8: [
+                'Welcome to Level 8: Database Challenge',
+                'The flag is hidden in the database backup.',
+                'Hint: Examine database files and credentials.',
+                'Commands you might need: cat, grep, mysql'
+            ],
+            9: [
+                'Welcome to Level 9: Encryption Challenge',
+                'There\'s an encrypted file containing the flag.',
+                'Hint: The file is base64 encoded.',
+                'Commands you might need: cat, base64'
+            ],
+            10: [
+                'Welcome to Level 10: Git Master Challenge',
+                'The flag is hidden in the git repository.',
+                'Hint: Examine the git history and configuration.',
+                'Commands you might need: git log, git show, cat'
+            ]
+        };
     }
 
     initializeHomeDirectory() {
@@ -590,44 +791,90 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
         };
     }
 
-    listDirectory(args) {
-        const showHidden = args.includes('-a') || args.includes('-la') || args.includes('-al');
-        const showDetails = args.includes('-l') || args.includes('-la') || args.includes('-al');
-        
-        const dir = this.getCurrentDir();
-        if (!dir) return;
-
-        const files = Object.entries(dir.contents)
-            .filter(([name]) => showHidden || !name.startsWith('.'))
-            .map(([name, info]) => {
-                if (showDetails) {
-                    const type = info.type === 'dir' ? 'd' : '-';
-                    const perms = type === 'd' ? 'rwxr-xr-x' : 'rw-r--r--';
-                    const size = info.type === 'dir' ? '-' : info.content.length;
-                    return `${type}${perms} ${this.username} ${this.username} ${size} Jan 18 10:33 ${name}`;
-                }
-                return name;
-            });
-
-        return files.join('\n') || 'Directory is empty';
-    }
-
     getCurrentDir() {
-        if (this.currentDirectory === '~') {
-            return this.fileSystem['/'].contents.home.contents.player;
-        } else if (this.currentDirectory === '/') {
-            return this.fileSystem['/'];
-        }
-        
-        const parts = this.currentDirectory.replace('~', '/home/player').split('/').filter(Boolean);
+        let path = this.currentDirectory === '~' ? '/home/player' : this.currentDirectory;
+        let parts = path.split('/').filter(p => p);
         let current = this.fileSystem['/'];
         
         for (const part of parts) {
-            if (!current.contents[part]) return null;
-            current = current.contents[part];
+            if (part === 'home' || part === 'player') {
+                current = current.contents[part];
+            } else {
+                current = current.contents[part];
+            }
+            if (!current) return null;
         }
         
         return current;
+    }
+
+    catFile(filename) {
+        if (!filename) {
+            return 'cat: missing operand\nTry \'cat --help\' for more information.';
+        }
+
+        const currentDir = this.getCurrentDir();
+        if (!currentDir) {
+            return 'cat: cannot access current directory';
+        }
+
+        // Handle path with directories
+        if (filename.includes('/')) {
+            const parts = filename.split('/').filter(p => p);
+            let current = currentDir;
+            
+            // Handle absolute paths
+            if (filename.startsWith('/')) {
+                current = this.fileSystem['/'];
+            }
+            
+            // Navigate through the path
+            for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i];
+                if (part === '..') {
+                    // TODO: Implement directory up navigation
+                    continue;
+                } else if (part === '.') {
+                    continue;
+                } else {
+                    current = current.contents[part];
+                }
+                
+                if (!current || current.type !== 'dir') {
+                    return `cat: ${filename}: No such file or directory`;
+                }
+            }
+            
+            filename = parts[parts.length - 1];
+            currentDir = current;
+        }
+
+        const file = currentDir.contents[filename];
+        
+        if (!file) {
+            return `cat: ${filename}: No such file or directory`;
+        }
+
+        if (file.type === 'dir') {
+            return `cat: ${filename}: Is a directory`;
+        }
+
+        // Check if user has read permission
+        const isOwner = file.owner === this.username;
+        const isInGroup = file.group === this.username;
+        const permissions = file.permissions;
+        
+        const canRead = (
+            (isOwner && permissions[1] === 'r') ||
+            (isInGroup && permissions[4] === 'r') ||
+            permissions[7] === 'r'
+        );
+
+        if (!canRead) {
+            return `cat: ${filename}: Permission denied`;
+        }
+
+        return file.content;
     }
 
     changeDirectory(path) {
@@ -641,7 +888,7 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
             this.currentDirectory = '/';
         } else if (path.startsWith('/')) {
             // Handle absolute paths
-            const parts = path.split('/').filter(Boolean);
+            const parts = path.split('/').filter(p => p);
             let current = this.fileSystem['/'];
             
             for (const part of parts) {
@@ -662,6 +909,28 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
             }
         }
         this.updatePrompt();
+    }
+
+    listDirectory(args) {
+        const showHidden = args.includes('-a') || args.includes('-la') || args.includes('-al');
+        const showDetails = args.includes('-l') || args.includes('-la') || args.includes('-al');
+        
+        const dir = this.getCurrentDir();
+        if (!dir) return;
+
+        const files = Object.entries(dir.contents)
+            .filter(([name]) => showHidden || !name.startsWith('.'))
+            .map(([name, info]) => {
+                if (showDetails) {
+                    const type = info.type === 'dir' ? 'd' : '-';
+                    const perms = type === 'd' ? 'rwxr-xr-x' : 'rw-r--r--';
+                    const size = info.type === 'dir' ? '-' : info.content.length;
+                    return `${type}${perms} ${this.username} ${this.username} ${size} Jan 18 10:33 ${name}`;
+                }
+                return name;
+            });
+
+        return files.join('\n') || 'Directory is empty';
     }
 
     listProcesses() {
@@ -685,6 +954,127 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
             .map(([key, value]) => `${key}=${value}`)
             .join('\n');
         return output;
+    }
+
+    processCommand(command) {
+        // Handle aliases
+        if (this.aliases[command]) {
+            command = this.aliases[command];
+        }
+
+        const [cmd, ...args] = command.split(' ');
+
+        // Add level-specific command handling
+        switch(this.level) {
+            case 4:
+                if (cmd === 'ps') {
+                    return this.listProcesses(true); // Show suspicious process
+                }
+                break;
+            case 5:
+                if (cmd === 'netstat') {
+                    return this.listNetworkConnections(true); // Show hidden service
+                }
+                break;
+            case 6:
+                if (cmd === 'env' || cmd === 'printenv') {
+                    return this.listEnvironment(true); // Show secret variable
+                }
+                break;
+            case 8:
+                if (cmd === 'mysql') {
+                    return this.handleMySQLCommand(args);
+                }
+                break;
+            case 9:
+                if (cmd === 'base64' && args[0] === '-d') {
+                    return this.handleBase64Decode(args.slice(1));
+                }
+                break;
+            case 10:
+                if (cmd === 'git') {
+                    return this.handleGitCommand(args);
+                }
+                break;
+        }
+
+        // Default command handling
+        switch(cmd) {
+            case 'clear':
+                this.clear();
+                return '';
+            case 'help':
+                return this.getHelpText();
+            case 'ls':
+                return this.listDirectory(args);
+            case 'pwd':
+                return this.currentDirectory;
+            case 'cd':
+                return this.changeDirectory(args[0]);
+            case 'cat':
+                return this.catFile(args[0]);
+            case 'echo':
+                return args.join(' ');
+            case 'whoami':
+                return this.username;
+            case 'date':
+                return new Date().toString();
+            case 'history':
+                return this.history.join('\n');
+            case 'ps':
+                return this.listProcesses();
+            case 'netstat':
+                return this.listNetworkConnections();
+            case 'env':
+            case 'printenv':
+                return this.listEnvironment();
+            default:
+                return `Command not found: ${cmd}. Type 'help' for available commands.`;
+        }
+    }
+
+    handleMySQLCommand(args) {
+        if (this.level !== 8) return 'MySQL is not available at this level';
+        if (args[0] === '-u' && args[1] === 'root') {
+            return 'Access denied for user \'root\'@\'localhost\'';
+        }
+        return 'Welcome to MySQL monitor. Type \'help\' or \'\\h\' for help.';
+    }
+
+    handleBase64Decode(args) {
+        if (this.level !== 9) return 'base64 command is not available at this level';
+        if (!args.length) return 'base64: missing operand';
+        try {
+            return Buffer.from(args[0], 'base64').toString('utf8');
+        } catch {
+            return 'base64: invalid input';
+        }
+    }
+
+    handleGitCommand(args) {
+        if (this.level !== 10) return 'git command is not available at this level';
+        const [subcmd, ...subargs] = args;
+        switch(subcmd) {
+            case 'log':
+                return `commit abc123def456
+Author: Admin <admin@quicksnatch>
+Date: ${new Date().toISOString()}
+
+    Added secret flag
+
+commit def456abc123
+Author: Admin <admin@quicksnatch>
+Date: ${new Date().toISOString()}
+
+    Initial commit`;
+            case 'show':
+                if (subargs[0] === 'abc123def456') {
+                    return 'FLAG{git_master}';
+                }
+                return 'commit not found';
+            default:
+                return `git: '${subcmd}' is not a git command. See 'git --help'`;
+        }
     }
 }
 
