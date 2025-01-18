@@ -32,42 +32,6 @@
     </div>
 </div>
 
-<div class="terminal-wrapper">
-    <!-- Level Info -->
-    <div class="level-info">
-        <div class="level-text">Level {{ level }}</div>
-        <div class="level-bar">
-            <div class="progress" style="width: {{ (level / 10) * 100 }}%"></div>
-        </div>
-    </div>
-
-    <!-- Terminal Window -->
-    <div id="terminal">
-        <div class="terminal-header">
-            <div class="terminal-title">QuickSnatch Terminal</div>
-            <div class="terminal-controls">
-                <span class="control minimize">−</span>
-                <span class="control maximize">□</span>
-                <span class="control close">×</span>
-            </div>
-        </div>
-        <div class="terminal-content">
-            <div class="terminal-output"></div>
-            <div class="terminal-input-line">
-                <span class="prompt"></span>
-                <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" autofocus>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Terminal Styles -->
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/terminal.css') }}">
-
-<!-- Terminal Scripts -->
-<script src="{{ url_for('static', filename='js/terminal.js') }}"></script>
-
 <script>
 const terminal = {
     init: function() {
@@ -596,38 +560,6 @@ const terminal = {
 document.addEventListener('DOMContentLoaded', function() {
     terminal.init();
 });
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize terminal
-    window.terminal = new Terminal();
-    terminal.init();
-
-    // Keep focus on terminal input
-    document.addEventListener('click', () => {
-        document.getElementById('terminal-input').focus();
-    });
-
-    // Handle terminal window controls
-    document.querySelector('.control.close').addEventListener('click', () => {
-        const terminal = document.getElementById('terminal');
-        terminal.style.display = 'none';
-    });
-
-    document.querySelector('.control.minimize').addEventListener('click', () => {
-        const terminalContent = document.querySelector('.terminal-content');
-        if (terminalContent.style.display === 'none') {
-            terminalContent.style.display = 'block';
-        } else {
-            terminalContent.style.display = 'none';
-        }
-    });
-
-    document.querySelector('.control.maximize').addEventListener('click', () => {
-        const terminal = document.getElementById('terminal');
-        terminal.classList.toggle('fullscreen');
-    });
-});
-
 </script>
 
 <style>

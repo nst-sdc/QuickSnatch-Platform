@@ -1,0 +1,185 @@
+/* Terminal Base */
+#terminal {
+    background-color: #282c34;
+    color: #abb2bf;
+    font-family: 'Fira Code', 'Source Code Pro', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    height: calc(100vh - 45px);
+    overflow-y: auto;
+    margin: 0;
+    border-radius: 6px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* Terminal Header */
+.terminal-header {
+    background-color: #21252b;
+    padding: 8px 16px;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #181a1f;
+}
+
+.terminal-title {
+    color: #abb2bf;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.close { background-color: #e06c75; }
+.minimize { background-color: #e5c07b; }
+.maximize { background-color: #98c379; }
+
+/* Terminal Content */
+.terminal-content {
+    padding: 16px;
+}
+
+/* Terminal Output */
+.terminal-output {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.output-line {
+    margin: 2px 0;
+}
+
+.error-output {
+    color: #e06c75;
+}
+
+.success-output {
+    color: #98c379;
+}
+
+.warning-output {
+    color: #e5c07b;
+}
+
+/* Terminal Input Line */
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+}
+
+/* Terminal Prompt */
+.prompt {
+    color: #98c379;
+    margin-right: 8px;
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* Terminal Input */
+#terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #abb2bf;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+}
+
+#terminal-input:focus {
+    outline: none;
+}
+
+/* Selection */
+::selection {
+    background-color: #3e4451;
+    color: #abb2bf;
+}
+
+/* Scrollbar */
+#terminal::-webkit-scrollbar {
+    width: 8px;
+}
+
+#terminal::-webkit-scrollbar-track {
+    background: #282c34;
+}
+
+#terminal::-webkit-scrollbar-thumb {
+    background: #3e4451;
+    border-radius: 4px;
+}
+
+#terminal::-webkit-scrollbar-thumb:hover {
+    background: #4b5263;
+}
+
+/* Directory and File Colors */
+.directory {
+    color: #61afef;
+    font-weight: bold;
+}
+
+.executable {
+    color: #98c379;
+    font-weight: bold;
+}
+
+.symlink {
+    color: #c678dd;
+}
+
+.hidden-file {
+    opacity: 0.7;
+}
+
+/* Command Syntax Highlighting */
+.command {
+    color: #61afef;
+}
+
+.argument {
+    color: #98c379;
+}
+
+.flag {
+    color: #e5c07b;
+}
+
+/* ANSI Colors */
+.ansi-black { color: #282c34; }
+.ansi-red { color: #e06c75; }
+.ansi-green { color: #98c379; }
+.ansi-yellow { color: #e5c07b; }
+.ansi-blue { color: #61afef; }
+.ansi-magenta { color: #c678dd; }
+.ansi-cyan { color: #56b6c2; }
+.ansi-white { color: #dcdfe4; }
+.ansi-bright-black { color: #5c6370; }
+.ansi-bright-red { color: #be5046; }
+.ansi-bright-green { color: #7a9f60; }
+.ansi-bright-yellow { color: #d19a66; }
+.ansi-bright-blue { color: #3b84c0; }
+.ansi-bright-magenta { color: #9a52af; }
+.ansi-bright-cyan { color: #3c909b; }
+.ansi-bright-white { color: #828997; }
+
+/* Welcome Message */
+.welcome-message {
+    color: #61afef;
+    margin-bottom: 12px;
+}

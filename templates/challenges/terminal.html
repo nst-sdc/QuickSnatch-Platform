@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="terminal-wrapper">
+    <!-- Level Info -->
+    <div class="level-info">
+        <div class="level-text">Level {{ level }}</div>
+        <div class="level-bar">
+            <div class="progress" style="width: {{ (level / 10) * 100 }}%"></div>
+        </div>
+    </div>
+
+    <!-- Terminal -->
+    <div id="terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">QuickSnatch Terminal</div>
+            <div class="terminal-controls">
+                <span class="control minimize">−</span>
+                <span class="control maximize">□</span>
+                <span class="control close">×</span>
+            </div>
+        </div>
+        <div class="terminal-content">
+            <div class="terminal-output"></div>
+            <div class="terminal-input-line">
+                <span class="prompt"></span>
+                <input type="text" id="terminal-input" autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Terminal Wrapper */
+.terminal-wrapper {
+    height: 100vh;
+    background-color: #1d1f21;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Level Info */
+.level-info {
+    background-color: #24283b;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.level-text {
+    color: #a9b1d6;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+}
+
+.level-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: #98c379;
+    transition: width 0.3s ease;
+}
+
+/* Terminal */
+#terminal {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #f8f8f2;
+}
+
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.terminal-title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control {
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.control:hover {
+    color: #98c379;
+}
+
+.terminal-content {
+    padding: 16px;
+}
+
+/* Terminal Output */
+.terminal-output {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Terminal Input Line */
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+}
+
+/* Terminal Prompt */
+.prompt {
+    color: #98c379;
+    margin-right: 8px;
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* Terminal Input */
+#terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #f8f8f2;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+}
+
+#terminal-input:focus {
+    outline: none;
+}
+
+/* Command Output Styles */
+.command-output {
+    margin: 4px 0;
+}
+
+.error-output {
+    color: #ff5555;
+}
+
+.success-output {
+    color: #50fa7b;
+}
+
+/* Directory and File Colors */
+.directory {
+    color: #61afef;
+    font-weight: bold;
+}
+
+.executable {
+    color: #98c379;
+    font-weight: bold;
+}
+
+.symlink {
+    color: #c678dd;
+}
+
+.hidden-file {
+    opacity: 0.7;
+}
+
+/* Command Syntax Highlighting */
+.command {
+    color: #61afef;
+}
+
+.argument {
+    color: #98c379;
+}
+
+.flag {
+    color: #e5c07b;
+}
+
+/* Selection Colors */
+::selection {
+    background: rgba(255, 255, 255, 0.2);
+    color: inherit;
+}
+
+/* Scrollbar Styling */
+#terminal::-webkit-scrollbar {
+    width: 8px;
+}
+
+#terminal::-webkit-scrollbar-track {
+    background: #1d1f21;
+}
+
+#terminal::-webkit-scrollbar-thumb {
+    background: #373b41;
+    border-radius: 4px;
+}
+
+#terminal::-webkit-scrollbar-thumb:hover {
+    background: #4b4f55;
+}
+
+/* ANSI Colors */
+.ansi-black { color: #282c34; }
+.ansi-red { color: #e06c75; }
+.ansi-green { color: #98c379; }
+.ansi-yellow { color: #e5c07b; }
+.ansi-blue { color: #61afef; }
+.ansi-magenta { color: #c678dd; }
+.ansi-cyan { color: #56b6c2; }
+.ansi-white { color: #dcdfe4; }
+.ansi-bright-black { color: #5c6370; }
+.ansi-bright-red { color: #be5046; }
+.ansi-bright-green { color: #7a9f60; }
+.ansi-bright-yellow { color: #d19a66; }
+.ansi-bright-blue { color: #3b84c0; }
+.ansi-bright-magenta { color: #9a52af; }
+.ansi-bright-cyan { color: #3c909b; }
+.ansi-bright-white { color: #828997; }
+
+/* Welcome Message */
+.welcome-message {
+    color: #61afef;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-left: 2px solid #61afef;
+    background: rgba(97, 175, 239, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .level-info {
+        padding: 8px 12px;
+    }
+
+    #terminal {
+        padding: 12px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const terminal = {
+        input: document.getElementById('terminal-input'),
+        output: document.querySelector('.terminal-output'),
+        history: [],
+        historyIndex: -1,
+        currentDirectory: '~',
+
+        init: function() {
+            this.setupEventListeners();
+            this.showWelcomeMessage();
+            this.input.focus();
+        },
+
+        setupEventListeners: function() {
+            // Keep focus on input
+            document.addEventListener('click', () => this.input.focus());
+            
+            // Handle input
+            this.input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleCommand();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    this.navigateHistory('up');
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.navigateHistory('down');
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    this.handleTabCompletion();
+                } else if (e.key === 'c' && e.ctrlKey) {
+                    e.preventDefault();
+                    this.handleCtrlC();
+                } else if (e.key === 'l' && e.ctrlKey) {
+                    e.preventDefault();
+                    this.clearScreen();
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                this.scrollToBottom();
+            });
+
+            // Handle header buttons
+            document.querySelector('.dot.maximize').addEventListener('click', () => {
+                document.documentElement.requestFullscreen();
+            });
+        },
+
+        showWelcomeMessage: function() {
+            const welcomeMsg = [
+                '╭──────────────────────────────────────────╮',
+                '│   Welcome to QuickSnatch Terminal v1.0   │',
+                '│   Type "help" to see available commands  │',
+                '╰──────────────────────────────────────────╯',
+                ''
+            ].join('\\n');
+            this.appendOutput(welcomeMsg, 'welcome-message');
+        },
+
+        appendOutput: function(text, className = '') {
+            const output = document.createElement('div');
+            output.className = `command-output ${className}`;
+            output.textContent = text;
+            this.output.appendChild(output);
+            this.scrollToBottom();
+        },
+
+        handleCommand: function() {
+            const command = this.input.value.trim();
+            if (command) {
+                this.history.push(command);
+                this.historyIndex = this.history.length;
+                this.appendOutput(`${this.getPrompt()} ${command}`);
+                this.input.value = '';
+                this.processCommand(command);
+            }
+        },
+
+        processCommand: function(command) {
+            const [cmd, ...args] = command.split(' ');
+            
+            fetch('/execute_command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    command: cmd,
+                    args: args,
+                    cwd: this.currentDirectory
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    this.appendOutput(data.error, 'error-output');
+                } else {
+                    if (data.output) this.appendOutput(data.output);
+                    if (data.cwd) this.currentDirectory = data.cwd;
+                }
+            })
+            .catch(error => {
+                this.appendOutput(`Error: ${error.message}`, 'error-output');
+            });
+        },
+
+        navigateHistory: function(direction) {
+            if (direction === 'up' && this.historyIndex > 0) {
+                this.historyIndex--;
+                this.input.value = this.history[this.historyIndex];
+            } else if (direction === 'down') {
+                if (this.historyIndex < this.history.length - 1) {
+                    this.historyIndex++;
+                    this.input.value = this.history[this.historyIndex];
+                } else {
+                    this.historyIndex = this.history.length;
+                    this.input.value = '';
+                }
+            }
+            setTimeout(() => {
+                this.input.selectionStart = this.input.selectionEnd = this.input.value.length;
+            }, 0);
+        },
+
+        handleTabCompletion: function() {
+            const input = this.input.value;
+            const lastWord = input.split(' ').pop();
+
+            fetch('/tab_complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    partial: lastWord,
+                    cwd: this.currentDirectory
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.completions?.length > 0) {
+                    if (data.completions.length === 1) {
+                        const completion = data.completions[0];
+                        const words = input.split(' ');
+                        words[words.length - 1] = completion;
+                        this.input.value = words.join(' ');
+                    } else {
+                        this.appendOutput(`${this.getPrompt()} ${input}`);
+                        this.appendOutput(data.completions.join('  '));
+                    }
+                }
+            });
+        },
+
+        handleCtrlC: function() {
+            this.appendOutput(`${this.getPrompt()} ^C`);
+            this.input.value = '';
+            this.appendOutput('');
+        },
+
+        clearScreen: function() {
+            this.output.innerHTML = '';
+            this.showWelcomeMessage();
+        },
+
+        getPrompt: function() {
+            return `user@quicksnatch:${this.currentDirectory}$`;
+        },
+
+        scrollToBottom: function() {
+            const terminal = document.getElementById('terminal');
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+    };
+
+    // Initialize terminal
+    terminal.init();
+});
+</script>
+{% endblock %}
