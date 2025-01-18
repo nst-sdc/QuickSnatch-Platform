@@ -83,7 +83,14 @@ class Terminal {
                 e.preventDefault();
                 const commandText = this.input.value.trim();
                 if (commandText) {
-                    this.executeCommand();
+                    this.writeOutput(`${this.getPrompt()}${commandText}`);
+                    const output = this.processCommand(commandText);
+                    if (output) {
+                        this.writeOutput(output);
+                    }
+                    this.addToHistory(commandText);
+                    this.input.value = '';
+                    this.updatePrompt();
                 }
                 break;
             case 'ArrowUp':
@@ -102,12 +109,6 @@ class Terminal {
                 if (e.ctrlKey) {
                     e.preventDefault();
                     this.handleCtrlC();
-                }
-                break;
-            case 'l':
-                if (e.ctrlKey) {
-                    e.preventDefault();
-                    this.clear();
                 }
                 break;
         }
@@ -149,8 +150,12 @@ class Terminal {
         }
     }
 
+    getPrompt() {
+        return `${this.username}@${this.hostname}:${this.currentDirectory}$ `;
+    }
+
     updatePrompt() {
-        this.prompt.textContent = `${this.username}@${this.hostname}:${this.currentDirectory}$ `;
+        this.prompt.textContent = this.getPrompt();
     }
 
     executeCommand() {
@@ -241,7 +246,9 @@ udp        0      0 0.0.0.0:68              0.0.0.0:*                           
     }
 
     clear() {
-        this.output.innerHTML = '';
+        while (this.output.firstChild) {
+            this.output.removeChild(this.output.firstChild);
+        }
     }
 
     addToHistory(command) {
