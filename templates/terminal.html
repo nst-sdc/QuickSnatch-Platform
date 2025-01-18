@@ -154,17 +154,23 @@ class Terminal {
         const command = this.input.value.trim();
         if (!command) return;
 
+        // Add command to history and display it
         this.addToHistory(command);
         this.writeOutput(`${this.prompt.textContent}${command}`);
 
+        // Process command and display output
         const output = this.processCommand(command);
-        if (output) {
+        if (output !== undefined && output !== null && output !== '') {
             this.writeOutput(output);
         }
 
+        // Clear input and update prompt
         this.input.value = '';
         this.suggestionsDiv.style.display = 'none';
         this.updatePrompt();
+        
+        // Scroll to bottom
+        this.terminal.querySelector('.terminal-content').scrollTop = this.terminal.querySelector('.terminal-content').scrollHeight;
     }
 
     processCommand(command) {
@@ -187,26 +193,6 @@ class Terminal {
                     return this.listNetworkConnections(true); // Show hidden service
                 }
                 break;
-            case 6:
-                if (cmd === 'env' || cmd === 'printenv') {
-                    return this.listEnvironment(true); // Show secret variable
-                }
-                break;
-            case 8:
-                if (cmd === 'mysql') {
-                    return this.handleMySQLCommand(args);
-                }
-                break;
-            case 9:
-                if (cmd === 'base64' && args[0] === '-d') {
-                    return this.handleBase64Decode(args.slice(1));
-                }
-                break;
-            case 10:
-                if (cmd === 'git') {
-                    return this.handleGitCommand(args);
-                }
-                break;
         }
 
         // Default command handling
@@ -219,17 +205,29 @@ class Terminal {
             case 'ls':
                 return this.listDirectory(args);
             case 'pwd':
-                return this.currentDirectory;
+                return this.currentDirectory.replace(/^~/, '/home/player');
             case 'cd':
-                return this.changeDirectory(args[0]);
+                const cdResult = this.changeDirectory(args[0]);
+                return cdResult || ''; // Return empty string if successful
             case 'cat':
                 return this.catFile(args[0]);
             case 'chmod':
                 return this.chmod(args[0], args[1]);
             case 'grep':
+                if (!args.length) {
+                    return 'grep: missing pattern';
+                }
                 return this.grep(args);
             case 'echo':
-                return args.join(' ');
+                // Handle environment variable expansion
+                const text = args.map(arg => {
+                    if (arg.startsWith('$')) {
+                        const varName = arg.slice(1);
+                        return this.environment[varName] || '';
+                    }
+                    return arg;
+                }).join(' ');
+                return text;
             case 'whoami':
                 return this.username;
             case 'date':
@@ -237,12 +235,34 @@ class Terminal {
             case 'history':
                 return this.history.join('\n');
             case 'ps':
-                return this.ps(args);
+                if (this.level !== 4) {
+                    return 'Command ps is only available in level 4';
+                }
+                return this.CommandResult(stdout=`USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.0  0.0   2460   736 ?        Ss   21:13   0:00 init [1]
+root         365  0.0  0.0   2780   864 ?        S    21:13   0:00 logger -t init
+root         366  0.0  0.0   2780   864 ?        S    21:13   0:00 logger -t system
+root       31337  0.2  0.1  14876  1232 ?        Ss   21:13   0:02 /usr/bin/suspicious_service --secret=flag{process_hunter} --stealth
+user        9999  0.0  0.0   2924   896 pts/0    R+   21:14   0:00 ps aux`);
             case 'netstat':
-                return this.netstat(args);
-            case 'env':
-            case 'printenv':
-                return this.listEnvironment();
+                if (this.level !== 5) {
+                    return 'Command netstat is only available in level 5';
+                }
+                return this.CommandResult(stdout=`Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      -
+tcp        0      0 127.0.0.1:31337         0.0.0.0:*               LISTEN      1337/hidden_service
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      -
+udp        0      0 0.0.0.0:68              0.0.0.0:*                           -`);
+            case 'nc':
+                if (this.level !== 5) {
+                    return 'Command nc is only available in level 5';
+                }
+                if (command === 'nc localhost 31337' || command === 'nc 127.0.0.1 31337') {
+                    return this.CommandResult(stdout='Welcome to the hidden service!\nHere is your flag: flag{network_ninja}');
+                }
+                return this.CommandResult(stderr='Connection refused', returncode=1);
             default:
                 return `Command not found: ${cmd}. Type 'help' for available commands.`;
         }
@@ -297,42 +317,101 @@ class Terminal {
     }
 
     welcomeMessage() {
-        const messages = this.welcomeMessages[this.level] || [
-            `Welcome to QuickSnatch Terminal - Level ${this.level}`,
-            'Type "help" for available commands',
-            ''
-        ];
-        messages.forEach(msg => this.writeOutput(msg));
+        const message = this.getLevelWelcomeMessage();
+        this.writeOutput(message);
+    }
+
+    getLevelWelcomeMessage() {
+        switch (this.level) {
+            case 1:
+                return `Welcome to Level 1: File Explorer Challenge
+Your task is to navigate the file system and find hidden files.
+Use 'ls', 'cd', and 'cat' commands to explore and read files.
+Type 'help' for available commands or 'hint' if you need help.`;
+            case 2:
+                return `Welcome to Level 2: Permission Challenge
+Your task is to manage file permissions to access protected files.
+Use the 'chmod' command to modify file permissions.
+Type 'help' for available commands or 'hint' if you need help.`;
+            case 3:
+                return `Welcome to Level 3: Pattern Search Challenge
+Your task is to search through log files to find hidden patterns.
+Use the 'grep' command to search for text patterns.
+Type 'help' for available commands or 'hint' if you need help.`;
+            case 4:
+                return `Welcome to Level 4: Process Hunter Challenge
+Your task is to identify and investigate suspicious processes.
+Use the 'ps' command to list and analyze running processes.
+Type 'help' for available commands or 'hint' if you need help.`;
+            case 5:
+                return `Welcome to Level 5: Network Ninja Challenge
+Your task is to analyze network connections and find hidden services.
+Use 'netstat' to view connections and 'nc' to interact with services.
+Type 'help' for available commands or 'hint' if you need help.`;
+            default:
+                return `Welcome to QuickSnatch Terminal
+Type 'help' for available commands or 'hint' if you need help.`;
+        }
     }
 
     getHelpText() {
-        return `
-Available commands:
-  ls      - List directory contents
-  cd      - Change directory
-  pwd     - Print working directory
-  echo    - Display a message
-  clear   - Clear terminal screen
-  help    - Show this help message
-  whoami  - Display current user
-  date    - Show current date/time
-  history - Show command history
-  ps      - List running processes
-  netstat - List network connections
-  env     - List environment variables
-  chmod   - Change file permissions
-  cat     - Display file contents
-  grep    - Search for patterns in files
+        const commonCommands = `
+Common Commands:
+  help     - Show this help message
+  clear    - Clear terminal screen
+  submit   - Submit a flag (format: flag{...})
+  hint     - Show a hint for current level`;
 
-Shortcuts:
-  Ctrl+C  - Cancel current command
-  Ctrl+L  - Clear screen
-  Tab     - Command completion
-  ↑/↓     - Navigate command history
+        let levelSpecificCommands = '';
+        switch (this.level) {
+            case 1:
+                levelSpecificCommands = `
+Level 1 Commands:
+  ls       - List directory contents
+  cd       - Change directory
+  pwd      - Print working directory
+  cat      - Display file contents`;
+                break;
+            case 2:
+                levelSpecificCommands = `
+Level 2 Commands:
+  ls       - List directory contents
+  cd       - Change directory
+  pwd      - Print working directory
+  cat      - Display file contents
+  chmod    - Change file permissions`;
+                break;
+            case 3:
+                levelSpecificCommands = `
+Level 3 Commands:
+  ls       - List directory contents
+  cd       - Change directory
+  pwd      - Print working directory
+  cat      - Display file contents
+  grep     - Search text patterns in files`;
+                break;
+            case 4:
+                levelSpecificCommands = `
+Level 4 Commands:
+  ls       - List directory contents
+  cd       - Change directory
+  pwd      - Print working directory
+  cat      - Display file contents
+  ps       - List running processes`;
+                break;
+            case 5:
+                levelSpecificCommands = `
+Level 5 Commands:
+  ls       - List directory contents
+  cd       - Change directory
+  pwd      - Print working directory
+  cat      - Display file contents
+  netstat  - Display network connections
+  nc       - Connect to network services`;
+                break;
+        }
 
-Aliases:
-${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).join('\n')}
-`;
+        return commonCommands + levelSpecificCommands;
     }
 
     initializeEnvironment() {
@@ -348,32 +427,8 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
             'HISTSIZE': '1000',
             'HISTFILESIZE': '2000',
             'PS1': '\\u@\\h:\\w\\$ ',
-            'LEVEL': this.level.toString(),
-            ...this.getLevelSpecificEnv()
+            'LEVEL': this.level.toString()
         };
-    }
-
-    getLevelSpecificEnv() {
-        switch(this.level) {
-            case 6:
-                return {
-                    'SECRET_TOKEN': 'flag{env_master_found_me}',
-                    'DB_PASSWORD': 'supersecret123',
-                    'API_KEY': 'abcdef123456'
-                };
-            case 7:
-                return {
-                    'SERVICE_PORT': '31337',
-                    'SERVICE_TOKEN': 'flag{service_auth_master}'
-                };
-            case 8:
-                return {
-                    'MYSQL_USER': 'player',
-                    'MYSQL_PASSWORD': 'flag{sql_master_found_me}'
-                };
-            default:
-                return {};
-        }
     }
 
     initializeProcesses() {
@@ -414,12 +469,6 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
             { name: 'ssh', status: 'running', port: 22 },
             { name: 'nginx', status: 'running', port: 80 }
         ];
-
-        if (this.level >= 7) {
-            baseServices.push(
-                { name: 'flag-service', status: 'running', port: 31337 }
-            );
-        }
 
         return baseServices;
     }
@@ -530,7 +579,7 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     permissions: '-rw-r--r--',
                     owner: 'player',
                     group: 'player',
-                    content: 'flag{file_explorer_pro}'
+                    content: 'Congratulations! You found the hidden file.\nflag{hidden_file_master}'
                 };
                 break;
 
@@ -541,7 +590,7 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     permissions: '-r--------',
                     owner: 'root',
                     group: 'root',
-                    content: 'flag{chmod_master}'
+                    content: 'Well done! You\'ve mastered file permissions.\nflag{chmod_master}'
                 };
                 break;
 
@@ -553,22 +602,23 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     owner: 'player',
                     group: 'player',
                     content: `
-2024-01-18 10:00:01 System startup
-2024-01-18 10:00:02 User login: admin
-2024-01-18 10:00:03 flag{grep_master_123}
-2024-01-18 10:00:04 Service started: nginx
-2024-01-18 10:00:05 Database connection established
+[2024-01-18 10:00:01] System startup initialized
+[2024-01-18 10:00:02] User authentication: admin logged in from 192.168.1.100
+[2024-01-18 10:00:03] Security alert: Unauthorized access attempt from 10.0.0.5
+[2024-01-18 10:00:04] Service started: nginx on port 80
+[2024-01-18 10:00:05] Database connection established to mysql://localhost:3306
+[2024-01-18 10:00:06] Critical: flag{grep_master_123}
+[2024-01-18 10:00:07] Backup process completed successfully
+[2024-01-18 10:00:08] System health check: All services running normally
                     `.trim()
                 };
                 break;
 
             case 4:
                 // Level 4: Process Challenge
-                this.processes.push({
-                    pid: 31337,
-                    user: 'root',
-                    command: './suspicious_process flag{process_hunter}'
-                });
+                this.processes.push(
+                    { pid: 31337, user: 'root', command: '/usr/bin/suspicious_service --secret=flag{process_hunter} --stealth' }
+                );
                 break;
 
             case 5:
@@ -578,84 +628,8 @@ ${Object.entries(this.aliases).map(([alias, cmd]) => `  ${alias}     - ${cmd}`).
                     local: '127.0.0.1:31337',
                     foreign: '*:*',
                     state: 'LISTEN',
-                    info: 'flag{network_ninja}'
+                    info: 'Hidden service running with flag{network_ninja}'
                 });
-                break;
-
-            case 6:
-                // Level 6: Environment Variables Challenge
-                this.environment['SECRET_FLAG'] = 'flag{bash_wizard}';
-                break;
-
-            case 7:
-                // Level 7: Service Challenge
-                playerHome.contents['service.conf'] = {
-                    type: 'file',
-                    permissions: '-rw-r--r--',
-                    owner: 'player',
-                    group: 'player',
-                    content: `
-service_port=31337
-service_token=flag{archive_master_explorer}
-                    `.trim()
-                };
-                break;
-
-            case 8:
-                // Level 8: Process Monitor Challenge
-                this.environment['MYSQL_PASSWORD'] = 'flag{system_monitor_pro}';
-                playerHome.contents['db_backup.sql'] = {
-                    type: 'file',
-                    permissions: '-rw-r--r--',
-                    owner: 'player',
-                    group: 'player',
-                    content: `
--- MySQL dump
-CREATE TABLE users (
-    id INT,
-    username VARCHAR(50),
-    password VARCHAR(50)
-);
-INSERT INTO users VALUES (1, 'admin', 'flag{system_monitor_pro}');
-                    `.trim()
-                };
-                break;
-
-            case 9:
-                // Level 9: Cron Challenge
-                playerHome.contents['crontab'] = {
-                    type: 'file',
-                    permissions: '-rw-r--r--',
-                    owner: 'player',
-                    group: 'player',
-                    content: Buffer.from('flag{cr0n_master_detective}').toString('base64')
-                };
-                break;
-
-            case 10:
-                // Level 10: Ultimate Challenge
-                playerHome.contents['.git'] = {
-                    type: 'dir',
-                    permissions: 'drwxr-xr-x',
-                    owner: 'player',
-                    group: 'player',
-                    contents: {
-                        'HEAD': {
-                            type: 'file',
-                            permissions: '-rw-r--r--',
-                            owner: 'player',
-                            group: 'player',
-                            content: 'ref: refs/heads/master'
-                        },
-                        'config': {
-                            type: 'file',
-                            permissions: '-rw-r--r--',
-                            owner: 'player',
-                            group: 'player',
-                            content: '[core]\n\trepositoryformatversion = 0\n\tfilemode = true\n\tbare = false'
-                        }
-                    }
-                };
                 break;
         }
 
@@ -663,63 +637,33 @@ INSERT INTO users VALUES (1, 'admin', 'flag{system_monitor_pro}');
         this.welcomeMessages = {
             1: [
                 'Welcome to Level 1: Hidden Files Challenge',
-                'Your task is to find a hidden flag in the file system.',
+                'Your task is to find a hidden flag in your home directory.',
                 'Hint: Not all files are visible by default. Try using ls with special flags.',
-                'Commands you might need: ls, cd, cat'
+                'Commands you might need: ls -a, ls -la, cat'
             ],
             2: [
                 'Welcome to Level 2: Permission Master Challenge',
-                'There\'s a file with restricted permissions.',
-                'Hint: Check file permissions and try to find ways to read it.',
+                'There\'s a file with restricted permissions that contains the flag.',
+                'Hint: Check file permissions and try to modify them to read the file.',
                 'Commands you might need: ls -l, chmod, cat'
             ],
             3: [
                 'Welcome to Level 3: Log Analysis Challenge',
-                'There\'s a flag hidden in the system logs.',
-                'Hint: Use text processing commands to find the flag.',
-                'Commands you might need: cat, grep, less'
+                'The flag is hidden within system logs. Search through them carefully.',
+                'Hint: Use text processing commands to find the flag pattern.',
+                'Commands you might need: cat, grep -i "flag", less'
             ],
             4: [
                 'Welcome to Level 4: Process Hunter Challenge',
-                'There\'s a suspicious process running with the flag.',
-                'Hint: Look for unusual processes and their command lines.',
-                'Commands you might need: ps, top, grep'
+                'A suspicious process is running with the flag in its command.',
+                'Hint: Look for unusual processes and examine their full command lines.',
+                'Commands you might need: ps aux, ps -ef | grep suspicious'
             ],
             5: [
-                'Welcome to Level 5: Network Ninja Challenge',
-                'A service is running with the flag.',
-                'Hint: Check network connections and listening ports.',
-                'Commands you might need: netstat, ss, grep'
-            ],
-            6: [
-                'Welcome to Level 6: Environment Variable Challenge',
-                'The flag is hidden in an environment variable.',
-                'Hint: List and examine all environment variables.',
-                'Commands you might need: env, printenv, echo'
-            ],
-            7: [
-                'Welcome to Level 7: Service Authentication Challenge',
-                'Find the service configuration with the flag.',
-                'Hint: Look for configuration files and their contents.',
-                'Commands you might need: ls, cat, grep'
-            ],
-            8: [
-                'Welcome to Level 8: Database Challenge',
-                'The flag is hidden in the database backup.',
-                'Hint: Examine database files and credentials.',
-                'Commands you might need: cat, grep, mysql'
-            ],
-            9: [
-                'Welcome to Level 9: Encryption Challenge',
-                'There\'s an encrypted file containing the flag.',
-                'Hint: The file is base64 encoded.',
-                'Commands you might need: cat, base64'
-            ],
-            10: [
-                'Welcome to Level 10: Git Master Challenge',
-                'The flag is hidden in the git repository.',
-                'Hint: Examine the git history and configuration.',
-                'Commands you might need: git log, git show, cat'
+                'Welcome to Level 5: Network Detective Challenge',
+                'A hidden service is running with the flag. Find its network connection.',
+                'Hint: Check all network connections, including listening ports.',
+                'Commands you might need: netstat -tuln, netstat -anp'
             ]
         };
     }
@@ -859,9 +803,7 @@ INSERT INTO users VALUES (1, 'admin', 'flag{system_monitor_pro}');
         }
 
         const currentDir = this.getCurrentDir();
-        if (!currentDir) {
-            return 'cat: cannot access current directory';
-        }
+        if (!currentDir) return;
 
         // Handle path with directories
         if (filename.includes('/')) {
@@ -1096,50 +1038,6 @@ Output formats:
 For more details see ps(1).`;
     }
 
-    handleMySQLCommand(args) {
-        if (this.level !== 8) return 'MySQL is not available at this level';
-        if (args[0] === '-u' && args[1] === 'root') {
-            return 'Access denied for user \'root\'@\'localhost\'';
-        }
-        return 'Welcome to MySQL monitor. Type \'help\' or \'\\h\' for help.';
-    }
-
-    handleBase64Decode(args) {
-        if (this.level !== 9) return 'base64 command is not available at this level';
-        if (!args.length) return 'base64: missing operand';
-        try {
-            return Buffer.from(args[0], 'base64').toString('utf8');
-        } catch {
-            return 'base64: invalid input';
-        }
-    }
-
-    handleGitCommand(args) {
-        if (this.level !== 10) return 'git command is not available at this level';
-        const [subcmd, ...subargs] = args;
-        switch(subcmd) {
-            case 'log':
-                return `commit abc123def456
-Author: Admin <admin@quicksnatch>
-Date: ${new Date().toISOString()}
-
-    Added secret flag
-
-commit def456abc123
-Author: Admin <admin@quicksnatch>
-Date: ${new Date().toISOString()}
-
-    Initial commit`;
-            case 'show':
-                if (subargs[0] === 'abc123def456') {
-                    return 'flag{git_master}';
-                }
-                return 'commit not found';
-            default:
-                return `git: '${subcmd}' is not a git command. See 'git --help'`;
-        }
-    }
-
     chmod(mode, target) {
         if (!mode || !target) {
             return 'chmod: missing operand\nTry \'chmod --help\' for more information.';
@@ -1177,7 +1075,8 @@ Date: ${new Date().toISOString()}
             parts.pop(); // Remove filename from parts
 
             // Navigate to target directory
-            for (const part of parts) {
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i];
                 if (part === '..') {
                     // Go up one directory
                     const parentDir = this.getParentDir(targetDir);
@@ -1197,14 +1096,11 @@ Date: ${new Date().toISOString()}
         }
 
         const file = targetDir.contents[targetName];
+        
         if (!file) {
             return `chmod: cannot access '${target}': No such file or directory`;
         }
 
-        // Check if user has permission to change mode
-        if (file.owner !== this.username && this.username !== 'root') {
-            return `chmod: changing permissions of '${target}': Operation not permitted`;
-        }
 
         try {
             let newMode = '';
@@ -1297,7 +1193,7 @@ Modes can be specified as:
   Octal:      chmod 644 file
   Symbolic:   chmod u+x file
 
-Each MODE is of the form '[ugoa][-+=][rwx]':
+Each MODE is of the form '[ugoa]*[-+=][rwx]':
   [ugoa]  - affects user/group/other/all
   [-+=]   - remove/add/set permissions
   [rwx]   - read/write/execute

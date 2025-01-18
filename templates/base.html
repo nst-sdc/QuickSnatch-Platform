@@ -376,7 +376,7 @@
             <!-- Level Navigation -->
             <h5 class="mb-3">Levels</h5>
             <ul class="level-nav">
-                {% for i in range(1, 11) %}
+                {% for i in range(1, 6) %}
                 <li class="level-nav-item">
                     <a href="{{ url_for('level', level_number=i) }}" 
                        class="level-nav-link {% if current_user.current_level == i %}active{% endif %} {% if i < current_user.current_level %}completed{% endif %}">
@@ -405,7 +405,7 @@
                 <h5 class="mb-3">Your Stats</h5>
                 <div class="stats-item">
                     <span class="stats-label">Completed Levels</span>
-                    <span class="stats-value">{{ current_user.current_level - 1 }}/10</span>
+                    <span class="stats-value">{{ current_user.current_level - 1 }}/5</span>
                 </div>
                 <div class="stats-item">
                     <span class="stats-label">Time Spent</span>

@@ -79,12 +79,7 @@ ANSWERS = {
     2: "flag{chmod_master}",
     3: "flag{grep_master_123}",
     4: "flag{process_hunter}",
-    5: "flag{network_ninja}",
-    6: "flag{bash_wizard}",
-    7: "flag{archive_master_explorer}",
-    8: "flag{system_monitor_pro}",
-    9: "flag{cr0n_master_detective}",
-    10: "flag{ultimate_hacker_pro}"
+    5: "flag{network_ninja}"
 }
 
 # Location-based challenge data
@@ -99,111 +94,25 @@ A mother, a founder, forever renowned.
 Who is she, and what wisdom does she share?  
 Her presence whispers a legacy rare.""",
 
-    2: """At the edge where paths converge and bend,  
-A temple is rising, on which peace depends.  
-Cradled by green, with a view so vast,  
-A quiet refuge, where moments last.  
+    2: """In gardens green where peace resides,
+A temple stands where truth abides.
+Between the paths of learning's light,
+What structure brings both calm and might?""",
 
-What place is blooming, serene and bright,  
-A haven of calm, bathed in light?""",
+    3: """Guardian of gates, in uniform proud,
+Where dental wisdom speaks aloud.
+At crossroads where knowledge starts to flow,
+Which shelter watches those who come and go?""",
 
-    3: """Beside the parking, where wheels often rest,  
-A humble hut stands, quiet and blessed.  
-In front of the place where smiles are made,  
-A simple retreat, in the shade.  
+    4: """Where heroes once graced silver screens,
+Now nature's carpet spreads serene.
+By Sholay's shadow, stories told,
+What patch of green does memory hold?""",
 
-What is this spot, serene and small,  
-A peaceful corner, welcoming all?""",
-
-    4: """Right by the halls, where footsteps fade,  
-A patch of green, like a scene in *Sholay*'s shade.  
-Amidst the hustle, a quiet space,  
-Like a Bollywood tale, full of grace.  
-
-What spot is this, where calm is found,  
-A green escape, where peace resounds?""",
-
-    5: """Beside the field where the ball does fly,  
-A quiet refuge, where footsteps lie.  
-In front of the library, shadows entwine,  
-A hidden haven where thoughts align.  
-
-What place is this, where echoes cease,  
-A secret shelter, a moment of peace?""",
-
-    6: """In front of the building where the name stands tall,  
-A statue of pride, a symbol for all.  
-Beside the waters, where ripples play,  
-A quiet corner to end your day.  
-
-What place is this, where stillness flows,  
-A monument of pride where calmness grows?""",
-
-    7: """At the gate where daily steps converge,  
-A threshold where journeys and minds emerge.  
-Buses come and go with haste,  
-Yet here, a stillness, softly embraced.  
-
-What is this space, where time slows down,  
-A fleeting moment, just beyond the town?""",
-
-    8: """Beside the press where words take flight,  
-A patch of green bathed in soft light.  
-Near the hall where voices soar,  
-A wooden shade invites to restore.  
-
-What is this place, where time stands still,  
-A quiet retreat, untouched by the thrill?""",
-
-    9: """Where coins rest and shadows blend,  
-Beside the lot where pathways end.  
-Facing knowledge, calm and wide,  
-What is this place where peace resides?""",
-
-    10: """Where hunger meets a daily need,  
-A bustling spot where students feed.  
-Coupons in hand, the rule is clear,  
-What is this place we hold so dear?""",
-
-    11: """Once alive with chatter and cheer,  
-Now silent, its purpose unclear.  
-A lone printer hums where meals once lay,  
-What is this place of a bygone day?""",
-
-    12: """Where the sky's reflection gently lies,
-And ripples echo beneath open skies.
-A haven of calm, both deep and wide,
-Where whispers of water and silence collide.
-
-A place for the bold, a retreat for the still,
-A shimmering jewel that tests your will.
-What is this space, so serene and grand,
-A liquid escape carved by hand?""",
-
-    13: """Steps of color, bright and rare,
-A lively path beyond compare.
-A place of cheer, where stories unfold,
-What is this spot so vibrant and bold?""",
-
-    14: """Where whispers of luxury fill the air,
-And every corner breathes beauty rare.
-A place where elegance and taste collide,
-What is this café, where moments reside?
-
-With each sip, a world unfolds,
-A treasure trove that quietly holds.
-What is this space, where time stands still,
-A haven of grace, both rich and tranquil?""",
-
-    15: """Where the court roars, but wheels stand still,
-A parking lot where calmness fills.
-In front of the game, where energy flows,
-What is this spot where quietness grows?""",
-
-    16: """Where access is earned, with proof in hand,
-A threshold where all must make their stand.
-Guarded and quiet, yet paths unfold,
-What is this gate, both strict and bold?"""
+    5: """Where books and knowledge find their space,
+A corner marks a special place.
+Near learning's heart, where grass meets ground,
+What spot makes wisdom more profound?"""
 }
 
 QR_CODES = {
@@ -211,18 +120,7 @@ QR_CODES = {
     2: "TEMPLE_GARDEN_PEACE",
     3: "SECURITY_HUT_DENTAL",
     4: "GREEN_PATCH_SHOLAY",
-    5: "LIBRARY_FIELD_CORNER",
-    6: "MAIN_BUILDING_STATUE",
-    7: "BUS_STOP_ENTRANCE",
-    8: "PRESS_GREEN_PATCH",
-    9: "ATM_LIBRARY_FRONT",
-    10: "MAIN_CAFETERIA_2025",
-    11: "OLD_CANTEEN_PRINT",
-    12: "SWIMMING_POOL_ADYPU",
-    13: "RAINBOW_STAIRS_2025",
-    14: "LUXURY_CAFE_CORNER",
-    15: "SPORTS_PARKING_VIEW",
-    16: "RESTRICTED_GATE_25"
+    5: "LIBRARY_FIELD_CORNER"
 }
 
 @login_manager.user_loader
@@ -294,7 +192,7 @@ def level(level_number):
         return redirect(url_for('level', level_number=current_user.current_level))
     
     # Ensure level number is valid
-    if level_number < 1 or level_number > 10:
+    if level_number < 1 or level_number > 5:
         flash('Invalid level number!', 'danger')
         return redirect(url_for('level', level_number=current_user.current_level))
     
@@ -643,99 +541,6 @@ tcp        0      0 0.0.0.0:1337            0.0.0.0:*               LISTEN""")
             elif command == "nc localhost 1337" or command == "curl localhost:1337":
                 return self.CommandResult(stdout="Welcome! The flag is: flag{network_ninja}")
 
-        # Level 6 - Bash Wizard
-        elif level == 6:
-            if command == "ls":
-                return self.CommandResult(stdout="data.txt  process.sh")
-            elif command == "cat data.txt":
-                return self.CommandResult(stdout="""user1,100
-user2,200
-user3,300
-admin,flag{bash_wizard}
-user4,400""")
-            elif command == "cat process.sh":
-                return self.CommandResult(stdout="""#!/bin/bash
-# This script processes data.txt
-grep "admin" data.txt | cut -d',' -f2""")
-            elif command == "chmod +x process.sh":
-                return self.CommandResult(stdout="")
-            elif command == "./process.sh":
-                return self.CommandResult(stdout="flag{bash_wizard}")
-
-        # Level 7 - Archive Master
-        elif level == 7:
-            if command == "ls -l mystery.tar.gz":
-                return self.CommandResult(stdout="-rw-r--r-- 1 user user 2048 Jan 18 05:55 mystery.tar.gz")
-            elif command == "tar xzf mystery.tar.gz":
-                return self.CommandResult(stdout="")
-            elif command == "ls":
-                if "tar xzf mystery.tar.gz" in self.command_history:
-                    return self.CommandResult(stdout="mystery.tar.gz  secret.zip")
-                else:
-                    return self.CommandResult(stdout="mystery.tar.gz")
-            elif command == "unzip secret.zip":
-                if "tar xzf mystery.tar.gz" in self.command_history:
-                    return self.CommandResult(stdout="""Archive:  secret.zip
-  inflating: hidden.bz2""")
-                else:
-                    return self.CommandResult(stderr="secret.zip: No such file or directory", returncode=1)
-            elif command == "bzip2 -d hidden.bz2":
-                if "unzip secret.zip" in self.command_history:
-                    return self.CommandResult(stdout="")
-                else:
-                    return self.CommandResult(stderr="hidden.bz2: No such file or directory", returncode=1)
-            elif command == "cat hidden":
-                if "bzip2 -d hidden.bz2" in self.command_history:
-                    return self.CommandResult(stdout="flag{archive_master_explorer}")
-                else:
-                    return self.CommandResult(stderr="hidden: No such file or directory", returncode=1)
-
-        # Level 8 - System Monitor
-        elif level == 8:
-            if command == "top":
-                return self.CommandResult(stdout="""top - 14:30:00 up 0 min,  1 user,  load average: 0.15, 0.05, 0.01
-Tasks: 105 total,   1 running, 103 sleeping,   0 stopped,   1 zombie
-%Cpu(s):  5.9 us,  2.0 sy,  0.0 ni, 91.2 id,  0.0 wa,  0.0 hi,  0.9 si,  0.0 st
-MiB Mem :   7950.8 total,   7450.8 free,    300.0 used,    200.0 buff/cache
-MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   7450.8 avail Mem 
-
-  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
- 1337 user      20   0   10240   1024    512 R  13.37  0.1   0:01.23 suspicious_svc""")
-            elif command == "strings /proc/1337/environ":
-                return self.CommandResult(stdout="""SHELL=/bin/bash
-PWD=/home/user
-SECRET_FLAG=flag{system_monitor_pro}
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin""")
-
-        # Level 9 - Cron Detective
-        elif level == 9:
-            if command == "crontab -l":
-                return self.CommandResult(stdout="""# Flag exposure cron job
-* * * * * /usr/local/bin/expose_flag.sh
-# Clean up exposed flags
-*/2 * * * * /usr/local/bin/cleanup_flags.sh""")
-            elif command == "cat /usr/local/bin/expose_flag.sh":
-                return self.CommandResult(stdout="""#!/bin/bash
-# This script exposes the flag temporarily
-echo "flag{cr0n_master_detective}" > /tmp/exposed_flag
-logger "Flag has been exposed in /tmp/exposed_flag\"""")
-            elif command == "cat /tmp/exposed_flag":
-                return self.CommandResult(stdout="flag{cr0n_master_detective}")
-
-        # Level 10 - Ultimate Challenge
-        elif level == 10:
-            if command == "netstat -tuln":
-                return self.CommandResult(stdout="""Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State      
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     
-tcp        0      0 0.0.0.0:31337           0.0.0.0:*               LISTEN""")
-            elif command == "nc localhost 31337":
-                return self.CommandResult(stdout="""Welcome to the Flag Service!
-Here's your encrypted flag:
-SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=""")
-            elif command == 'echo "SGVyZSdzIHlvdXIgZmxhZzogZmxhZ3t1bHRpbWF0ZV9oYWNrZXJfcHJvfQo=" | base64 -d':
-                return self.CommandResult(stdout="Here's your flag: flag{ultimate_hacker_pro}")
-
         # Default error for unknown commands
         return self.CommandResult(stderr=f"Command not found: {command}", returncode=1)
 
@@ -891,7 +696,7 @@ def analyze_entropy():
 @app.route('/terminal/<int:level>')
 @login_required
 def terminal(level):
-    if level < 1 or level > 10 or level > current_user.current_level:
+    if level < 1 or level > 5 or level > current_user.current_level:
         return redirect(url_for('level', level_number=current_user.current_level))
     
     # Start timing for this level if not already started
