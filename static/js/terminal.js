@@ -1,288 +1,340 @@
-class Terminal {
-    constructor() {
-        this.currentDirectory = '~';
-        this.username = 'player';
-        this.hostname = 'quicksnatch';
-        this.history = [];
-        this.historyIndex = -1;
-        this.commandBuffer = '';
+class VirtualFileSystem {
+    constructor(level) {
+        this.currentPath = '/home/user';
+        this.level = level;
+        this.levelInfo = null;
+        this.fileSystem = {};
+        this.loadLevelInfo().then(() => {
+            this.setupFileSystem();
+            terminal.writeOutput(this.getLevelInstructions());
+        });
+    }
+
+    async loadLevelInfo() {
+        try {
+            const response = await fetch(`/challenges/level${this.level}/level_info.json`);
+            this.levelInfo = await response.json();
+        } catch (error) {
+            console.error('Error loading level info:', error);
+            this.levelInfo = {
+                prompt: "user@quicksnatch",
+                files: {},
+                hints: ["Level info not available"]
+            };
+        }
+    }
+
+    setupFileSystem() {
+        // Base structure common to all levels
         this.fileSystem = {
-            '~': {
-                type: 'dir',
-                contents: {
-                    'documents': { type: 'dir', contents: {} },
-                    'downloads': { type: 'dir', contents: {} },
-                    'readme.txt': { type: 'file', content: 'Welcome to QuickSnatch Terminal!' }
+            'home': {
+                'user': {}
+            },
+            'etc': {},
+            'var': {
+                'log': {}
+            },
+            'proc': {},
+            'tmp': {},
+            'usr': {
+                'bin': {},
+                'local': {
+                    'bin': {}
                 }
             }
         };
-    }
 
-    init() {
-        this.terminalOutput = document.querySelector('.terminal-output');
-        this.terminalInput = document.getElementById('terminal-input');
-        this.prompt = document.querySelector('.prompt');
-        this.setupEventListeners();
-        this.showWelcomeMessage();
-        this.updatePrompt();
-    }
-
-    setupEventListeners() {
-        this.terminalInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.handleCommand();
-            } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault();
-                this.navigateHistory(e.key === 'ArrowUp' ? -1 : 1);
-            } else if (e.key === 'Tab') {
-                e.preventDefault();
-                this.handleTabCompletion();
-            } else if (e.key === 'c' && e.ctrlKey) {
-                e.preventDefault();
-                this.handleCtrlC();
-            } else if (e.key === 'l' && e.ctrlKey) {
-                e.preventDefault();
-                this.clearScreen();
+        // Add level-specific files
+        if (this.levelInfo && this.levelInfo.files) {
+            for (const [path, content] of Object.entries(this.levelInfo.files)) {
+                this.createFile(path, content);
             }
-        });
-
-        // Terminal window controls
-        document.querySelector('.control.close').addEventListener('click', () => {
-            this.appendOutput('Terminal session closed. Refresh to restart.');
-            this.terminalInput.disabled = true;
-        });
-    }
-
-    showWelcomeMessage() {
-        const now = new Date();
-        const welcomeMsg = [
-            '\x1b[1;32m  ___        _      _    ____             _       _     \x1b[0m',
-            '\x1b[1;32m / _ \\ _   _(_) ___| | _/ ___| _ __   __ _| |_ ___| |__  \x1b[0m',
-            '\x1b[1;32m| | | | | | | |/ __| |/ \\___ \\| \'_ \\ / _` | __/ __| \'_ \\ \x1b[0m',
-            '\x1b[1;32m| |_| | |_| | | (__|   < ___) | | | | (_| | || (__| | | |\x1b[0m',
-            '\x1b[1;32m \\__\\_\\\\__,_|_|\\___|_|\\_\\____/|_| |_|\\__,_|\\__\\___|_| |_|\x1b[0m',
-            '',
-            '\x1b[1;37mWelcome to QuickSnatch Terminal v1.0.0\x1b[0m',
-            `System time: ${now.toLocaleString()}`,
-            'Type \x1b[1;33mhelp\x1b[0m for a list of available commands.',
-            ''
-        ].join('\n');
-        this.appendOutput(welcomeMsg);
-    }
-
-    updatePrompt() {
-        const promptText = `${this.username}@${this.hostname}:${this.currentDirectory}$ `;
-        this.prompt.textContent = promptText;
-    }
-
-    appendOutput(text, className = '') {
-        const output = document.createElement('div');
-        output.className = `output-line ${className}`;
-        
-        // Handle ANSI color codes
-        text = text.replace(/\x1b\[([0-9;]*)m/g, (match, p1) => {
-            const codes = p1.split(';');
-            let classes = [];
-            
-            codes.forEach(code => {
-                switch(code) {
-                    case '0': return '</span>';
-                    case '1': classes.push('bold'); break;
-                    case '31': classes.push('ansi-red'); break;
-                    case '32': classes.push('ansi-green'); break;
-                    case '33': classes.push('ansi-yellow'); break;
-                    case '37': classes.push('ansi-white'); break;
-                }
-            });
-            
-            return `<span class="${classes.join(' ')}">`;
-        });
-        
-        output.innerHTML = text;
-        this.terminalOutput.appendChild(output);
-        this.scrollToBottom();
-    }
-
-    handleCommand() {
-        const command = this.terminalInput.value.trim();
-        if (command) {
-            this.appendOutput(`${this.prompt.textContent}${command}`);
-            this.history.push(command);
-            this.historyIndex = this.history.length;
-            this.processCommand(command);
-        }
-        this.terminalInput.value = '';
-    }
-
-    processCommand(command) {
-        const [cmd, ...args] = command.split(' ');
-        
-        const commands = {
-            help: () => this.showHelp(),
-            clear: () => this.clearScreen(),
-            ls: () => this.listDirectory(args[0]),
-            cd: () => this.changeDirectory(args[0]),
-            pwd: () => this.printWorkingDirectory(),
-            cat: () => this.catFile(args[0]),
-            echo: () => this.appendOutput(args.join(' ')),
-            date: () => this.appendOutput(new Date().toLocaleString()),
-            whoami: () => this.appendOutput(this.username)
-        };
-
-        if (commands[cmd]) {
-            commands[cmd]();
-        } else if (cmd) {
-            this.appendOutput(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error-output');
         }
     }
 
-    showHelp() {
-        const helpText = [
-            '\x1b[1;37mAvailable Commands:\x1b[0m',
-            '',
-            '\x1b[1;33mhelp\x1b[0m     - Show this help message',
-            '\x1b[1;33mclear\x1b[0m    - Clear the terminal screen',
-            '\x1b[1;33mls\x1b[0m       - List directory contents',
-            '\x1b[1;33mcd\x1b[0m       - Change directory',
-            '\x1b[1;33mpwd\x1b[0m      - Print working directory',
-            '\x1b[1;33mcat\x1b[0m      - View file contents',
-            '\x1b[1;33mecho\x1b[0m     - Print text to terminal',
-            '\x1b[1;33mdate\x1b[0m     - Show current date/time',
-            '\x1b[1;33mwhoami\x1b[0m   - Show current user',
-            '',
-            'Keyboard Shortcuts:',
-            'Ctrl+C    - Cancel current command',
-            'Ctrl+L    - Clear screen',
-            'Tab       - Auto-complete commands',
-            'Up/Down   - Navigate command history',
-            ''
-        ].join('\n');
-        this.appendOutput(helpText);
-    }
-
-    navigateHistory(direction) {
-        if (this.history.length === 0) return;
+    createFile(path, content) {
+        const parts = path.split('/').filter(p => p);
+        let current = this.fileSystem;
         
-        this.historyIndex += direction;
-        
-        if (this.historyIndex >= this.history.length) {
-            this.historyIndex = this.history.length;
-            this.terminalInput.value = this.commandBuffer;
-            return;
+        for (let i = 0; i < parts.length - 1; i++) {
+            const part = parts[i];
+            if (!current[part]) {
+                current[part] = {};
+            }
+            current = current[part];
         }
         
-        if (this.historyIndex < 0) {
-            this.historyIndex = 0;
+        const fileName = parts[parts.length - 1];
+        current[fileName] = content;
+    }
+
+    getPrompt() {
+        return `${this.levelInfo?.prompt || "user@quicksnatch"}:${this.currentPath}$ `;
+    }
+
+    getLevelInstructions() {
+        if (!this.levelInfo) return "Loading level information...";
+        
+        return `Level ${this.levelInfo.level}: ${this.levelInfo.title}\n` +
+               `Difficulty: ${this.levelInfo.difficulty}\n\n` +
+               `${this.levelInfo.description}\n\n` +
+               `Available commands: ${this.levelInfo.commands.join(', ')}\n\n` +
+               `Type 'hint' for hints or 'help' for available commands.`;
+    }
+
+    getHint() {
+        if (!this.levelInfo || !this.levelInfo.hints.length === 0) {
+            return "No hints available.";
         }
-        
-        if (this.historyIndex === this.history.length - 1) {
-            this.commandBuffer = this.terminalInput.value;
-        }
-        
-        this.terminalInput.value = this.history[this.historyIndex];
-        // Move cursor to end
-        setTimeout(() => {
-            this.terminalInput.selectionStart = this.terminalInput.selectionEnd = this.terminalInput.value.length;
-        }, 0);
+        const randomIndex = Math.floor(Math.random() * this.levelInfo.hints.length);
+        return `Hint: ${this.levelInfo.hints[randomIndex]}`;
     }
 
-    handleTabCompletion() {
-        const input = this.terminalInput.value;
-        const commands = ['help', 'clear', 'ls', 'cd', 'pwd', 'cat', 'echo', 'date', 'whoami'];
-        
-        const matches = commands.filter(cmd => cmd.startsWith(input));
-        
-        if (matches.length === 1) {
-            this.terminalInput.value = matches[0];
-        } else if (matches.length > 1) {
-            this.appendOutput(`\n${matches.join('  ')}`);
-            this.appendOutput(`${this.prompt.textContent}${input}`);
-        }
-    }
-
-    handleCtrlC() {
-        this.appendOutput('^C');
-        this.terminalInput.value = '';
-        this.updatePrompt();
-    }
-
-    clearScreen() {
-        this.terminalOutput.innerHTML = '';
-        this.updatePrompt();
-    }
-
-    scrollToBottom() {
-        this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
-    }
-
-    listDirectory(path) {
+    ls(path = this.currentPath) {
         const dir = this.getDirectory(path);
+        if (!dir) return `ls: cannot access '${path}': No such file or directory`;
+        return Object.keys(dir).join('  ');
+    }
+
+    cd(path) {
+        if (!path || path === '~') {
+            this.currentPath = '/home/user';
+            return '';
+        }
+
+        const newPath = this.resolvePath(path);
+        const dir = this.getDirectory(newPath);
+        
         if (!dir) {
-            this.appendOutput(`Directory not found: ${path}`, 'error-output');
-            return;
+            return `cd: ${path}: No such file or directory`;
+        }
+        
+        if (typeof dir !== 'object') {
+            return `cd: ${path}: Not a directory`;
         }
 
-        const contents = Object.keys(dir.contents);
-        if (contents.length === 0) {
-            this.appendOutput('Directory is empty.');
-        } else {
-            this.appendOutput(contents.join('  '));
-        }
+        this.currentPath = newPath;
+        return '';
     }
 
-    changeDirectory(path) {
-        const dir = this.getDirectory(path);
-        if (!dir) {
-            this.appendOutput(`Directory not found: ${path}`, 'error-output');
-            return;
-        }
-
-        this.currentDirectory = path;
-        this.updatePrompt();
+    pwd() {
+        return this.currentPath;
     }
 
-    printWorkingDirectory() {
-        this.appendOutput(this.currentDirectory);
-    }
+    cat(path) {
+        if (!path) return 'cat: missing operand';
+        
+        const resolvedPath = this.resolvePath(path);
+        const file = this.getFile(resolvedPath);
 
-    catFile(path) {
-        const file = this.getFile(path);
-        if (!file) {
-            this.appendOutput(`File not found: ${path}`, 'error-output');
-            return;
+        if (file === null) {
+            return `cat: ${path}: No such file or directory`;
+        }
+        
+        if (typeof file === 'object') {
+            return `cat: ${path}: Is a directory`;
         }
 
-        this.appendOutput(file.content);
+        return file;
+    }
+
+    resolvePath(path) {
+        if (path.startsWith('/')) {
+            return path;
+        }
+        
+        const current = this.currentPath.split('/').filter(Boolean);
+        const parts = path.split('/').filter(Boolean);
+        
+        for (const part of parts) {
+            if (part === '..') {
+                current.pop();
+            } else if (part !== '.') {
+                current.push(part);
+            }
+        }
+        
+        return '/' + current.join('/');
     }
 
     getDirectory(path) {
-        const parts = path.split('/');
-        let dir = this.fileSystem;
-
+        const parts = path.split('/').filter(Boolean);
+        let current = this.fileSystem;
+        
         for (const part of parts) {
-            if (part === '') continue;
-            if (!dir.contents[part]) return null;
-            dir = dir.contents[part];
+            if (!current || typeof current !== 'object') return null;
+            current = current[part];
         }
-
-        return dir;
+        
+        return current;
     }
 
     getFile(path) {
-        const dir = this.getDirectory(path);
-        if (!dir) return null;
+        const parts = path.split('/').filter(Boolean);
+        let current = this.fileSystem;
+        
+        for (let i = 0; i < parts.length - 1; i++) {
+            if (!current || typeof current !== 'object') return null;
+            current = current[parts[i]];
+        }
+        
+        if (!current) return null;
+        return current[parts[parts.length - 1]];
+    }
 
-        const parts = path.split('/');
-        const fileName = parts[parts.length - 1];
+    async verifyFlag(flag) {
+        try {
+            const response = await fetch('/verify_flag', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    level: this.level,
+                    flag: flag
+                })
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error verifying flag:', error);
+            return { success: false, message: 'Error verifying flag' };
+        }
+    }
 
-        if (!dir.contents[fileName]) return null;
-        return dir.contents[fileName];
+    submitFlag(flag) {
+        if (!flag) {
+            return 'submit: missing flag';
+        }
+        if (!flag.startsWith('flag{') || !flag.endsWith('}')) {
+            return 'Invalid flag format. Flags should be in the format flag{...}';
+        }
+        return this.verifyFlag(flag);
     }
 }
 
-// Initialize terminal when document is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.terminal = new Terminal();
-    terminal.init();
-});
+class Terminal {
+    constructor(elementId, level) {
+        this.element = document.getElementById(elementId);
+        this.fs = new VirtualFileSystem(level);
+        this.history = [];
+        this.historyIndex = 0;
+        this.setupTerminal();
+    }
+
+    setupTerminal() {
+        this.createNewLine();
+        this.element.addEventListener('keydown', this.handleKeyDown.bind(this));
+        this.focusCommandLine();
+    }
+
+    createNewLine() {
+        const line = document.createElement('div');
+        line.className = 'line';
+        
+        const prompt = document.createElement('span');
+        prompt.className = 'prompt';
+        prompt.textContent = this.fs.getPrompt();
+        
+        const command = document.createElement('span');
+        command.className = 'command';
+        command.contentEditable = 'true';
+        command.spellcheck = false;
+        
+        line.appendChild(prompt);
+        line.appendChild(command);
+        this.element.appendChild(line);
+        
+        return command;
+    }
+
+    async handleCommand(commandText) {
+        if (!commandText) return;
+        
+        const [cmd, ...args] = commandText.trim().split(/\s+/);
+        
+        const commands = {
+            ls: () => this.fs.ls(args[0]),
+            cd: () => this.fs.cd(args[0]),
+            pwd: () => this.fs.pwd(),
+            cat: () => this.fs.cat(args[0]),
+            clear: () => {
+                this.element.innerHTML = '';
+                return '';
+            },
+            help: () => `Available commands:
+  ls [path]      - List directory contents
+  cd [path]      - Change directory
+  pwd            - Print working directory
+  cat [file]     - View file contents
+  clear          - Clear terminal screen
+  help           - Show this help message
+  hint           - Show a random hint
+  submit [flag]  - Submit a flag (format: flag{...})`,
+            hint: () => this.fs.getHint(),
+            submit: async () => {
+                const result = await this.fs.submitFlag(args[0]);
+                if (result.success && result.next_level) {
+                    setTimeout(() => {
+                        window.location.href = `/terminal/${result.next_level}`;
+                    }, 2000);
+                }
+                return result.message;
+            }
+        };
+
+        if (commands[cmd]) {
+            const output = await commands[cmd]();
+            if (output) {
+                this.writeOutput(output);
+            }
+        } else {
+            this.writeOutput(`Command not found: ${cmd}`);
+        }
+
+        this.history.push(commandText);
+        this.historyIndex = this.history.length;
+        this.createNewLine();
+        this.focusCommandLine();
+    }
+
+    writeOutput(text) {
+        const output = document.createElement('div');
+        output.className = 'output';
+        output.textContent = text;
+        this.element.appendChild(output);
+    }
+
+    focusCommandLine() {
+        const commandLines = this.element.getElementsByClassName('command');
+        const lastCommand = commandLines[commandLines.length - 1];
+        lastCommand.focus();
+    }
+
+    handleKeyDown(event) {
+        const commandLines = this.element.getElementsByClassName('command');
+        const currentCommand = commandLines[commandLines.length - 1];
+        
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            const commandText = currentCommand.textContent;
+            currentCommand.contentEditable = 'false';
+            this.handleCommand(commandText);
+        }
+        else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (this.historyIndex > 0) {
+                this.historyIndex--;
+                currentCommand.textContent = this.history[this.historyIndex];
+            }
+        }
+        else if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            if (this.historyIndex < this.history.length) {
+                this.historyIndex++;
+                currentCommand.textContent = this.history[this.historyIndex] || '';
+            }
+        }
+        this.element.scrollTop = this.element.scrollHeight;
+    }
+}

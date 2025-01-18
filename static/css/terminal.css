@@ -1,32 +1,33 @@
-/* Terminal Base */
-#terminal {
-    background-color: #282c34;
-    color: #abb2bf;
-    font-family: 'Fira Code', 'Source Code Pro', monospace;
-    font-size: 14px;
-    line-height: 1.5;
-    height: calc(100vh - 45px);
-    overflow-y: auto;
-    margin: 0;
-    border-radius: 6px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+/* Terminal Styles */
+.terminal-wrapper {
+    padding: 20px;
+    height: 100%;
+    background: #1a1b1c;
 }
 
-/* Terminal Header */
+#terminal {
+    background: #2d2e2f;
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    font-family: 'Fira Code', monospace;
+    height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+
 .terminal-header {
-    background-color: #21252b;
-    padding: 8px 16px;
-    border-radius: 6px 6px 0 0;
+    background: #1a1b1c;
+    padding: 8px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #181a1f;
+    border-bottom: 1px solid #3a3b3c;
 }
 
 .terminal-title {
-    color: #abb2bf;
+    color: #cccccc;
     font-size: 14px;
-    font-weight: 500;
 }
 
 .terminal-controls {
@@ -38,148 +39,103 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #1a1b1c;
     cursor: pointer;
+    user-select: none;
 }
 
-.close { background-color: #e06c75; }
-.minimize { background-color: #e5c07b; }
-.maximize { background-color: #98c379; }
+.close { background: #ff5f56; }
+.minimize { background: #ffbd2e; }
+.maximize { background: #27c93f; }
 
-/* Terminal Content */
 .terminal-content {
-    padding: 16px;
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    color: #f0f0f0;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-/* Terminal Output */
 .terminal-output {
+    margin-bottom: 10px;
     white-space: pre-wrap;
     word-wrap: break-word;
 }
 
-.output-line {
-    margin: 2px 0;
-}
-
-.error-output {
-    color: #e06c75;
-}
-
-.success-output {
-    color: #98c379;
-}
-
-.warning-output {
-    color: #e5c07b;
-}
-
-/* Terminal Input Line */
 .terminal-input-line {
     display: flex;
     align-items: center;
-    margin-top: 4px;
 }
 
-/* Terminal Prompt */
 .prompt {
-    color: #98c379;
+    color: #27c93f;
     margin-right: 8px;
-    white-space: nowrap;
-    user-select: none;
 }
 
-/* Terminal Input */
 #terminal-input {
     flex: 1;
     background: transparent;
     border: none;
-    color: #abb2bf;
-    font-family: inherit;
-    font-size: inherit;
-    padding: 0;
-    margin: 0;
-}
-
-#terminal-input:focus {
+    color: #f0f0f0;
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
     outline: none;
+    caret-color: #f0f0f0;
 }
 
-/* Selection */
-::selection {
-    background-color: #3e4451;
-    color: #abb2bf;
-}
+/* Terminal output styling */
+.success { color: #27c93f; }
+.error { color: #ff5f56; }
+.warning { color: #ffbd2e; }
+.info { color: #3584e4; }
 
-/* Scrollbar */
-#terminal::-webkit-scrollbar {
+/* Scrollbar styling */
+.terminal-content::-webkit-scrollbar {
     width: 8px;
 }
 
-#terminal::-webkit-scrollbar-track {
-    background: #282c34;
+.terminal-content::-webkit-scrollbar-track {
+    background: #2d2e2f;
 }
 
-#terminal::-webkit-scrollbar-thumb {
-    background: #3e4451;
+.terminal-content::-webkit-scrollbar-thumb {
+    background: #3a3b3c;
     border-radius: 4px;
 }
 
-#terminal::-webkit-scrollbar-thumb:hover {
-    background: #4b5263;
+.terminal-content::-webkit-scrollbar-thumb:hover {
+    background: #4a4b4c;
 }
 
-/* Directory and File Colors */
-.directory {
-    color: #61afef;
-    font-weight: bold;
+/* Command suggestions */
+.suggestions {
+    position: absolute;
+    background: #3a3b3c;
+    border: 1px solid #4a4b4c;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
 }
 
-.executable {
-    color: #98c379;
-    font-weight: bold;
+.suggestion-item {
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #f0f0f0;
 }
 
-.symlink {
-    color: #c678dd;
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background: #4a4b4c;
 }
 
-.hidden-file {
-    opacity: 0.7;
-}
-
-/* Command Syntax Highlighting */
-.command {
-    color: #61afef;
-}
-
-.argument {
-    color: #98c379;
-}
-
-.flag {
-    color: #e5c07b;
-}
-
-/* ANSI Colors */
-.ansi-black { color: #282c34; }
-.ansi-red { color: #e06c75; }
-.ansi-green { color: #98c379; }
-.ansi-yellow { color: #e5c07b; }
-.ansi-blue { color: #61afef; }
-.ansi-magenta { color: #c678dd; }
-.ansi-cyan { color: #56b6c2; }
-.ansi-white { color: #dcdfe4; }
-.ansi-bright-black { color: #5c6370; }
-.ansi-bright-red { color: #be5046; }
-.ansi-bright-green { color: #7a9f60; }
-.ansi-bright-yellow { color: #d19a66; }
-.ansi-bright-blue { color: #3b84c0; }
-.ansi-bright-magenta { color: #9a52af; }
-.ansi-bright-cyan { color: #3c909b; }
-.ansi-bright-white { color: #828997; }
-
-/* Welcome Message */
-.welcome-message {
-    color: #61afef;
-    margin-bottom: 12px;
-}
+/* Command output formatting */
+.directory { color: #3584e4; }
+.executable { color: #27c93f; }
+.symlink { color: #c061cb; }
+.file { color: #f0f0f0; }
