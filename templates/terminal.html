@@ -536,7 +536,7 @@ Level 5 Commands:
         
         switch(this.level) {
             case 1:
-                // Level 1: Advanced File Explorer Challenge
+                // Level 1: File Explorer Challenge
                 playerHome.contents['Documents'] = {
                     type: 'dir',
                     permissions: 'drwxr-xr-x',
@@ -548,14 +548,14 @@ Level 5 Commands:
                             permissions: '-rw-r--r--',
                             owner: 'player',
                             group: 'player',
-                            content: 'Check the backup folders for important files.'
+                            content: 'Important: Check the backup directory for archived files.'
                         },
                         '.hidden_note': {
                             type: 'file',
                             permissions: '-rw-r--r--',
                             owner: 'player',
                             group: 'player',
-                            content: 'The secrets are in the archives.'
+                            content: 'The secret archive contains valuable information.'
                         }
                     }
                 };
@@ -589,7 +589,7 @@ Level 5 Commands:
                                                     permissions: '-rw-r--r--',
                                                     owner: 'player',
                                                     group: 'player',
-                                                    content: 'Almost there! Check the config directory.'
+                                                    content: 'Check the .config directory in your home folder for system settings.'
                                                 }
                                             }
                                         }
@@ -623,7 +623,7 @@ Level 5 Commands:
                                             permissions: '-rw-r--r--',
                                             owner: 'player',
                                             group: 'player',
-                                            content: 'username=player\ntheme=dark\nflag_location=~/Desktop/.hidden'
+                                            content: 'username=player\ntheme=dark\nflag_location=~/Desktop/.hidden/.secret'
                                         }
                                     }
                                 }
@@ -652,13 +652,6 @@ Level 5 Commands:
                                     content: 'Congratulations! You\'ve mastered file exploration.\nflag{hidden_file_master}'
                                 }
                             }
-                        },
-                        'todo.txt': {
-                            type: 'file',
-                            permissions: '-rw-r--r--',
-                            owner: 'player',
-                            group: 'player',
-                            content: '1. Clean up old backups\n2. Update system settings\n3. Check hidden configurations'
                         }
                     }
                 };
