@@ -317,7 +317,7 @@ What is this spot where quietness grows?""",
 A threshold where all must make their stand.
 Guarded and quiet, yet paths unfold,
 Where is the spot, both strict and bold?""",
-        'code': 'CipherCrafters'
+        'code': 'XtremeDebugger'
     },
     17: {
         'title': 'The Patient Path',
