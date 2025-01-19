@@ -323,34 +323,48 @@
                 margin: 0.25rem 0;
             }
         }
-    </style>
+    </style>  
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}"><i class="fas fa-flag-checkered"></i> QuickSnatch</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-terminal"></i> QuickSnatch
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('level', level_number=current_user.current_level) }}"><i class="fas fa-play"></i> Current Level</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('leaderboard') }}"><i class="fas fa-trophy"></i> Leaderboard</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'level' %}active{% endif %}" 
+                               href="{{ url_for('level', level_number=current_user.current_level) }}">
+                                <i class="fas fa-code"></i> Current Level
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'leaderboard' %}active{% endif %}" 
+                               href="{{ url_for('leaderboard') }}">
+                                <i class="fas fa-trophy"></i> Leaderboard
+                            </a>
+                        </li>
                     {% endif %}
                 </ul>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-3">
                     {% if current_user.is_authenticated %}
-                        <span class="me-3">Welcome, {{ current_user.username }}</span>
-                        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <span class="welcome-message">{{ current_user.username }}</span>
+                        <a href="{{ url_for('logout') }}" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm me-2"><i class="fas fa-sign-in-alt"></i> Login</a>
-                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Register</a>
+                        <a href="{{ url_for('login') }}" class="nav-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="{{ url_for('register') }}" class="nav-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -379,13 +393,15 @@
                 {% for i in range(1, 6) %}
                 <li class="level-nav-item">
                     <a href="{{ url_for('level', level_number=i) }}" 
-                       class="level-nav-link {% if current_user.current_level == i %}active{% endif %} {% if i < current_user.current_level %}completed{% endif %}">
+                       class="level-nav-link {% if (request.endpoint == 'level' and request.view_args.level_number|int == i) or (request.endpoint == 'location_hint' and request.view_args.level|int == i) %}active{% endif %} {% if i < current_user.current_level %}completed{% endif %}">
                         <span class="level-icon">
                             {% if i <= current_user.current_level %}
                                 {% if i < current_user.current_level %}
                                     <i class="fas fa-check-circle text-success"></i>
-                                {% else %}
+                                {% elif (request.endpoint == 'level' and request.view_args.level_number|int == i) or (request.endpoint == 'location_hint' and request.view_args.level|int == i) %}
                                     <i class="fas fa-unlock text-warning"></i>
+                                {% else %}
+                                    <i class="fas fa-lock text-muted"></i>
                                 {% endif %}
                             {% else %}
                                 <i class="fas fa-lock text-muted"></i>
@@ -400,20 +416,27 @@
                 {% endfor %}
             </ul>
 
-            <!-- Stats Section -->
-            <div class="stats-section">
-                <h5 class="mb-3">Your Stats</h5>
-                <div class="stats-item">
-                    <span class="stats-label">Completed Levels</span>
-                    <span class="stats-value">{{ current_user.current_level - 1 }}/5</span>
+            <!-- Hunter's Motivation -->
+            <div class="hunter-motivation">
+                <div class="motivation-header">
+                    <i class="fas fa-terminal"></i> HUNTER'S_CONSOLE
                 </div>
-                <div class="stats-item">
-                    <span class="stats-label">Time Spent</span>
-                    <span class="stats-value">{{ session.get('time_spent', '0:00:00') }}</span>
-                </div>
-                <div class="stats-item">
-                    <span class="stats-label">Score</span>
-                    <span class="stats-value">{{ session.get('score', 0) }}</span>
+                <div class="motivation-content">
+                    {% set quotes = [
+                        {"text": "Every locked level is a challenge waiting to be conquered.", "icon": "fa-lock-open"},
+                        {"text": "Code your way in, scan your way forward.", "icon": "fa-qrcode"},
+                        {"text": "Digital treasures await the persistent hunter.", "icon": "fa-gem"},
+                        {"text": "Decrypt the path, unlock the future.", "icon": "fa-key"},
+                        {"text": "Each scan brings you closer to victory.", "icon": "fa-map-marker-alt"}
+                    ] %}
+                    {% set random_quote = quotes|random %}
+                    <div class="quote-text">
+                        <i class="fas {{ random_quote.icon }} quote-icon"></i>
+                        <span class="text">{{ random_quote.text }}</span>
+                    </div>
+                    <div class="console-line">
+                        <span class="cursor"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -436,12 +459,46 @@
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="cyber-footer">
         <div class="container">
-            <p class="mb-0">
-                Created with <i class="fas fa-heart text-danger"></i> by Vivek W | 
-                <a href="https://github.com/NST-SDC" class="text-light" target="_blank">GitHub</a>
-            </p>
+            <div class="footer-grid">
+                <div class="copyright-section">
+                    <div class="cyber-badge">
+                        <span class="badge-icon"><i class="fas fa-shield-alt"></i></span>
+                        <span class="badge-text">© 2024 NST-SDC</span>
+                    </div>
+                    <div class="rights-text">All_Rights_Reserved<span class="blink-cursor">_</span></div>
+                </div>
+
+                <div class="footer-divider"></div>
+
+                <div class="credits-section">
+                    <div class="made-by">
+                        <span class="bracket">[</span>
+                        <span class="dev-text">DEVELOPED_BY</span>
+                        <span class="club-name">DEV CLUB</span>
+                        <span class="bracket">]</span>
+                    </div>
+                </div>
+
+                <div class="special-thanks">
+                    <div class="thanks-title">SPECIAL_THANKS_TO</div>
+                    <div class="contributors">
+                        <div class="contributor">
+                            <span class="hex-icon">⬡</span>
+                            <span class="name">KANISHK</span>
+                        </div>
+                        <div class="contributor">
+                            <span class="hex-icon">⬡</span>
+                            <span class="name">VIVEK</span>
+                        </div>
+                        <div class="contributor">
+                            <span class="hex-icon">⬡</span>
+                            <span class="name">ADITIYA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 

@@ -1,26 +1,9 @@
 {% extends "challenges/level_base.html" %}
 
-{% block level_title %}Permission Master Challenge{% endblock %}
+{% block level_title %}Navigating the Labyrinth{% endblock %}
 
 {% block challenge_description %}
-<div class="challenge-description">
-    <h4>File Permissions</h4>
-    <p>In this challenge, you'll need to understand and manipulate Linux file permissions to access a protected file.</p>
-    
-    <div class="task-list">
-        <h5>Your Tasks:</h5>
-        <ul>
-            <li>Use <code>ls -l</code> to view file permissions</li>
-            <li>Read and understand the instructions in <code>instructions.txt</code></li>
-            <li>Study the permissions information in <code>permissions_info.txt</code></li>
-            <li>Modify permissions of <code>secret.txt</code> to read its contents</li>
-        </ul>
-    </div>
 
-    <div class="hint-box">
-        <p><strong>Hint:</strong> The <code>chmod</code> command changes file permissions. Remember the numeric values: read (4), write (2), execute (1).</p>
-    </div>
-</div>
 {% endblock %}
 
 {% block curl_command %}curl -s https://quicksnatch.challenge/level2/network | bash{% endblock %}

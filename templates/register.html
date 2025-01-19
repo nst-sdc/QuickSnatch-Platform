@@ -3,27 +3,35 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="challenge-card">
-            <h2 class="text-center mb-4">Register</h2>
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control bg-dark text-light" id="username" name="username" required>
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2 class="auth-title">New User Registration</h2>
+            </div>
+            <form method="POST" class="auth-form" id="registerForm">
+                <div class="input-group">
+                    <label for="username" class="auth-label">> DEFINE USERNAME:</label>
+                    <input type="text" class="form-control auth-input" id="username" name="username" required 
+                           autocomplete="off" spellcheck="false">
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control bg-dark text-light" id="password" name="password" required>
+                <div class="input-group">
+                    <label for="password" class="auth-label">> SET PASSWORD:</label>
+                    <input type="password" class="form-control auth-input" id="password" name="password" required>
                 </div>
-                <div class="mb-3">
-                    <label for="confirm_password" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control bg-dark text-light" id="confirm_password" name="confirm_password" required>
+                <div class="input-group">
+                    <label for="confirm_password" class="auth-label">> CONFIRM PASSWORD:</label>
+                    <input type="password" class="form-control auth-input" id="confirm_password" name="confirm_password" required>
                 </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-success">Register</button>
-                </div>
+                <button type="submit" class="auth-btn">
+                    <span class="btn-text">Create Secure Access</span>
+                </button>
             </form>
-            <div class="text-center mt-3">
-                <p>Already have an account? <a href="{{ url_for('login') }}" class="text-success">Login here</a></p>
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    <span class="text-neon-teal">[</span>
+                    Access already granted?
+                    <span class="text-neon-teal">]</span>
+                    <a href="{{ url_for('login') }}" class="auth-link">Login Here</a>
+                </p>
             </div>
         </div>
     </div>

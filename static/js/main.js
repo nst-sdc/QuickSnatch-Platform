@@ -249,6 +249,42 @@ drwxr-xr-x  2 user user  4096 Jan 15 12:00 pictures`;
         terminal.addEventListener('click', () => {
             input.focus();
         });
+
+        // Add typing animation for terminal outputs
+        function typeText(element, text, speed = 50) {
+            let index = 0;
+            element.innerHTML = '';
+            
+            function type() {
+                if (index < text.length) {
+                    element.innerHTML += text.charAt(index);
+                    index++;
+                    setTimeout(type, speed);
+                } else {
+                    // Add blinking cursor at the end
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    element.appendChild(cursor);
+                }
+            }
+            
+            type();
+        }
+
+        // Initialize tooltips and popovers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Initialize Bootstrap popovers
+            const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
     });
 });
 

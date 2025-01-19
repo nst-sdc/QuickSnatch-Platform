@@ -1,34 +1,105 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="challenge-card">
-    <h2>Leaderboard</h2>
-    <div class="table-responsive">
-        <table class="table table-dark table-striped leaderboard-table">
+<div class="challenge-card cyber-card">
+    <div class="matrix-bg"></div>
+    <div class="leaderboard-header">
+        <div class="title-container">
+            <div class="cyber-title">
+                <div class="title-glitch-box">
+                    <i class="fas fa-trophy trophy-icon"></i>
+                    <h2 class="glitch-text" data-text="HACKER_LEADERBOARD">HACKER_LEADERBOARD</h2>
+                    <div class="glitch-line"></div>
+                </div>
+                <div class="live-badge">
+                    <span class="blink"></span>
+                    <span class="live-text">LIVE</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="cyber-stats">
+                <div class="stat-item">
+                    <div class="cyber-icon">
+                        <i class="fas fa-users"></i>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <div class="stat-info">
+                        <div class="cyber-number">{{ users|length }}</div>
+                        <div class="stat-label">HACKERS</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="cyber-icon">
+                        <i class="fas fa-flag"></i>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <div class="stat-info">
+                        <div class="cyber-number">{{ users|sum(attribute='current_level') }}</div>
+                        <div class="stat-label">FLAGS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cyber-table-wrapper">
+        <div class="scan-line"></div>
+        <table class="table cyber-table">
             <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Username</th>
-                    <th>Level</th>
-                    <th>Last Submission</th>
-                    <th>Time Taken</th>
+                    <th><div class="th-content">#</div></th>
+                    <th><div class="th-content">OPERATOR</div></th>
+                    <th><div class="th-content">LEVEL</div></th>
+                    <th><div class="th-content">MISSION TIME</div></th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
-                <tr>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ user.username }}</td>
+                <tr class="{% if loop.index <= 3 %}rank-{{ loop.index }}{% endif %}">
                     <td>
-                        <span class="badge-level">Level {{ user.current_level }}</span>
-                    </td>
-                    <td>{{ user.last_submission.strftime('%Y-%m-%d %H:%M:%S') if user.last_submission else 'N/A' }}</td>
-                    <td>
-                        {% if user.start_time and user.last_submission %}
-                            {{ (user.last_submission - user.start_time).total_seconds()|int // 60 }} minutes
+                        {% if loop.index == 1 %}
+                            <div class="rank rank-1">
+                                <i class="fas fa-crown"></i>
+                                <div class="crown-glow"></div>
+                            </div>
+                        {% elif loop.index == 2 %}
+                            <div class="rank rank-2">
+                                <i class="fas fa-medal"></i>
+                                <div class="silver-glow"></div>
+                            </div>
+                        {% elif loop.index == 3 %}
+                            <div class="rank rank-3">
+                                <i class="fas fa-award"></i>
+                                <div class="bronze-glow"></div>
+                            </div>
                         {% else %}
-                            N/A
+                            <div class="rank">{{ loop.index }}</div>
                         {% endif %}
+                    </td>
+                    <td>
+                        <div class="hacker-tag">
+                            <span class="hacker-name">{{ user.username }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="level-display">
+                            <div class="level-bar">
+                                <div class="level-progress" style="width: {{ (user.current_level / 5) * 100 }}%"></div>
+                            </div>
+                            <span class="level-number">QS {{ user.current_level }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mission-time">
+                            {% if user.last_correct_submission %}
+                                <i class="fas fa-hourglass-half"></i>
+                                {{ user.last_correct_submission}}m
+                            {% else %}
+                                --
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -36,4 +107,444 @@
         </table>
     </div>
 </div>
+
+<style>
+.cyber-card {
+    position: relative;
+    background: rgba(0, 0, 0, 0.9);
+    overflow: hidden;
+    padding: 2rem;
+    border: 1px solid rgba(0, 255, 0, 0.1);
+    color: #fff;
+}
+
+.matrix-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(rgba(0, 20, 0, 0.9), rgba(0, 10, 0, 0.9)),
+        url('/static/images/matrix.gif');
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.title-container {
+    position: relative;
+    margin-bottom: 3rem;
+    padding: 1rem;
+    background: rgba(0, 20, 0, 0.4);
+    border: 1px solid rgba(0, 255, 0, 0.1);
+    border-radius: 8px;
+}
+
+.cyber-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.title-glitch-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.trophy-icon {
+    font-size: 2.5rem;
+    color: #ffd700;
+    animation: trophy-glow 2s infinite;
+}
+
+.glitch-text {
+    position: relative;
+    font-family: 'Courier New', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 2px;
+    text-shadow: 
+        0 0 5px rgba(0, 255, 0, 0.5),
+        0 0 10px rgba(0, 255, 0, 0.3),
+        0 0 15px rgba(0, 255, 0, 0.2);
+    animation: text-flicker 3s linear infinite;
+}
+
+.glitch-line {
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent,
+        #0f0,
+        #0f0,
+        transparent
+    );
+    animation: line-slide 2s ease-in-out infinite;
+}
+
+.live-badge {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    background: rgba(255, 0, 0, 0.2);
+    padding: 5px 20px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    color: #f00;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+}
+
+.live-text {
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.blink {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #f00;
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: blink 1s infinite;
+}
+
+.cyber-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    min-width: 180px;
+    position: relative;
+    background: rgba(0, 20, 0, 0.6);
+    clip-path: polygon(
+        0 15px,
+        15px 0,
+        calc(100% - 15px) 0,
+        100% 15px,
+        100% calc(100% - 15px),
+        calc(100% - 15px) 100%,
+        15px 100%,
+        0 calc(100% - 15px)
+    );
+}
+
+.stat-item::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: rgba(0, 20, 0, 0.9);
+    clip-path: inherit;
+    z-index: 0;
+}
+
+.stat-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #00ff00, #00aa00, #00ff00);
+    clip-path: inherit;
+    z-index: -1;
+    animation: borderFlow 3s linear infinite;
+}
+
+@keyframes borderFlow {
+    0% { filter: hue-rotate(0deg) brightness(1); }
+    50% { filter: hue-rotate(30deg) brightness(1.2); }
+    100% { filter: hue-rotate(0deg) brightness(1); }
+}
+
+.stat-item:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+        0 0 30px rgba(0, 255, 0, 0.3),
+        inset 0 0 30px rgba(0, 255, 0, 0.15);
+}
+
+.cyber-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(0, 40, 0, 0.8);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #0f0;
+    position: relative;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    z-index: 1;
+    clip-path: polygon(
+        0 20%, 20% 0,
+        80% 0, 100% 20%,
+        100% 80%, 80% 100%,
+        20% 100%, 0 80%
+    );
+}
+
+.stat-info {
+    position: relative;
+    z-index: 1;
+}
+
+.cyber-number {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 
+        0 0 10px rgba(0, 255, 0, 0.5),
+        0 0 20px rgba(0, 255, 0, 0.2);
+    margin-bottom: 0.1rem;
+    line-height: 1;
+    position: relative;
+}
+
+.cyber-number::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent,
+        #00ff00,
+        transparent
+    );
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    font-weight: 500;
+    line-height: 1;
+    color: #0f0;
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+}
+
+.cyber-table-wrapper {
+    position: relative;
+    border: 1px solid rgba(0, 255, 0, 0.2);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, 
+        transparent, 
+        rgba(0, 255, 0, 0.5), 
+        transparent
+    );
+    animation: scan 3s linear infinite;
+    z-index: 1;
+}
+
+.cyber-table {
+    background: transparent;
+    margin: 0;
+    color: #fff;
+}
+
+.th-content {
+    background: rgba(0, 255, 0, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.rank {
+    font-weight: bold;
+    font-size: 1.2rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rank-1 { color: #ffd700; font-size: 1.4rem; }
+.rank-2 { color: #c0c0c0; font-size: 1.3rem; }
+.rank-3 { color: #cd7f32; font-size: 1.2rem; }
+
+.crown-glow,
+.silver-glow,
+.bronze-glow {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    animation: glow 2s infinite;
+}
+
+.crown-glow {
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.5), transparent);
+}
+
+.silver-glow {
+    background: radial-gradient(circle, rgba(192, 192, 192, 0.5), transparent);
+}
+
+.bronze-glow {
+    background: radial-gradient(circle, rgba(205, 127, 50, 0.5), transparent);
+}
+
+.hacker-tag {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+.online {
+    background: rgba(0, 255, 0, 0.2);
+    color: #0f0;
+    animation: pulse 2s infinite;
+}
+
+.level-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.level-bar {
+    width: 100px;
+    height: 4px;
+    background: rgba(0, 255, 0, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.level-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #0f0, #0ff);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+@keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+@keyframes glow {
+    0% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(1); }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+tr {
+    transition: all 0.3s ease;
+}
+
+tr:hover {
+    background: rgba(0, 255, 0, 0.1) !important;
+    transform: translateX(10px);
+}
+
+@media (max-width: 768px) {
+    .cyber-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .level-bar {
+        width: 60px;
+    }
+
+    .stat-item {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+@keyframes trophy-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+}
+
+@keyframes text-flicker {
+    0%, 100% { opacity: 1; }
+    8% { opacity: 0.9; }
+    9% { opacity: 0.8; }
+    10% { opacity: 0.9; }
+    20% { opacity: 1; }
+    50% { opacity: 0.9; }
+    60% { opacity: 0.8; }
+    70% { opacity: 1; }
+    80% { opacity: 0.9; }
+    90% { opacity: 1; }
+}
+
+@keyframes line-slide {
+    0% { transform: translateX(-100%); opacity: 0; }
+    20% { transform: translateX(0); opacity: 1; }
+    80% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update timestamps every minute
+    function updateTimestamps() {
+        document.querySelectorAll('.timestamp').forEach(el => {
+            // Add relative time logic here
+        });
+    }
+    
+    setInterval(updateTimestamps, 60000);
+    
+    // Add row highlight animation for updates
+    function highlightRow(rowId) {
+        const row = document.querySelector(`tr[data-id="${rowId}"]`);
+        if (row) {
+            row.classList.add('highlight');
+            setTimeout(() => row.classList.remove('highlight'), 2000);
+        }
+    }
+});
+</script>
 {% endblock %}
