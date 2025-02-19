@@ -11,3 +11,8 @@ LEVEL_FLAGS = {
     5: "QS{Qu1ckSn4tch_Ch4mp10n_2024}"
 }
 
+
+
+
+
+
