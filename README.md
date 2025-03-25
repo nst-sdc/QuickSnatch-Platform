@@ -137,7 +137,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Connect with Us
 
-- Created with ❤️ by [Vivek W](https://github.com/AryanVBW)
 - Quick-Snatch Hackathon by NST-SDC
 
 ---
