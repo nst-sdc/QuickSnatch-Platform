@@ -152,33 +152,73 @@
 }
 
 .feature-card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 30px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(0, 255, 0, 0.1);
+    border-radius: 8px;
+    padding: 2rem;
     text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-    height: 100%;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(rgba(0, 20, 0, 0.9), rgba(0, 10, 0, 0.9)),
+        url('/static/images/matrix.gif');
+    opacity: 0.1;
+    pointer-events: none;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+    border-color: rgba(0, 255, 0, 0.3);
 }
 
-.icon-wrapper {
-    width: 60px;
-    height: 60px;
-    background: #f8f9fa;
+.feature-card .icon-wrapper {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: rgba(0, 255, 0, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
-.icon-wrapper i {
-    font-size: 24px;
-    color: #007bff;
+.feature-card .icon-wrapper i {
+    font-size: 2rem;
+    color: #0f0;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.feature-card h3 {
+    color: #0f0;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.feature-card p {
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 0 3px rgba(0, 255, 0, 0.2);
 }
 
 .cta-buttons {
