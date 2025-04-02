@@ -1,4 +1,4 @@
-#!/Users/vivek/Desktop/QuickSnatch-1/venv/bin/python3
+#!/Users/patel_parthk/Desktop/git/QuickSnatch-Platform/venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys

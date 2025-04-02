@@ -93,7 +93,7 @@ class RiddleManager:
         # If all riddles used, reset the used riddles
         if not available_riddles:
             used_riddles = set()
-            available_riddles = RIDDLES
+            available_riddles = RIDDLES.copy()  # Get a fresh copy of all riddles
         
         # Select a random riddle
         riddle = random.choice(available_riddles)

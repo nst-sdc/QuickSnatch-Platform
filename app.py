@@ -403,6 +403,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/level/<int:level_number>')
+@login_required
 def level(level_number):
     progress = get_user_progress(current_user.id)
     
@@ -1043,4 +1044,4 @@ def levels():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(host='0.0.0.0', port=7771, debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True)
