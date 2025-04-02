@@ -52,7 +52,9 @@
                     <th><div class="th-content">#</div></th>
                     <th><div class="th-content">OPERATOR</div></th>
                     <th><div class="th-content">LEVEL</div></th>
-                    <th><div class="th-content">MISSION TIME</div></th>
+                    <th><div class="th-content">FLAG SUBMISSION</div></th>
+                    <th><div class="th-content">QR SCAN</div></th>
+                    <th><div class="th-content">FIRST SCAN</div></th>
                 </tr>
             </thead>
             <tbody>
@@ -93,12 +95,20 @@
                     </td>
                     <td>
                         <div class="mission-time">
-                            {% if user.last_correct_submission %}
-                                <i class="fas fa-hourglass-half"></i>
-                                {{ user.last_correct_submission}}m
-                            {% else %}
-                                --
-                            {% endif %}
+                            <i class="fas fa-flag"></i>
+                            {{ user.formatted_submission_time }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mission-time">
+                            <i class="fas fa-qrcode"></i>
+                            {{ user.formatted_qr_scan_time }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mission-time">
+                            <i class="fas fa-clock"></i>
+                            {{ user.formatted_first_scan_time }}
                         </div>
                     </td>
                 </tr>
@@ -523,6 +533,46 @@ tr:hover {
     20% { transform: translateX(0); opacity: 1; }
     80% { transform: translateX(0); opacity: 1; }
     100% { transform: translateX(100%); opacity: 0; }
+}
+
+.mission-time {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #0f0;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+}
+
+.mission-time i {
+    font-size: 1rem;
+    color: #0f0;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.mission-time:not(:has(i.fa-clock)) {
+    color: #0f0;
+}
+
+.mission-time:has(i.fa-clock) {
+    color: #00f;
+    text-shadow: 0 0 5px rgba(0, 0, 255, 0.3);
+}
+
+.mission-time:has(i.fa-clock) i {
+    color: #00f;
+    text-shadow: 0 0 5px rgba(0, 0, 255, 0.5);
+}
+
+.mission-time:has(i.fa-flag) {
+    color: #f00;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+
+.mission-time:has(i.fa-flag) i {
+    color: #f00;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
 </style>
 

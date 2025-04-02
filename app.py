@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_migrate import Migrate
 from datetime import datetime
 import pytz
 import os
@@ -16,6 +17,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ctf.db'
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -27,6 +29,9 @@ class User(UserMixin, db.Model):
     current_level = db.Column(db.Integer, default=1)
     start_time = db.Column(db.DateTime, nullable=True)
     last_submission = db.Column(db.DateTime, nullable=True)
+    first_scan_time = db.Column(db.DateTime, nullable=True)
+    submission_time = db.Column(db.DateTime, nullable=True)
+    qr_scan_time = db.Column(db.DateTime, nullable=True)
     level_times = db.relationship('LevelTime', backref='user', lazy=True)
 
     def get_level_time(self, level):
@@ -428,7 +433,24 @@ def level(level_number):
 @app.route('/leaderboard')
 @login_required
 def leaderboard():
-    users = User.query.order_by(User.current_level.desc(), User.username).all()
+    users = User.query.order_by(User.first_scan_time.asc()).all()
+    for user in users:
+        # Format times for display
+        if user.submission_time:
+            user.formatted_submission_time = user.submission_time.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            user.formatted_submission_time = "Not submitted"
+            
+        if user.qr_scan_time:
+            user.formatted_qr_scan_time = user.qr_scan_time.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            user.formatted_qr_scan_time = "Not scanned"
+            
+        if user.first_scan_time:
+            user.formatted_first_scan_time = user.first_scan_time.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            user.formatted_first_scan_time = "Not started"
+            
     return render_template('leaderboard.html', users=users)
 
 @app.route('/check_flag/<int:level>', methods=['POST'])
@@ -444,6 +466,11 @@ def check_flag(level):
         return jsonify({'success': False, 'message': 'Invalid level'})
     
     if submitted_flag == LEVEL_FLAGS[level]:
+        # Record submission time if not already set
+        if not current_user.submission_time:
+            current_user.submission_time = datetime.now(pytz.UTC)
+            db.session.commit()
+            
         progress.at_hint = True  # Mark that user should be at hint page
         return jsonify({
             'success': True,
@@ -1006,6 +1033,13 @@ def verify_location(level):
     
     expected_code = hint_data['code']
     if submitted_code == expected_code:
+        # Set first_scan_time and qr_scan_time if not already set
+        current_time = datetime.now(pytz.UTC)
+        if not current_user.first_scan_time:
+            current_user.first_scan_time = current_time
+        current_user.qr_scan_time = current_time
+        db.session.commit()
+            
         # Mark current level as completed
         progress.completed_levels.add(level)
         progress.at_hint = False  # Reset hint status
