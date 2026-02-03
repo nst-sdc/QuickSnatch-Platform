@@ -88,27 +88,28 @@ class RiddleManager:
         """Assign a random riddle to a user for a specific level."""
         # Get riddles not yet used by this user
         used_riddles = self.user_riddles.get(user_id, {}).get('used_riddles', set())
-        #reset used_riddles if all exahauted
-        if len(used_riddles) >= len(RIDDLES):
-            used_riddles.clear()
-        #get available riddles
         available_riddles = [r for i, r in enumerate(RIDDLES) if i not in used_riddles]
-        #slect new riddle 
-        if available_riddles:
-            riddle = random.choice(available_riddles)
-            riddle_index = RIDDLES.index(riddle)
-            # Store the riddle for this user
-            self.user_riddles[user_id] = {
-                'current_riddle': riddle,
-                'level': level,
-                'used_riddles': used_riddles | {riddle_index}
+        
+        # If all riddles used, reset the used riddles
+        if not available_riddles:
+            used_riddles = set()
+            available_riddles = RIDDLES
+        
+        # Select a random riddle
+        riddle = random.choice(available_riddles)
+        riddle_index = RIDDLES.index(riddle)
+        
+        # Store the riddle for this user
+        self.user_riddles[user_id] = {
+            'current_riddle': riddle,
+            'level': level,
+            'used_riddles': used_riddles | {riddle_index}
         }
         
         return {
             'riddle': riddle['riddle'],
             'hint': riddle['hint']
         }
-        return None # if any unexpected error occures
     
     def check_answer(self, user_id: str, answer: str) -> bool:
         """Check if the provided answer matches the user's current riddle."""
